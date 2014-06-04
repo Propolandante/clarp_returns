@@ -7,7 +7,8 @@
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -23,8 +24,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:value="@string/app_id" android:name="com.facebook.sdk.ApplicationId"/>
-        <activity android:name="com.facebook.LoginActivity"></activity>
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/app_id" />
+
+        <activity android:name="com.facebook.LoginActivity" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.GameActivity"
+            android:label="@string/title_activity_game" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.NewGameActivity"
+            android:label="@string/title_activity_new_game" >
+        </activity>
     </application>
 
 </manifest>

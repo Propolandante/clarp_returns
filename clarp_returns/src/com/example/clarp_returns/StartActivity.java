@@ -1,32 +1,32 @@
 package com.example.clarp_returns;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.facebook.*;
-import com.facebook.model.*;
-
-import android.widget.TextView;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.Signature;
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.model.GraphUser;
 
 public class StartActivity extends ActionBarActivity {
+	
+	private ListView gamesListView;
+    private ArrayList<Game> gamesList;
+    private ArrayAdapter<Game> arrayAdapter;
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -39,27 +39,7 @@ public class StartActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_start);
 		
-		//changes
 		
-		
-//		try {
-//	        PackageInfo info = getPackageManager().getPackageInfo(
-//	                "com.example.clarp_returns", 
-//	                PackageManager.GET_SIGNATURES);
-//	        for (Signature signature : info.signatures) {
-//	            MessageDigest md = MessageDigest.getInstance("SHA");
-//	            md.update(signature.toByteArray());
-//	            Log.d("Your Tag", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-//	            }
-//	    } catch (NameNotFoundException e) {
-//	    	
-//	    	Log.d("namewhatever","test");
-//
-//	    } catch (NoSuchAlgorithmException e) {
-//	    	
-//	    	Log.d("algorithmwhatever","test");
-//
-//	    }
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -96,6 +76,39 @@ public class StartActivity extends ActionBarActivity {
 		    }
 		});
 	}
+	
+	@Override
+	protected void onResume() {
+        super.onResume();
+
+        gamesListView = (ListView) findViewById(R.id.games_list_view);
+        gamesListView.setEmptyView(findViewById(R.id.empty_games_view));
+
+        gamesListView.setOnItemClickListener(new OnItemClickListener() {
+
+            // user clicks to go to a select screen where they can choose
+            // to view any list
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                Intent intent = new Intent(StartActivity.this,
+                        GameActivity.class);
+                Game game = gamesList.get((int) id);
+                intent.putExtra("game_id", game.getId());
+                startActivity(intent);
+
+            }
+        });
+
+        Game myGame = new Game("MyGame", 0, null, null);
+
+        gamesList = new ArrayList<Game>();
+        gamesList.add(0, myGame);
+
+        arrayAdapter = new ArrayAdapter<Game>(this,
+                android.R.layout.simple_list_item_1, gamesList);
+        gamesListView.setAdapter(arrayAdapter);
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -132,6 +145,11 @@ public class StartActivity extends ActionBarActivity {
 					container, false);
 			return rootView;
 		}
+	}
+	
+	public void clickNewGame(View v) {
+		Intent intent = new Intent(StartActivity.this, NewGameActivity.class);
+        startActivity(intent);
 	}
 
 }

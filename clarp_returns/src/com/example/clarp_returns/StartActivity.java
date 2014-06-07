@@ -28,6 +28,8 @@ public class StartActivity extends ActionBarActivity {
     private ArrayList<Game> gamesList;
     private ArrayAdapter<Game> arrayAdapter;
 	
+    
+    //Facebook Stuff
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 	  super.onActivityResult(requestCode, resultCode, data);
@@ -100,10 +102,10 @@ public class StartActivity extends ActionBarActivity {
             }
         });
 
-        Game myGame = new Game("MyGame", 0, null, null);
+        //Game myGame = new Game("MyGame", 0, null, null);
 
         gamesList = new ArrayList<Game>();
-        gamesList.add(0, myGame);
+        //gamesList.add(0, myGame);
 
         arrayAdapter = new ArrayAdapter<Game>(this,
                 android.R.layout.simple_list_item_1, gamesList);

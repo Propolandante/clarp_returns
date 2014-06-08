@@ -40,6 +40,10 @@
             android:name="com.example.clarp_returns.NewGameActivity"
             android:label="@string/title_activity_new_game" >
         </activity>
+        <activity
+            android:name="com.example.clarp_returns.NotesActivity"
+            android:label="@string/title_activity_notes" >
+        </activity>
     </application>
 
 </manifest>

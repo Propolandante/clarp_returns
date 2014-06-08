@@ -3,6 +3,7 @@ package com.example.clarp_returns;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,6 +60,11 @@ public class NewGameActivity extends ActionBarActivity {
 					container, false);
 			return rootView;
 		}
+	}
+	
+	public void clickStart(View v) {
+		Intent intent = new Intent(getBaseContext(), GameActivity.class);
+        startActivity(intent);
 	}
 
 }

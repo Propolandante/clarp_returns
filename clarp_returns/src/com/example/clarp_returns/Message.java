@@ -1,40 +1,40 @@
 package com.example.clarp_returns;
 
-public class Message {
-	
-	private String text;
-    private String image; // not sure about
+import com.parse.ParseClassName;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
-    public Message(String text, String image) {
-        super();
-        this.text = text;
-        this.image = image;
-    }
+@ParseClassName("Message")
+public class Message extends ParseObject {
 
     public Message() {
-        super();
-        // TODO Auto-generated constructor stub
+        // A default constructor is required.
     }
 
     public String getText() {
-        return text;
+        return getString("text");
     }
 
     public void setText(String text) {
-        this.text = text;
+        put("text", text);
     }
 
-    public String getImage() {
-        return image;
+
+    public ParseUser getAuthor() {
+        return getParseUser("author");
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setAuthor(ParseUser user) {
+        put("author", user);
     }
 
-    @Override
-    public String toString() {
-        return "Message [text=" + text + ", image=" + image + "]";
+    public ParseFile getPhotoFile() {
+        return getParseFile("photo");
+    }
+
+    public void setPhotoFile(ParseFile file) {
+        put("photo", file);
     }
 
 }

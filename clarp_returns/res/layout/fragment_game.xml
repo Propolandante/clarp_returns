@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,42 +6,44 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.example.clarp_returns.GameActivity$PlaceholderFragment" >
 
     <ListView
-        android:id="@+id/message_list_view"
+        android:id="@+id/listViewHistory"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"  
-        android:layout_above="@+id/message_send_button"
+        android:layout_height="wrap_content"  
+        android:layout_weight="9"
         android:layout_centerHorizontal="true" >
     </ListView>
     
-    
-    <TextView android:id="@+id/empty_message_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/empty_messages_list" />
-
-        <EditText
-            android:id="@+id/message_edit_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/empty_message_view"
-            android:layout_alignLeft="@+id/empty_message_view"
-            android:layout_marginBottom="14dp"
-            android:layout_weight="1"
-            android:ems="10" >
-
-            <requestFocus />
-        </EditText>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="2"
+        android:weightSum="3" >
 
         <Button
-            android:id="@+id/message_send_button"
-            android:layout_width="wrap_content"
+            android:id="@+id/buttonSuggest"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/message_edit_text"
-            android:layout_alignRight="@+id/empty_message_view"
-            android:onClick="sendMessage"
-            android:text="Send" />
+            android:layout_weight="1"
+            android:text="@string/suggestionButton" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/buttonAccuse"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/accuseButton" />
+        
+        <Button
+            android:id="@+id/buttonNotes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/notesButton" />
+    </LinearLayout>
+
+</LinearLayout>

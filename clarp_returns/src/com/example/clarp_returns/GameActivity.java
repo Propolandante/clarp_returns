@@ -1,5 +1,7 @@
 package com.example.clarp_returns;
 
+import java.util.ArrayList;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -8,19 +10,40 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 
 public class GameActivity extends ActionBarActivity {
 
+	ArrayList<TurnHistoryItem> items;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
+        
+        
+		
+		
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
             .add(R.id.container, new PlaceholderFragment()).commit();
         }
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	
+    	items = new ArrayList<TurnHistoryItem>();
+        TurnHistoryItem item1 = new TurnHistoryItem();
+		items.add(item1);
+
+		
+		ListView listView = (ListView) findViewById(R.id.listViewHistory);
+		final TurnHistoryItemAdapter adapter = new TurnHistoryItemAdapter(this, android.R.layout.simple_list_item_1,items);
+		listView.setAdapter(adapter);
+    	
     }
 
     @Override

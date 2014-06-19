@@ -1,11 +1,14 @@
 package com.example.clarp_returns;
 
-public class Game {
-	private String name;
+import java.util.ArrayList;
+
+
+public class Game{
+    private String name;
     private Integer id;
     private Integer type; // integer codes: 1 for murder mystery
     private String description;
-    //private ArrayList users;
+    private ArrayList<String> users;
 
     public Game(String name, Integer id, Integer type, String description) {
         super();

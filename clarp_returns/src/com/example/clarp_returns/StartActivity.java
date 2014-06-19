@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,16 +17,22 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
+import com.parse.LogInCallback;
 import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 
 public class StartActivity extends ActionBarActivity {
 
 
+    protected static final String TAG = "StartActivity";
     private ListView gamesListView;
     private ArrayList<Game> gamesList;
     private ArrayAdapter<Game> arrayAdapter;
@@ -59,7 +66,7 @@ public class StartActivity extends ActionBarActivity {
 
             // callback when session changes state
             @Override
-            public void call(Session session, SessionState state, Exception exception) {
+            public void call(final Session session, SessionState state, Exception exception) {
 
                 if (session.isOpened()) {
 
@@ -71,9 +78,17 @@ public class StartActivity extends ActionBarActivity {
                         public void onCompleted(GraphUser user, Response response) {
 
                             if (user != null) {
+                                FacebookRequestError error = response.getError();
+                                if (error != null) {
+                                    Log.e(ClarpApplication.TAG, error.toString());
+                                    //handleError(error, true);
+                                } else if (session == Session.getActiveSession()) {
+                                    // Set the currentFBUser attribute
+                                    ((ClarpApplication)getApplication()).setCurrentFBUser(user);
 
-                                //do something
-
+                                    // Now save the user into Parse.
+                                    saveUserToParse(user, session);
+                                }
                             }
 
                         }
@@ -158,6 +173,23 @@ public class StartActivity extends ActionBarActivity {
     public void clickNewGame(View v) {
         Intent intent = new Intent(StartActivity.this, NewGameActivity.class);
         startActivity(intent);
+    }
+
+
+    private void saveUserToParse(GraphUser fbUser, Session session) {
+        ParseFacebookUtils.logIn(fbUser.getId(), session.getAccessToken(),
+                session.getExpirationDate(), new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+                if (user == null) {
+                    // The user wasn't saved. Check the exception.
+                    Log.d(TAG, "User was not saved to Parse: " + err.getMessage());
+                } else {
+                    // The user has been saved to Parse.
+                    Log.d(TAG, "User has successfully been saved to Parse.");
+                }
+            }
+        });
     }
 
 }

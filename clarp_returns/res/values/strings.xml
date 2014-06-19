@@ -18,5 +18,23 @@
     <string name="accuseButton">Accuse</string>
     <string name="notesButton">Notes</string>
     <string name="title_activity_notes">NotesActivity</string>
+    <string name="suspect1">Col. Red</string>
+    <string name="suspect2">Suspect 2</string>
+    <string name="suspect3">Suspect 3</string>
+    <string name="suspect4">Suspect 4</string>
+    <string name="suspect5">Suspect 5</string>
+    <string name="suspect6">Suspect 6</string>
+    <string name="weapon1">Weapon 1</string>
+    <string name="weapon2">Weapon 2</string>
+    <string name="weapon3">Weapon 3</string>
+    <string name="weapon4">Weapon 4</string>
+    <string name="weapon5">Weapon 5</string>
+    <string name="weapon6">Weapon 6</string>
+    <string name="scene1">Scene 1</string>
+    <string name="scene2">Scene 2</string>
+    <string name="scene3">Scene 3</string>
+    <string name="scene4">Scene 4</string>
+    <string name="scene5">Scene 5</string>
+    <string name="scene6">Scene 6</string>
 
 </resources>

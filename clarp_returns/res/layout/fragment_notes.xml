@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,11 +11,11 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/textSuspects"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Suspects" 
@@ -25,21 +26,21 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textPerson1"
+                android:id="@+id/textSuspect1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Col. Red" 
+                android:text="@string/suspect1" 
                 android:textSize="14sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox1"
+                android:id="@+id/checkSuspect1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right"/>
 
             <EditText
-                android:id="@+id/editText1"
-                android:layout_width="wrap_content"
+                android:id="@+id/editSuspect1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" 
                 android:maxLength="16">
@@ -53,20 +54,20 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textPerson2"
+                android:id="@+id/textSuspect2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Person 2" 
+                android:text="@string/suspect2" 
                 android:textSize="14sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox1"
+                android:id="@+id/checkSuspect2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <EditText
-                android:id="@+id/editText1"
-                android:layout_width="wrap_content"
+                android:id="@+id/editSuspect2"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" 
                 android:maxLength="16">
@@ -80,20 +81,20 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textPerson3"
+                android:id="@+id/textSuspect3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Person 3" 
+                android:text="@string/suspect3" 
                 android:textSize="14sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox1"
+                android:id="@+id/checkSuspect3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <EditText
-                android:id="@+id/editText1"
-                android:layout_width="wrap_content"
+                android:id="@+id/editSuspect3"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" 
                 android:maxLength="16">
@@ -107,20 +108,20 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textPerson4"
+                android:id="@+id/textSuspect4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Person 4" 
+                android:text="@string/suspect4" 
                 android:textSize="14sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox1"
+                android:id="@+id/checkSuspect4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <EditText
-                android:id="@+id/editText1"
-                android:layout_width="wrap_content"
+                android:id="@+id/editSuspect4"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" 
                 android:maxLength="16">
@@ -134,21 +135,21 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textPerson5"
+                android:id="@+id/textSuspect5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Person 5" 
+                android:text="@string/suspect5" 
                 android:textSize="14sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox1"
+                android:id="@+id/checkSuspect5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="" />
 
             <EditText
-                android:id="@+id/editText1"
-                android:layout_width="wrap_content"
+                android:id="@+id/editSuspect5"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" 
                 android:maxLength="16">
@@ -162,21 +163,365 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textPerson6"
+                android:id="@+id/textSuspect6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Person 6" 
+                android:text="@string/suspect6" 
                 android:textSize="14sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox1"
+                android:id="@+id/checkSuspect6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="" />
 
             <EditText
-                android:id="@+id/editText1"
+                android:id="@+id/editSuspect6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <TextView
+            android:id="@+id/textWeapons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weapons" 
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textWeapon1"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weapon1" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkWeapon1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right"/>
+
+            <EditText
+                android:id="@+id/editWeapon1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textWeapon2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weapon2" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkWeapon2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/editWeapon2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textWeapon3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weapon3" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkWeapon3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editWeapon3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textWeapon4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weapon4" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkWeapon4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editWeapon4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textWeapon5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weapon5" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkWeapon5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <EditText
+                android:id="@+id/editWeapon5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textWeapon6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/weapon6" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkWeapon6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <EditText
+                android:id="@+id/editWeapon6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <TextView
+            android:id="@+id/textScenes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scenes" 
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textScene1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scene1" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkScene1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right"/>
+
+            <EditText
+                android:id="@+id/editScene1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textScene2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scene2" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkScene2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/editScene2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textScene3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scene3" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkScene3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editScene3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textScene4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scene4" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkScene4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/editScene4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textScene5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scene5" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkScene5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <EditText
+                android:id="@+id/editScene5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" 
+                android:maxLength="16">
+
+                <requestFocus />
+            </EditText>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textScene6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scene6" 
+                android:textSize="14sp"/>
+
+            <CheckBox
+                android:id="@+id/checkScene6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <EditText
+                android:id="@+id/editScene6"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" 
                 android:maxLength="16">
@@ -187,5 +532,6 @@
         </LinearLayout>
 
     </LinearLayout>
+    
 
 </ScrollView >

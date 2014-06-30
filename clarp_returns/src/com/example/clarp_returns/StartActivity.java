@@ -1,7 +1,14 @@
 package com.example.clarp_returns;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,16 +22,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
@@ -32,79 +38,66 @@ import com.parse.ParseUser;
 public class StartActivity extends ActionBarActivity {
 
 
-    protected static final String TAG = "StartActivity";
+    //protected static final String TAG = "StartActivity";
     private ListView gamesListView;
     private ArrayList<Game> gamesList;
     private ArrayAdapter<Game> arrayAdapter;
+	private Dialog progressDialog;
+	private Button newGameButton;
+	private Button loginButton;
+	private TextView userNameView;
 
 
-    //Facebook Stuff
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start);
-
-
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-            .add(R.id.container, new PlaceholderFragment()).commit();
+        setContentView(R.layout.fragment_start);
+        
+        userNameView = (TextView) findViewById(R.id.message);
+        gamesListView = (ListView) findViewById(R.id.games_list_view);
+        newGameButton = (Button) findViewById(R.id.footer);
+        loginButton = (Button) findViewById(R.id.login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.v(ClarpApplication.TAG, "Login button clicked");
+				onLoginButtonClicked();
+			}
+		});
+        
+        ParseUser currentUser = ParseUser.getCurrentUser();
+		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
+			// Go to the user info activity
+			ClarpApplication.IS_LOGGED_IN = true;
+			Log.v(ClarpApplication.TAG, "User already logged in!");
+		}
+		else
+		{
+			ClarpApplication.IS_LOGGED_IN = false;
+		}
+        
+        
+        if(ClarpApplication.IS_LOGGED_IN)
+        {
+        	makeMeRequest();
+        	Log.v(ClarpApplication.TAG, "Since user is already logged in, we will update this text to welcome them.");
         }
-
-        Parse.initialize(this, "tyhQ2ZPLI2zh7QTAncbsB0dPtjhUEqm4XhYu77ad", "BE6x59n7NymJUeBWxxIztCVkzLSnPxsSgQ2MecEE");
-
-
-
-        // start Facebook Login
-        Session.openActiveSession(this, true, new Session.StatusCallback() {
-
-            // callback when session changes state
-            @Override
-            public void call(final Session session, SessionState state, Exception exception) {
-
-                if (session.isOpened()) {
-
-                    // make request to the /me API
-                    Request.newMeRequest(session, new Request.GraphUserCallback() {
-
-                        // callback after Graph API response with user object
-                        @Override
-                        public void onCompleted(GraphUser user, Response response) {
-
-                            if (user != null) {
-                                FacebookRequestError error = response.getError();
-                                if (error != null) {
-                                    Log.e(ClarpApplication.TAG, error.toString());
-                                    //handleError(error, true);
-                                } else if (session == Session.getActiveSession()) {
-                                    // Set the currentFBUser attribute
-                                    ((ClarpApplication)getApplication()).setCurrentFBUser(user);
-
-                                    // Now save the user into Parse.
-                                    saveUserToParse(user, session);
-                                }
-                            }
-
-                        }
-                    }).executeAsync();
-
-                }
-
-            }
-        });
+        else
+        {
+        	userNameView.setText("Please log in to use CLARP");
+        }
+		
     }
+
+        
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        gamesListView = (ListView) findViewById(R.id.games_list_view);
+        
+        updateViewVisibility();
+        
         //gamesListView.setEmptyView(findViewById(R.id.empty_games_view));
 
         gamesListView.setOnItemClickListener(new OnItemClickListener() {
@@ -126,7 +119,7 @@ public class StartActivity extends ActionBarActivity {
         Game myGame = new Game("MyGame", 0, null, null);
 
         gamesList = new ArrayList<Game>();
-        //gamesList.add(0, myGame);
+        gamesList.add(0, myGame);
 
         arrayAdapter = new ArrayAdapter<Game>(this,
                 android.R.layout.simple_list_item_1, gamesList);
@@ -174,22 +167,123 @@ public class StartActivity extends ActionBarActivity {
         Intent intent = new Intent(StartActivity.this, NewGameActivity.class);
         startActivity(intent);
     }
-
-
-    private void saveUserToParse(GraphUser fbUser, Session session) {
-        ParseFacebookUtils.logIn(fbUser.getId(), session.getAccessToken(),
-                session.getExpirationDate(), new LogInCallback() {
+    
+    @Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+	}
+    
+    public void onLoginButtonClicked() {
+        StartActivity.this.progressDialog = ProgressDialog.show(
+                StartActivity.this, "", "Logging in...", true);
+        List<String> permissions = Arrays.asList("public_profile", "user_friends");
+        ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException err) {
+                StartActivity.this.progressDialog.dismiss();
                 if (user == null) {
-                    // The user wasn't saved. Check the exception.
-                    Log.d(TAG, "User was not saved to Parse: " + err.getMessage());
+                    Log.d(ClarpApplication.TAG,
+                            "Uh oh. The user cancelled the Facebook login.");
+                    ClarpApplication.IS_LOGGED_IN = false;
+                } else if (user.isNew()) {
+                    Log.d(ClarpApplication.TAG,
+                            "User signed up and logged in through Facebook!");
+                    ClarpApplication.IS_LOGGED_IN = true;
+                    makeMeRequest();
+                    //showUserDetailsActivity();
                 } else {
-                    // The user has been saved to Parse.
-                    Log.d(TAG, "User has successfully been saved to Parse.");
+                    Log.d(ClarpApplication.TAG,
+                            "User logged in through Facebook!");
+                    ClarpApplication.IS_LOGGED_IN = true;
+                    makeMeRequest();
+                    //showUserDetailsActivity();
                 }
             }
         });
+        
+        updateViewVisibility();
     }
+    
+    private void makeMeRequest() {
+		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
+				new Request.GraphUserCallback() {
+					@Override
+					public void onCompleted(GraphUser user, Response response) {
+						if (user != null) {
+							// Create a JSON object to hold the profile info
+							JSONObject userProfile = new JSONObject();
+							try {
+								// Populate the JSON object
+								userProfile.put("facebookId", user.getId());
+								userProfile.put("name", user.getName());
+								
+								// Save the user profile info in a user property
+								ParseUser currentUser = ParseUser
+										.getCurrentUser();
+								currentUser.put("profile", userProfile);
+								currentUser.saveInBackground();
+
+								// Show the user info
+								updateViewsWithProfileInfo();
+							} catch (JSONException e) {
+								Log.d(ClarpApplication.TAG,
+										"Error parsing returned user data.");
+							}
+
+						} else if (response.getError() != null) {
+							if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
+									|| (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
+								Log.d(ClarpApplication.TAG,
+										"The facebook session was invalidated.");
+								//onLogoutButtonClicked();
+							} else {
+								Log.d(ClarpApplication.TAG,
+										"Some other error: "
+												+ response.getError()
+														.getErrorMessage());
+							}
+						}
+					}
+				});
+		request.executeAsync();
+
+	}
+
+	private void updateViewsWithProfileInfo() {
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		if (currentUser.get("profile") != null) {
+			JSONObject userProfile = currentUser.getJSONObject("profile");
+			try {
+				if (userProfile.getString("name") != null) {
+					Log.v(ClarpApplication.TAG, "IF");
+					
+					userNameView.setText("Hello, " + userProfile.getString("name"));
+				} else {
+					Log.v(ClarpApplication.TAG, "ELSE");
+					userNameView.setText("No user.");
+				}
+			} catch (JSONException e) {
+				Log.d(ClarpApplication.TAG,
+						"Error parsing saved user data.");
+			}
+
+		}
+		updateViewVisibility();
+	}
+	
+	private void updateViewVisibility()
+	{
+		if(ClarpApplication.IS_LOGGED_IN)
+        {
+        	gamesListView.setVisibility(View.VISIBLE);
+        	newGameButton.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+        	gamesListView.setVisibility(View.GONE);
+        	newGameButton.setVisibility(View.GONE);
+        }
+	}
 
 }

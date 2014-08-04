@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
 
 public class ClarpApplication extends Application {
 
@@ -22,7 +23,8 @@ public class ClarpApplication extends Application {
     @Override
     public void onCreate() {
     	super.onCreate();
-
+    	
+    	ParseObject.registerSubclass(clarpGame.class);
 		Parse.initialize(this, getString(R.string.parse_app_id),
 				getString(R.string.parse_client_key));
 

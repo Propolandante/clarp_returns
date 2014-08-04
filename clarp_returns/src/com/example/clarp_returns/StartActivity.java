@@ -1,9 +1,16 @@
 package com.example.clarp_returns;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,7 +40,10 @@ import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.parse.ProgressCallback;
+import com.parse.SaveCallback;
 
 public class StartActivity extends ActionBarActivity {
 
@@ -217,12 +227,15 @@ public class StartActivity extends ActionBarActivity {
 								// Populate the JSON object
 								userProfile.put("facebookId", user.getId());
 								userProfile.put("name", user.getName());
+								userProfile.put("firstName", user.getFirstName());
 								
 								// Save the user profile info in a user property
 								ParseUser currentUser = ParseUser
 										.getCurrentUser();
 								currentUser.put("profile", userProfile);
-								currentUser.saveInBackground();
+								currentUser.saveInBackground(); // why? when do I use this?
+								
+								//grabProfilePic(currentUser, user.getId());
 
 								// Show the user info
 								updateViewsWithProfileInfo();
@@ -249,6 +262,40 @@ public class StartActivity extends ActionBarActivity {
 		request.executeAsync();
 
 	}
+    
+    private void grabProfilePic( final ParseUser currentUser, String fbId ) throws ClientProtocolException, IOException {
+    	
+    	String imageUrl = "http://graph.facebook.com/" + fbId + "/picture?type=large";
+    	
+    	// http://stackoverflow.com/questions/11708040/how-can-i-download-image-file-from-an-url-to-bytearray
+    	
+    	DefaultHttpClient client = new DefaultHttpClient();
+    	HttpGet request = new HttpGet(imageUrl);
+    	HttpResponse response = client.execute(request);
+    	HttpEntity entity = response.getEntity();
+    	int imageLength = (int)(entity.getContentLength());
+    	InputStream is = entity.getContent();
+
+    	byte[] imageBlob = new byte[imageLength];
+    	int bytesRead = 0;
+    	while (bytesRead < imageLength) {
+    	    int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
+    	    if (n <= 0)
+    	    	Log.e(ClarpApplication.TAG, "n <= 0 !!!!!!!!!!!!!!!"); // do some error handling
+    	    bytesRead += n;
+    	}
+    	
+    	final ParseFile file = new ParseFile("profilePic.jpg", imageBlob);
+    	file.saveInBackground(new SaveCallback() {
+    	  public void done(ParseException e) {
+    		  if (e == null)
+    		  {
+    			  currentUser.put("profilePicture", file);
+    			  currentUser.saveInBackground();
+    		  }
+    	  }
+    	});
+    }
 
 	private void updateViewsWithProfileInfo() {
 		ParseUser currentUser = ParseUser.getCurrentUser();

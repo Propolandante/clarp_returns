@@ -74,24 +74,33 @@ public class NewGameActivity extends ActionBarActivity {
 		
 		Log.d(ClarpApplication.TAG, "Start clicked");
 		
-		final clarpGame game = new clarpGame();
+		final clarpCard suspect = new clarpCard();
 		
-		Log.d(ClarpApplication.TAG, "clarpGame game created");
+		suspect.initialize(0,"Derk");
 		
-		// Since our Instruments are strongly-typed, we can provide mutators that only take
-		// specific types, such as Strings, ParseUsers, or enum types.
-		game.setGameName("Suspect Test");
-		Log.d(ClarpApplication.TAG, "gameName set");
-		game.initialize();
-		Log.d(ClarpApplication.TAG, "initialization complete");
-		game.addPlayer(ParseUser.getCurrentUser());
-		Log.d(ClarpApplication.TAG, "addPlayer() ohgod did it work?");
-		game.saveInBackground(new SaveCallback() {
-			public void done(ParseException e) {
-				game.play();
-				Log.d(ClarpApplication.TAG, "play();");
-				}
-			});
+		suspect.saveInBackground();
+		
+		
+//		Log.d(ClarpApplication.TAG, "Start clicked");
+//		
+//		final clarpGame game = new clarpGame();
+//		
+//		Log.d(ClarpApplication.TAG, "clarpGame game created");
+//		
+//		// Since our Instruments are strongly-typed, we can provide mutators that only take
+//		// specific types, such as Strings, ParseUsers, or enum types.
+//		game.setGameName("Suspect Test");
+//		Log.d(ClarpApplication.TAG, "gameName set");
+//		game.initialize();
+//		Log.d(ClarpApplication.TAG, "initialization complete");
+//		game.addPlayer(ParseUser.getCurrentUser());
+//		Log.d(ClarpApplication.TAG, "addPlayer() ohgod did it work?");
+//		game.saveInBackground(new SaveCallback() {
+//			public void done(ParseException e) {
+//				game.play();
+//				Log.d(ClarpApplication.TAG, "play();");
+//				}
+//			});
 		
 		//Intent intent = new Intent(getBaseContext(), GameActivity.class);
         //startActivity(intent);

@@ -18,9 +18,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.os.Build;
 
 public class NewGameActivity extends ActionBarActivity {
+	
+	static EditText gameNameTextField;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,49 +62,52 @@ public class NewGameActivity extends ActionBarActivity {
 	 */
 	public static class PlaceholderFragment extends Fragment {
 
-		public PlaceholderFragment() {
-		}
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+			
+			if (container == null) {
+		        return null;
+		    }
 
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_new_game,
-					container, false);
-			return rootView;
+		    LinearLayout ll = (LinearLayout )inflater.inflate(R.layout.fragment_new_game, container, false);
+		    gameNameTextField = (EditText) ll.findViewById(R.id.editTitle);
+
+		    return ll;
 		}
 	}
 	
-	public void clickStart(View v) throws JSONException {
+	public void clickStart(View v) throws JSONException, ParseException {
+		
 		
 		Log.d(ClarpApplication.TAG, "Start clicked");
 		
-		final clarpCard suspect = new clarpCard();
+		final clarpGame game = new clarpGame();
 		
-		suspect.initialize(0,"Derk");
+		//set game name
+		String gameName = gameNameTextField.getText().toString();
+		if (gameName.matches(""))
+		{
+			game.setGameName("Untitled Game");
+			Log.d(ClarpApplication.TAG, "gameName set to " + "Untitled Game");
+		} else
+		{
+			game.setGameName(gameName);
+			Log.d(ClarpApplication.TAG, "gameName set to " + gameName);
+		}
 		
-		suspect.saveInBackground();
+		//create necessary data structures
+		game.initialize();
+		Log.d(ClarpApplication.TAG, "initialization complete");
 		
+		//Add user to game's player list
+		game.addPlayer(ParseUser.getCurrentUser());
+		Log.d(ClarpApplication.TAG, "player added");
 		
-//		Log.d(ClarpApplication.TAG, "Start clicked");
-//		
-//		final clarpGame game = new clarpGame();
-//		
-//		Log.d(ClarpApplication.TAG, "clarpGame game created");
-//		
-//		// Since our Instruments are strongly-typed, we can provide mutators that only take
-//		// specific types, such as Strings, ParseUsers, or enum types.
-//		game.setGameName("Suspect Test");
-//		Log.d(ClarpApplication.TAG, "gameName set");
-//		game.initialize();
-//		Log.d(ClarpApplication.TAG, "initialization complete");
-//		game.addPlayer(ParseUser.getCurrentUser());
-//		Log.d(ClarpApplication.TAG, "addPlayer() ohgod did it work?");
-//		game.saveInBackground(new SaveCallback() {
-//			public void done(ParseException e) {
-//				game.play();
-//				Log.d(ClarpApplication.TAG, "play();");
-//				}
-//			});
+		//save this information to the Parse Object online
+		game.saveInBackground(new SaveCallback() {
+			public void done(ParseException e) {
+				Log.d(ClarpApplication.TAG, "Game saved");
+				}
+			});
 		
 		//Intent intent = new Intent(getBaseContext(), GameActivity.class);
         //startActivity(intent);

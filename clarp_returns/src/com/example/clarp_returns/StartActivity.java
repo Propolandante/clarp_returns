@@ -11,6 +11,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,21 +38,23 @@ import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
+import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.ProgressCallback;
 import com.parse.SaveCallback;
 
 public class StartActivity extends ActionBarActivity {
 
 
     //protected static final String TAG = "StartActivity";
-    private ListView gamesListView;
-    private ArrayList<Game> gamesList;
-    private ArrayAdapter<Game> arrayAdapter;
+    private ListView gameListView;
+    private ArrayList<gameListItem> gameList;
+    private ArrayAdapter<gameListItem> arrayAdapter;
 	private Dialog progressDialog;
 	private Button newGameButton;
 	private Button loginButton;
@@ -64,8 +67,11 @@ public class StartActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_start);
         
+        // this view displays the name of the logged in user
         userNameView = (TextView) findViewById(R.id.message);
-        gamesListView = (ListView) findViewById(R.id.games_list_view);
+        // this is the list of the user's active games. Each is a button to enter Game activity
+        gameListView = (ListView) findViewById(R.id.games_list_view);
+        // self explanatory. Button enters New Game activity
         newGameButton = (Button) findViewById(R.id.footer);
         loginButton = (Button) findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -108,32 +114,82 @@ public class StartActivity extends ActionBarActivity {
         
         updateViewVisibility();
         
+        ParseUser user = ParseUser.getCurrentUser();
+        
         //gamesListView.setEmptyView(findViewById(R.id.empty_games_view));
 
-        gamesListView.setOnItemClickListener(new OnItemClickListener() {
+        gameListView.setOnItemClickListener(new OnItemClickListener() {
 
             // user clicks to go to a select screen where they can choose
             // to view any list
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                    int position, long id) {
-                Intent intent = new Intent(StartActivity.this,
-                        GameActivity.class);
-                Game game = gamesList.get((int) id);
-                intent.putExtra("game_id", game.getId());
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                Intent intent = new Intent(StartActivity.this, GameActivity.class);
+                gameListItem clickedGame = gameList.get((int) id);
+                intent.putExtra("game_id", clickedGame.getId());
                 startActivity(intent);
 
             }
         });
+        
+        // every time the user resumes the activity, refresh the game List
+        gameList = new ArrayList<gameListItem>();
+        
+        // loop through all the user's active games and add them to the array
+        
+        JSONArray gameIds = user.getJSONArray("games");
+        
+        if (gameIds != null)
+        {
+        	//add each game to the ListView Array
+        	for (int i = 0; i < gameIds.length(); ++i)
+        	{
+        		String tempId = null;
+        		
+        		try {
+					tempId = gameIds.getString(i);
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        		
+        		final String id = tempId;
+        		
+        		ParseQuery<clarpGame> query = ParseQuery.getQuery("clarpGame");
+            	
+            	query.getInBackground(id, new GetCallback<clarpGame>() {
+            		  public void done(clarpGame object, ParseException e) {
+            		    if (e == null)
+            		    {
+            		    	String name = object.getGameName();
+            		    	Log.d(ClarpApplication.TAG, "name is " + name);
+            		    	gameListItem item = new gameListItem(name, id);
+            		    	
+            		    	gameList.add(item);
+            		    	
+            		    	arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+            		        gameListView.setAdapter(arrayAdapter);
+            		    }
+            		    else
+            		    {
+            		      // something went wrong
+            		    }
+            		  }
+            		});
+        	}
+        	
+        }
+        else
+        {
+        	Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
+        	arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
+            gameListView.setAdapter(arrayAdapter);
+        }
+        
+        
 
-        Game myGame = new Game("MyGame", 0, null, null);
-
-        gamesList = new ArrayList<Game>();
-        gamesList.add(0, myGame);
-
-        arrayAdapter = new ArrayAdapter<Game>(this,
-                android.R.layout.simple_list_item_1, gamesList);
-        gamesListView.setAdapter(arrayAdapter);
+        
     }
 
     @Override
@@ -323,12 +379,12 @@ public class StartActivity extends ActionBarActivity {
 	{
 		if(ClarpApplication.IS_LOGGED_IN)
         {
-        	gamesListView.setVisibility(View.VISIBLE);
+        	gameListView.setVisibility(View.VISIBLE);
         	newGameButton.setVisibility(View.VISIBLE);
         }
         else
         {
-        	gamesListView.setVisibility(View.GONE);
+        	gameListView.setVisibility(View.GONE);
         	newGameButton.setVisibility(View.GONE);
         }
 	}

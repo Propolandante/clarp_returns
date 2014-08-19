@@ -67,6 +67,8 @@ public class StartActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_start);
         
+        Log.v(ClarpApplication.TAG, "Log?");
+        
         // this view displays the name of the logged in user
         userNameView = (TextView) findViewById(R.id.message);
         // this is the list of the user's active games. Each is a button to enter Game activity
@@ -102,6 +104,7 @@ public class StartActivity extends ActionBarActivity {
         else
         {
         	userNameView.setText("Please log in to use CLARP");
+        	Log.v(ClarpApplication.TAG, "User is not logged in");
         }
 		
     }
@@ -133,59 +136,64 @@ public class StartActivity extends ActionBarActivity {
             }
         });
         
-        // every time the user resumes the activity, refresh the game List
-        gameList = new ArrayList<gameListItem>();
-        
-        // loop through all the user's active games and add them to the array
-        
-        JSONArray gameIds = user.getJSONArray("games");
-        
-        if (gameIds != null)
+        if (ClarpApplication.IS_LOGGED_IN)
         {
-        	//add each game to the ListView Array
-        	for (int i = 0; i < gameIds.length(); ++i)
-        	{
-        		String tempId = null;
-        		
-        		try {
-					tempId = gameIds.getString(i);
-				} catch (JSONException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-        		
-        		final String id = tempId;
-        		
-        		ParseQuery<clarpGame> query = ParseQuery.getQuery("clarpGame");
+        	// every time the user resumes the activity, refresh the game List
+            gameList = new ArrayList<gameListItem>();
+            
+            // loop through all the user's active games and add them to the array
+            
+            JSONArray gameIds = user.getJSONArray("games");
+            
+            if (gameIds != null)
+            {
+            	//add each game to the ListView Array
+            	for (int i = 0; i < gameIds.length(); ++i)
+            	{
+            		String tempId = null;
+            		
+            		try {
+    					tempId = gameIds.getString(i);
+    				} catch (JSONException e1) {
+    					// TODO Auto-generated catch block
+    					e1.printStackTrace();
+    				}
+            		
+            		final String id = tempId;
+            		
+            		ParseQuery<clarpGame> query = ParseQuery.getQuery("clarpGame");
+                	
+                	query.getInBackground(id, new GetCallback<clarpGame>() {
+                		  public void done(clarpGame object, ParseException e) {
+                		    if (e == null)
+                		    {
+                		    	String name = object.getGameName();
+                		    	Log.d(ClarpApplication.TAG, "name is " + name);
+                		    	gameListItem item = new gameListItem(name, id);
+                		    	
+                		    	gameList.add(item);
+                		    	
+                		    	arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+                		        gameListView.setAdapter(arrayAdapter);
+                		    }
+                		    else
+                		    {
+                		      // something went wrong
+                		    }
+                		  }
+                		});
+            	}
             	
-            	query.getInBackground(id, new GetCallback<clarpGame>() {
-            		  public void done(clarpGame object, ParseException e) {
-            		    if (e == null)
-            		    {
-            		    	String name = object.getGameName();
-            		    	Log.d(ClarpApplication.TAG, "name is " + name);
-            		    	gameListItem item = new gameListItem(name, id);
-            		    	
-            		    	gameList.add(item);
-            		    	
-            		    	arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
-            		        gameListView.setAdapter(arrayAdapter);
-            		    }
-            		    else
-            		    {
-            		      // something went wrong
-            		    }
-            		  }
-            		});
-        	}
-        	
+            }
+            else
+            {
+            	Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
+            	arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
+                gameListView.setAdapter(arrayAdapter);
+            }
         }
-        else
-        {
-        	Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
-        	arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
-            gameListView.setAdapter(arrayAdapter);
-        }
+        
+        
         
         
 

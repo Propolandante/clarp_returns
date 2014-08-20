@@ -50,7 +50,7 @@ public class NewClarpCardFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle SavedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_new_clarp_card, parent, false);
+        View v = inflater.inflate(R.layout.fragment_new_clarp_card_fragment, parent, false);
 
         cardName = ((EditText) v.findViewById(R.id.card_name));
 

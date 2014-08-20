@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="11"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -44,6 +44,18 @@
         <activity
             android:name="com.example.clarp_returns.NotesActivity"
             android:label="@string/title_activity_notes" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.CardListActivity"
+            android:label="@string/title_activity_card_list" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.NewClarpCardActivity"
+            android:label="@string/title_activity_new_clarp_card" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.NewClarpCardFragment"
+            android:label="@string/title_activity_new_clarp_card_fragment" >
         </activity>
     </application>
 

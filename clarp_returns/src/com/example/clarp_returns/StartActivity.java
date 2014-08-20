@@ -43,22 +43,24 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 public class StartActivity extends ActionBarActivity {
 
+    // result codes for activities that return with a result
+    public static final int NEW_GAME = 10;
+    public static final int ADD_CARD = 11;
 
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
     private ArrayList<gameListItem> gameList;
     private ArrayAdapter<gameListItem> arrayAdapter;
-	private Dialog progressDialog;
-	private Button newGameButton;
-	private Button loginButton;
-	private TextView userNameView;
+    private Dialog progressDialog;
+    private Button newGameButton;
+    private Button loginButton;
+    private TextView userNameView;
 
 
 
@@ -66,9 +68,9 @@ public class StartActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_start);
-        
+
         Log.v(ClarpApplication.TAG, "Log?");
-        
+
         // this view displays the name of the logged in user
         userNameView = (TextView) findViewById(R.id.message);
         // this is the list of the user's active games. Each is a button to enter Game activity
@@ -77,48 +79,48 @@ public class StartActivity extends ActionBarActivity {
         newGameButton = (Button) findViewById(R.id.footer);
         loginButton = (Button) findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.v(ClarpApplication.TAG, "Login button clicked");
-				onLoginButtonClicked();
-			}
-		});
-        
+            @Override
+            public void onClick(View v) {
+                Log.v(ClarpApplication.TAG, "Login button clicked");
+                onLoginButtonClicked();
+            }
+        });
+
         ParseUser currentUser = ParseUser.getCurrentUser();
-		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
-			// Go to the user info activity
-			ClarpApplication.IS_LOGGED_IN = true;
-			Log.v(ClarpApplication.TAG, "User already logged in!");
-		}
-		else
-		{
-			ClarpApplication.IS_LOGGED_IN = false;
-		}
-        
-        
-        if(ClarpApplication.IS_LOGGED_IN)
-        {
-        	makeMeRequest();
-        	Log.v(ClarpApplication.TAG, "Since user is already logged in, we will update this text to welcome them.");
+        if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
+            // Go to the user info activity
+            ClarpApplication.IS_LOGGED_IN = true;
+            Log.v(ClarpApplication.TAG, "User already logged in!");
         }
         else
         {
-        	userNameView.setText("Please log in to use CLARP");
-        	Log.v(ClarpApplication.TAG, "User is not logged in");
+            ClarpApplication.IS_LOGGED_IN = false;
         }
-		
+
+
+        if(ClarpApplication.IS_LOGGED_IN)
+        {
+            makeMeRequest();
+            Log.v(ClarpApplication.TAG, "Since user is already logged in, we will update this text to welcome them.");
+        }
+        else
+        {
+            userNameView.setText("Please log in to use CLARP");
+            Log.v(ClarpApplication.TAG, "User is not logged in");
+        }
+
     }
 
-        
+
 
     @Override
     protected void onResume() {
         super.onResume();
-        
+
         updateViewVisibility();
-        
+
         ParseUser user = ParseUser.getCurrentUser();
-        
+
         //gamesListView.setEmptyView(findViewById(R.id.empty_games_view));
 
         gameListView.setOnItemClickListener(new OnItemClickListener() {
@@ -132,72 +134,74 @@ public class StartActivity extends ActionBarActivity {
                 gameListItem clickedGame = gameList.get((int) id);
                 intent.putExtra("game_id", clickedGame.getId());
                 startActivity(intent);
-
             }
         });
-        
+
         if (ClarpApplication.IS_LOGGED_IN)
         {
-        	// every time the user resumes the activity, refresh the game List
-            gameList = new ArrayList<gameListItem>();
-            
-            // loop through all the user's active games and add them to the array
-            
-            JSONArray gameIds = user.getJSONArray("games");
-            
-            if (gameIds != null)
-            {
-            	//add each game to the ListView Array
-            	for (int i = 0; i < gameIds.length(); ++i)
-            	{
-            		String tempId = null;
-            		
-            		try {
-    					tempId = gameIds.getString(i);
-    				} catch (JSONException e1) {
-    					// TODO Auto-generated catch block
-    					e1.printStackTrace();
-    				}
-            		
-            		final String id = tempId;
-            		
-            		ParseQuery<clarpGame> query = ParseQuery.getQuery("clarpGame");
-                	
-                	query.getInBackground(id, new GetCallback<clarpGame>() {
-                		  public void done(clarpGame object, ParseException e) {
-                		    if (e == null)
-                		    {
-                		    	String name = object.getGameName();
-                		    	Log.d(ClarpApplication.TAG, "name is " + name);
-                		    	gameListItem item = new gameListItem(name, id);
-                		    	
-                		    	gameList.add(item);
-                		    	
-                		    	arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
-                		        gameListView.setAdapter(arrayAdapter);
-                		    }
-                		    else
-                		    {
-                		      // something went wrong
-                		    }
-                		  }
-                		});
-            	}
-            	
-            }
-            else
-            {
-            	Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
-            	arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
-                gameListView.setAdapter(arrayAdapter);
-            }
+            refreshGameList(user);
         }
-        
-        
-        
-        
+    }
 
-        
+    // call this whenever gameListView needs to be updated
+    public void refreshGameList(ParseUser user) {
+        // every time the user resumes the activity, refresh the game List
+        if(gameList != null){
+            gameList.clear();
+        }
+        gameList = new ArrayList<gameListItem>();
+
+        // loop through all the user's active games and add them to the array
+
+        JSONArray gameIds = user.getJSONArray("games");
+
+        if (gameIds != null)
+        {
+            //add each game to the ListView Array
+            for (int i = 0; i < gameIds.length(); ++i)
+            {
+                String tempId = null;
+
+                try {
+                    tempId = gameIds.getString(i);
+                } catch (JSONException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+
+                final String id = tempId;
+
+                ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+
+                query.getInBackground(id, new GetCallback<ClarpGame>() {
+                    @Override
+                    public void done(ClarpGame object, ParseException e) {
+                        if (e == null)
+                        {
+                            String name = object.getGameName();
+                            Log.d(ClarpApplication.TAG, "name is " + name);
+                            gameListItem item = new gameListItem(name, id);
+
+                            gameList.add(item);
+
+                            arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+                            gameListView.setAdapter(arrayAdapter);
+                        }
+                        else
+                        {
+                            // something went wrong
+                        }
+                    }
+                });
+            }
+
+        }
+        else
+        {
+            Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
+            arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
+            gameListView.setAdapter(arrayAdapter);
+        }
     }
 
     @Override
@@ -239,15 +243,23 @@ public class StartActivity extends ActionBarActivity {
 
     public void clickNewGame(View v) {
         Intent intent = new Intent(StartActivity.this, NewGameActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, NEW_GAME);
     }
-    
+
     @Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
-	}
-    
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if(requestCode == NEW_GAME) {
+            //refreshGameList(currentUser);
+        } else if(requestCode == ADD_CARD) {
+            //do nothing...
+        } else {
+            ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+        }
+    }
+
+
     public void onLoginButtonClicked() {
         StartActivity.this.progressDialog = ProgressDialog.show(
                 StartActivity.this, "", "Logging in...", true);
@@ -275,126 +287,137 @@ public class StartActivity extends ActionBarActivity {
                 }
             }
         });
-        
+
         updateViewVisibility();
     }
-    
+
     private void makeMeRequest() {
-		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
-				new Request.GraphUserCallback() {
-					@Override
-					public void onCompleted(GraphUser user, Response response) {
-						if (user != null) {
-							// Create a JSON object to hold the profile info
-							JSONObject userProfile = new JSONObject();
-							try {
-								// Populate the JSON object
-								userProfile.put("facebookId", user.getId());
-								userProfile.put("name", user.getName());
-								userProfile.put("firstName", user.getFirstName());
-								
-								// Save the user profile info in a user property
-								ParseUser currentUser = ParseUser
-										.getCurrentUser();
-								currentUser.put("profile", userProfile);
-								currentUser.saveInBackground(); // why? when do I use this?
-								
-								//grabProfilePic(currentUser, user.getId());
+        Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
+                new Request.GraphUserCallback() {
+            @Override
+            public void onCompleted(GraphUser user, Response response) {
+                if (user != null) {
+                    // Create a JSON object to hold the profile info
+                    JSONObject userProfile = new JSONObject();
+                    try {
+                        // Populate the JSON object
+                        userProfile.put("facebookId", user.getId());
+                        userProfile.put("name", user.getName());
+                        userProfile.put("firstName", user.getFirstName());
 
-								// Show the user info
-								updateViewsWithProfileInfo();
-							} catch (JSONException e) {
-								Log.d(ClarpApplication.TAG,
-										"Error parsing returned user data.");
-							}
+                        // Save the user profile info in a user property
+                        ParseUser currentUser = ParseUser
+                                .getCurrentUser();
+                        currentUser.put("profile", userProfile);
+                        currentUser.saveInBackground(); // why? when do I use this?
 
-						} else if (response.getError() != null) {
-							if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
-									|| (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
-								Log.d(ClarpApplication.TAG,
-										"The facebook session was invalidated.");
-								//onLogoutButtonClicked();
-							} else {
-								Log.d(ClarpApplication.TAG,
-										"Some other error: "
-												+ response.getError()
-														.getErrorMessage());
-							}
-						}
-					}
-				});
-		request.executeAsync();
+                        //grabProfilePic(currentUser, user.getId());
 
-	}
-    
-    private void grabProfilePic( final ParseUser currentUser, String fbId ) throws ClientProtocolException, IOException {
-    	
-    	String imageUrl = "http://graph.facebook.com/" + fbId + "/picture?type=large";
-    	
-    	// http://stackoverflow.com/questions/11708040/how-can-i-download-image-file-from-an-url-to-bytearray
-    	
-    	DefaultHttpClient client = new DefaultHttpClient();
-    	HttpGet request = new HttpGet(imageUrl);
-    	HttpResponse response = client.execute(request);
-    	HttpEntity entity = response.getEntity();
-    	int imageLength = (int)(entity.getContentLength());
-    	InputStream is = entity.getContent();
+                        // Show the user info
+                        updateViewsWithProfileInfo();
+                    } catch (JSONException e) {
+                        Log.d(ClarpApplication.TAG,
+                                "Error parsing returned user data.");
+                    }
 
-    	byte[] imageBlob = new byte[imageLength];
-    	int bytesRead = 0;
-    	while (bytesRead < imageLength) {
-    	    int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
-    	    if (n <= 0)
-    	    	Log.e(ClarpApplication.TAG, "n <= 0 !!!!!!!!!!!!!!!"); // do some error handling
-    	    bytesRead += n;
-    	}
-    	
-    	final ParseFile file = new ParseFile("profilePic.jpg", imageBlob);
-    	file.saveInBackground(new SaveCallback() {
-    	  public void done(ParseException e) {
-    		  if (e == null)
-    		  {
-    			  currentUser.put("profilePicture", file);
-    			  currentUser.saveInBackground();
-    		  }
-    	  }
-    	});
+                } else if (response.getError() != null) {
+                    if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
+                            || (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
+                        Log.d(ClarpApplication.TAG,
+                                "The facebook session was invalidated.");
+                        //onLogoutButtonClicked();
+                    } else {
+                        Log.d(ClarpApplication.TAG,
+                                "Some other error: "
+                                        + response.getError()
+                                        .getErrorMessage());
+                    }
+                }
+            }
+        });
+        request.executeAsync();
+
     }
 
-	private void updateViewsWithProfileInfo() {
-		ParseUser currentUser = ParseUser.getCurrentUser();
-		if (currentUser.get("profile") != null) {
-			JSONObject userProfile = currentUser.getJSONObject("profile");
-			try {
-				if (userProfile.getString("name") != null) {
-					Log.v(ClarpApplication.TAG, "IF");
-					
-					userNameView.setText("Hello, " + userProfile.getString("name"));
-				} else {
-					Log.v(ClarpApplication.TAG, "ELSE");
-					userNameView.setText("No user.");
-				}
-			} catch (JSONException e) {
-				Log.d(ClarpApplication.TAG,
-						"Error parsing saved user data.");
-			}
+    private void grabProfilePic( final ParseUser currentUser, String fbId ) throws ClientProtocolException, IOException {
 
-		}
-		updateViewVisibility();
-	}
-	
-	private void updateViewVisibility()
-	{
-		if(ClarpApplication.IS_LOGGED_IN)
+        String imageUrl = "http://graph.facebook.com/" + fbId + "/picture?type=large";
+
+        // http://stackoverflow.com/questions/11708040/how-can-i-download-image-file-from-an-url-to-bytearray
+
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet request = new HttpGet(imageUrl);
+        HttpResponse response = client.execute(request);
+        HttpEntity entity = response.getEntity();
+        int imageLength = (int)(entity.getContentLength());
+        InputStream is = entity.getContent();
+
+        byte[] imageBlob = new byte[imageLength];
+        int bytesRead = 0;
+        while (bytesRead < imageLength) {
+            int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
+            if (n <= 0)
+            {
+                Log.e(ClarpApplication.TAG, "n <= 0 !!!!!!!!!!!!!!!"); // do some error handling
+            }
+            bytesRead += n;
+        }
+
+        final ParseFile file = new ParseFile("profilePic.jpg", imageBlob);
+        file.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null)
+                {
+                    currentUser.put("profilePicture", file);
+                    currentUser.saveInBackground();
+                }
+            }
+        });
+    }
+
+    private void updateViewsWithProfileInfo() {
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser.get("profile") != null) {
+            JSONObject userProfile = currentUser.getJSONObject("profile");
+            try {
+                if (userProfile.getString("name") != null) {
+                    Log.v(ClarpApplication.TAG, "IF");
+
+                    userNameView.setText("Hello, " + userProfile.getString("name"));
+                } else {
+                    Log.v(ClarpApplication.TAG, "ELSE");
+                    userNameView.setText("No user.");
+                }
+            } catch (JSONException e) {
+                Log.d(ClarpApplication.TAG,
+                        "Error parsing saved user data.");
+            }
+
+        }
+        updateViewVisibility();
+    }
+
+    private void updateViewVisibility()
+    {
+        if(ClarpApplication.IS_LOGGED_IN)
         {
-        	gameListView.setVisibility(View.VISIBLE);
-        	newGameButton.setVisibility(View.VISIBLE);
+            gameListView.setVisibility(View.VISIBLE);
+            newGameButton.setVisibility(View.VISIBLE);
         }
         else
         {
-        	gameListView.setVisibility(View.GONE);
-        	newGameButton.setVisibility(View.GONE);
+            gameListView.setVisibility(View.GONE);
+            newGameButton.setVisibility(View.GONE);
         }
-	}
+    }
+
+    // this is just here to test the picture taking/card adding
+    // system, without having cards linked to games
+    public void clickAddCard(View v) {
+        Intent intent = new Intent(StartActivity.this, NewClarpCardActivity.class);
+        startActivityForResult(intent, ADD_CARD);
+
+    }
 
 }

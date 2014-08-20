@@ -3,7 +3,6 @@ package com.example.clarp_returns;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,77 +11,58 @@ import android.widget.ArrayAdapter;
 
 public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 		implements OnClickListener{
+	
+	private static final int TYPE_SUGGEST = 0;
+    private static final int TYPE_ACCUSE = 1;
+    private static final int TYPE_MAX_COUNT = 2;
+    
+    
 	private ArrayList<TurnHistoryItem> items;
+	private LayoutInflater vi;
 	
 	public TurnHistoryItemAdapter(Context context, int textViewResourceId, ArrayList<TurnHistoryItem> items) {
         super(context, textViewResourceId, items);
-    this.items = items;
+        vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.items = items;
+    }
+	
+	@Override
+    public int getItemViewType(int position) {
+        return items.get(position).type;
+    }
+	
+	@Override
+    public int getViewTypeCount() {
+        return TYPE_MAX_COUNT;
     }
 
 	@Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        View v = convertView;
-        if (v == null) {
-            LayoutInflater vi = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.turn_item, null);
-            
+        ViewHolder holder = null;
+        int type = getItemViewType(position);
+        if (convertView == null) {
+        	holder = new ViewHolder();
+        	switch(type){
+        		case TYPE_SUGGEST:
+        			convertView = vi.inflate(R.layout.turn_item, null);
+        			break;
+        		case TYPE_ACCUSE:
+        			convertView = vi.inflate(R.layout.dark_turn_item, null);
+        			break;
+        	}
+            convertView.setTag(holder);
+    	}else{
+    		holder = (ViewHolder)convertView.getTag();
     	}
            
-        final TurnHistoryItem item = items.get(position);
-        /*if (item != null) {
-            /*final EditText itemName = (EditText) v.findViewById(R.id.editText_ItemName);
-            final TextView tallyValText = (TextView) v.findViewById(R.id.textView_TallyVal);
-            Button plusButton = (Button) v.findViewById(R.id.buttonPlus);
-            Button minusButton = (Button) v.findViewById(R.id.buttonMinus);
-            Button deleteButton = (Button) v.findViewById(R.id.buttonDel);*/
-
-            /*if (itemName != null) {
-            	itemName.setText(item.tallyName);
-            }
-
-            if(tallyValText != null) {
-            	tallyValText.setText(""+item.tallyVal);
-            }
-            
-            plusButton.setOnClickListener(new OnClickListener(){
-            	@Override
-            	public void onClick(View view){
-            		item.tallyVal += 1;
-            		tallyValText.setText(""+item.tallyVal);
-            	}
-            });
-            
-            minusButton.setOnClickListener(new OnClickListener(){
-            	@Override
-            	public void onClick(View view){
-            		item.tallyVal -= 1;
-            		tallyValText.setText(""+item.tallyVal);
-            	}
-            });
-            
-            deleteButton.setOnClickListener(new OnClickListener(){
-            	@Override
-            	public void onClick(View view){
-            		items.remove(position);
-            		notifyDataSetChanged();
-            	}
-            });
-            itemName.setOnFocusChangeListener(new OnFocusChangeListener(){
-
-				@Override
-				public void onFocusChange(View arg0, boolean hasFocus) {
-					// TODO Auto-generated method stub
-					if (!hasFocus){
-						item.tallyName = itemName.getText().toString();
-					}
-				}
-            	
-            });
-        }*/
+        //final TurnHistoryItem item = items.get(position);
         
-        
-    return v;
+        return convertView;
     }
+	
+	static class ViewHolder {
+		
+	}
 	
 	
 	
@@ -95,3 +75,5 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 	}
 
 }
+
+

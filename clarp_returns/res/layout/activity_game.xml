@@ -1,8 +1,53 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.clarp_returns.GameActivity"
-    tools:ignore="MergeRootFrame" />
+    android:orientation="vertical"
+    android:id="@+id/layoutGame"
+    tools:ignore="MergeRootFrame" >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9" >
+        
+        <android.support.v4.view.PagerTitleStrip
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/title"
+            android:background="#916C47"
+            android:layout_gravity="top"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+            
+        </android.support.v4.view.PagerTitleStrip>
+    </android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp" 
+        android:layout_weight="1" 
+        android:layout_gravity="center" >
+
+        <Button
+            android:id="@+id/buttonSuggest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" 
+            android:text="@string/suggestionButton" 
+            android:onClick="clickSuggest"/>
+
+        <Button
+            android:id="@+id/buttonAccuse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" 
+            android:text="@string/accuseButton"
+            android:onClick="clickAccuse" />
+
+    </LinearLayout>
+
+</LinearLayout>
 

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#EEEEEE"
+    android:orientation="vertical" >
+
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Suggest" 
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:padding="10dp"
+ 		android:paddingLeft="5dp"
+ 		android:paddingRight="5dp"
+ 		android:paddingBottom="10dp"
+        android:orientation="horizontal"
+        android:weightSum="11" >
+
+        <ImageView
+            android:id="@+id/imageSuspectSelect"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="3"
+            android:onClick="clickSelectSuspect"
+            android:src="@drawable/joe" />
+        
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text=" with"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/imageWeaponSelect"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="4"
+             android:onClick="clickSelectWeapon"
+            android:src="@drawable/joe" />
+
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="in"
+            android:textSize="20sp" />
+        
+        <ImageView
+            android:id="@+id/imageSceneSelect"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="4"
+             android:onClick="clickSelectScene"
+            android:src="@drawable/joe" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listCards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonSubmitSuggest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="clickSuggestSubmit"
+            android:text="@string/submitButton" />
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="clickCancel"
+            android:text="@string/cancelButton" />
+
+    </LinearLayout>
+
+</LinearLayout>

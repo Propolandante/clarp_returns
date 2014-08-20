@@ -21,8 +21,32 @@
         android:id="@+id/games_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/message"
         android:layout_weight="10" >
     </ListView>
+    
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/footer"
+        android:layout_centerHorizontal="true"
+        android:text="FB Login" />
+    
+    <Button
+        android:id="@+id/add_cards_button"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/login_button"
+        android:text="@string/card_label" 
+        android:onClick="clickAddCard"/>
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     
 </RelativeLayout>

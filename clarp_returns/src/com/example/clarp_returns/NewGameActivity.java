@@ -1,70 +1,119 @@
 package com.example.clarp_returns;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.content.Intent;
+import org.json.JSONException;
+
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class NewGameActivity extends ActionBarActivity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_new_game);
 
-		if (savedInstanceState == null) {
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
-	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+    static EditText gameNameTextField;
 
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.new_game, menu);
-		return true;
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_new_game);
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+        View addCardsButton = findViewById(R.id.add_cards_button);
 
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+            .add(R.id.container, new PlaceholderFragment()).commit();
+        }
+    }
 
-		public PlaceholderFragment() {
-		}
 
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_new_game,
-					container, false);
-			return rootView;
-		}
-	}
-	
-	public void clickStart(View v) {
-		Intent intent = new Intent(getBaseContext(), GameActivity.class);
-        startActivity(intent);
-	}
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.new_game, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+            if (container == null) {
+                return null;
+            }
+
+            LinearLayout ll = (LinearLayout )inflater.inflate(R.layout.fragment_new_game, container, false);
+            gameNameTextField = (EditText) ll.findViewById(R.id.editTitle);
+
+            return ll;
+        }
+    }
+
+    public void clickStart(View v) throws JSONException, ParseException {
+
+
+        Log.d(ClarpApplication.TAG, "Start clicked");
+
+        final ClarpGame game = new ClarpGame();
+
+        //set game name
+        String gameName = gameNameTextField.getText().toString();
+        if (gameName.matches(""))
+        {
+            game.setGameName("Untitled Game");
+            Log.d(ClarpApplication.TAG, "gameName set to " + "Untitled Game");
+        } else
+        {
+            game.setGameName(gameName);
+            Log.d(ClarpApplication.TAG, "gameName set to " + gameName);
+        }
+
+        //create necessary data structures
+        game.initialize();
+        Log.d(ClarpApplication.TAG, "initialization complete");
+
+        //Add user to game's player list
+        game.addPlayer(ParseUser.getCurrentUser());
+        Log.d(ClarpApplication.TAG, "player added");
+
+        //save this information to the Parse Object online
+        game.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d(ClarpApplication.TAG, "Game saved");
+            }
+        });
+
+        finish();
+    }
 
 }

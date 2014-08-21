@@ -29,7 +29,7 @@ public class NewGameActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_game);
 
-        View addCardsButton = findViewById(R.id.add_cards_button);
+        //View addCardsButton = findViewById(R.id.add_cards_button);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

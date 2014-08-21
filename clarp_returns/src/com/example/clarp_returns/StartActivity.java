@@ -51,12 +51,14 @@ public class StartActivity extends ActionBarActivity {
 
     // result codes for activities that return with a result
     public static final int NEW_GAME = 10;
-    public static final int ADD_CARD = 11;
+    //public static final int ADD_CARD = 11;
+    public static final int CARDS_LIST = 11; // not sure this needs a result
+    // but whatever
 
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
-    private ArrayList<gameListItem> gameList;
-    private ArrayAdapter<gameListItem> arrayAdapter;
+    private ArrayList<GameListItem> gameList;
+    private ArrayAdapter<GameListItem> arrayAdapter;
     private Dialog progressDialog;
     private Button newGameButton;
     private Button loginButton;
@@ -131,7 +133,7 @@ public class StartActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 Intent intent = new Intent(StartActivity.this, GameActivity.class);
-                gameListItem clickedGame = gameList.get((int) id);
+                GameListItem clickedGame = gameList.get((int) id);
                 intent.putExtra("game_id", clickedGame.getId());
                 startActivity(intent);
             }
@@ -149,7 +151,10 @@ public class StartActivity extends ActionBarActivity {
         if(gameList != null){
             gameList.clear();
         }
-        gameList = new ArrayList<gameListItem>();
+        gameList = new ArrayList<GameListItem>();
+
+        arrayAdapter = new ArrayAdapter<GameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+        gameListView.setAdapter(arrayAdapter);
 
         // loop through all the user's active games and add them to the array
 
@@ -180,12 +185,13 @@ public class StartActivity extends ActionBarActivity {
                         {
                             String name = object.getGameName();
                             Log.d(ClarpApplication.TAG, "name is " + name);
-                            gameListItem item = new gameListItem(name, id);
+                            GameListItem item = new GameListItem(name, id);
 
                             gameList.add(item);
 
-                            arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
-                            gameListView.setAdapter(arrayAdapter);
+                            arrayAdapter.notifyDataSetChanged();
+                            //arrayAdapter = new ArrayAdapter<GameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+                            //gameListView.setAdapter(arrayAdapter);
                         }
                         else
                         {
@@ -199,8 +205,8 @@ public class StartActivity extends ActionBarActivity {
         else
         {
             Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
-            arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
-            gameListView.setAdapter(arrayAdapter);
+            //arrayAdapter = new ArrayAdapter<GameListItem>(this, android.R.layout.simple_list_item_1, gameList);
+            //gameListView.setAdapter(arrayAdapter);
         }
     }
 
@@ -252,7 +258,7 @@ public class StartActivity extends ActionBarActivity {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if(requestCode == NEW_GAME) {
             //refreshGameList(currentUser);
-        } else if(requestCode == ADD_CARD) {
+        } else if(requestCode == CARDS_LIST) {
             //do nothing...
         } else {
             ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
@@ -414,9 +420,9 @@ public class StartActivity extends ActionBarActivity {
 
     // this is just here to test the picture taking/card adding
     // system, without having cards linked to games
-    public void clickAddCard(View v) {
-        Intent intent = new Intent(StartActivity.this, NewClarpCardActivity.class);
-        startActivityForResult(intent, ADD_CARD);
+    public void clickCardsList(View v) {
+        Intent intent = new Intent(StartActivity.this, CardListActivity.class);
+        startActivityForResult(intent, CARDS_LIST);
 
     }
 

@@ -153,6 +153,8 @@ public class StartActivity extends ActionBarActivity {
             gameList.clear();
         }
         gameList = new ArrayList<ClarpGame>();
+        arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+        gameListView.setAdapter(arrayAdapter);
 
         // loop through all the user's active games and add them to the array
 
@@ -187,8 +189,10 @@ public class StartActivity extends ActionBarActivity {
                         {
                             gameList.add(object);
 
-                            arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
-                            gameListView.setAdapter(arrayAdapter);
+                            arrayAdapter.notifyDataSetChanged();
+
+                            //                            arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+                            //                            gameListView.setAdapter(arrayAdapter);
                         }
                         else
                         {
@@ -202,8 +206,8 @@ public class StartActivity extends ActionBarActivity {
         else
         {
             Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
-            arrayAdapter = new ArrayAdapter<ClarpGame>(this, android.R.layout.simple_list_item_1, gameList);
-            gameListView.setAdapter(arrayAdapter);
+            //arrayAdapter = new ArrayAdapter<ClarpGame>(this, android.R.layout.simple_list_item_1, gameList);
+            //gameListView.setAdapter(arrayAdapter);
         }
     }
 

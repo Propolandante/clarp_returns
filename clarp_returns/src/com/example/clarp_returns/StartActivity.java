@@ -140,15 +140,14 @@ public class StartActivity extends ActionBarActivity {
         if (ClarpApplication.IS_LOGGED_IN)
         {
             refreshGameList(user);
-            refreshGameList(user);
         }
     }
 
     // call this whenever gameListView needs to be updated
     public void refreshGameList(ParseUser user) {
-    	
-    	// This function ASSUMES that user is not null.
-    	
+
+        // This function ASSUMES that user is not null.
+
         // every time the user resumes the activity, refresh the game List
         if(gameList != null){
             gameList.clear();
@@ -172,9 +171,9 @@ public class StartActivity extends ActionBarActivity {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
-                
+
                 // Callback requires id to be final, but the try block requires it to be initialized.
-                // so we do a non-final initialized version first (tempId), 
+                // so we do a non-final initialized version first (tempId),
                 // and then set a new, final variable (id)equal to it for the callback
                 // messy and inelegant but the only was I could get it to work.
                 final String id = tempId;
@@ -418,7 +417,7 @@ public class StartActivity extends ActionBarActivity {
 
     // this is just here to test the picture taking/card adding
     // system, without having cards linked to games
-    public void clickAddCard(View v) {
+    public void clickCardsList(View v) {
         Intent intent = new Intent(StartActivity.this, NewClarpCardActivity.class);
         startActivityForResult(intent, ADD_CARD);
 

@@ -15,54 +15,6 @@ import com.parse.SaveCallback;
 @ParseClassName("ClarpGame")
 public class ClarpGame extends ParseObject {
 
-    /*
-	class player {
-
-		int id;
-		String name;
-		String prefix;
-		Boolean dq;
-		int[] suspectFacts;
-		int[] weaponFacts;
-		int[] locationFacts;
-
-	}
-     */
-
-    class suspect {
-        String name;
-        int imageId;
-    }
-
-    class weapon {
-        String name;
-        int imageId;
-    }
-
-    class location {
-        String name;
-        int imageId;
-    }
-
-    class turn{
-        int playerIndex;
-        int turnType; //should be an ENUM
-        int suspectIndex;
-        int weaponIndex;
-        int locationIndex;
-        int alibiIndex;
-        int ruledOut; // should be an ENUM
-    }
-    /*
-	String gameName;
-	JSONArray players;
-	JSONArray suspects;
-	JSONArray weapons;
-	JSONArray locations;
-	JSONArray solution;
-	JSONArray turns;
-     */
-
     public ClarpGame() {
         // A default constructor is required.
         // can/should I initialize the variables here? will that make the ParseObject dirty?
@@ -217,8 +169,11 @@ public class ClarpGame extends ParseObject {
 
     }
 
-    public void play() {
-        // Ah, that takes me back!
-    }
+    @Override
+	public String toString()
+	{
+		return getGameName();
+		
+	}
 }
 

@@ -9,7 +9,9 @@ import android.view.MenuItem;
 
 public class CardListActivity extends ListActivity {
 
-    static final int NEW_CARD_REQUEST = 0;
+    // result codes
+    static final int NEW_CARD = 0;
+
 
     private CardViewAdapter mainAdapter;
 
@@ -63,7 +65,7 @@ public class CardListActivity extends ListActivity {
 
     private void newClarpCard() {
         Intent i = new Intent(this, NewClarpCardActivity.class);
-        startActivityForResult(i, NEW_CARD_REQUEST);
+        startActivityForResult(i, NEW_CARD);
     }
 
     @Override

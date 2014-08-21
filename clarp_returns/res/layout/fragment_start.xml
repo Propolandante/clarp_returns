@@ -34,12 +34,12 @@
         android:text="FB Login" />
     
     <Button
-        android:id="@+id/add_cards_button"
+        android:id="@+id/cards_list_button"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_below="@+id/login_button"
-        android:text="@string/card_label" 
-        android:onClick="clickAddCard"/>
+        android:text="@string/cards_list" 
+        android:onClick="clickCardsList"/>
 
     <TextView
         android:id="@+id/message"
@@ -47,6 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
     
 </RelativeLayout>

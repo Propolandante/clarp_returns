@@ -55,8 +55,8 @@ public class StartActivity extends ActionBarActivity {
 
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
-    private ArrayList<gameListItem> gameList;
-    private ArrayAdapter<gameListItem> arrayAdapter;
+    private ArrayList<ClarpGame> gameList;
+    private ArrayAdapter<ClarpGame> arrayAdapter;
     private Dialog progressDialog;
     private Button newGameButton;
     private Button loginButton;
@@ -131,8 +131,8 @@ public class StartActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 Intent intent = new Intent(StartActivity.this, GameActivity.class);
-                gameListItem clickedGame = gameList.get((int) id);
-                intent.putExtra("game_id", clickedGame.getId());
+                ClarpGame clickedGame = gameList.get((int) id);
+                intent.putExtra("game_id", clickedGame.getObjectId());
                 startActivity(intent);
             }
         });
@@ -145,11 +145,16 @@ public class StartActivity extends ActionBarActivity {
 
     // call this whenever gameListView needs to be updated
     public void refreshGameList(ParseUser user) {
+
+        // This function ASSUMES that user is not null.
+
         // every time the user resumes the activity, refresh the game List
         if(gameList != null){
             gameList.clear();
         }
-        gameList = new ArrayList<gameListItem>();
+        gameList = new ArrayList<ClarpGame>();
+        arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+        gameListView.setAdapter(arrayAdapter);
 
         // loop through all the user's active games and add them to the array
 
@@ -169,6 +174,10 @@ public class StartActivity extends ActionBarActivity {
                     e1.printStackTrace();
                 }
 
+                // Callback requires id to be final, but the try block requires it to be initialized.
+                // so we do a non-final initialized version first (tempId),
+                // and then set a new, final variable (id)equal to it for the callback
+                // messy and inelegant but the only was I could get it to work.
                 final String id = tempId;
 
                 ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
@@ -178,14 +187,12 @@ public class StartActivity extends ActionBarActivity {
                     public void done(ClarpGame object, ParseException e) {
                         if (e == null)
                         {
-                            String name = object.getGameName();
-                            Log.d(ClarpApplication.TAG, "name is " + name);
-                            gameListItem item = new gameListItem(name, id);
+                            gameList.add(object);
 
-                            gameList.add(item);
+                            arrayAdapter.notifyDataSetChanged();
 
-                            arrayAdapter = new ArrayAdapter<gameListItem>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
-                            gameListView.setAdapter(arrayAdapter);
+                            //                            arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+                            //                            gameListView.setAdapter(arrayAdapter);
                         }
                         else
                         {
@@ -199,8 +206,8 @@ public class StartActivity extends ActionBarActivity {
         else
         {
             Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
-            arrayAdapter = new ArrayAdapter<gameListItem>(this, android.R.layout.simple_list_item_1, gameList);
-            gameListView.setAdapter(arrayAdapter);
+            //arrayAdapter = new ArrayAdapter<ClarpGame>(this, android.R.layout.simple_list_item_1, gameList);
+            //gameListView.setAdapter(arrayAdapter);
         }
     }
 
@@ -414,7 +421,7 @@ public class StartActivity extends ActionBarActivity {
 
     // this is just here to test the picture taking/card adding
     // system, without having cards linked to games
-    public void clickAddCard(View v) {
+    public void clickCardsList(View v) {
         Intent intent = new Intent(StartActivity.this, NewClarpCardActivity.class);
         startActivityForResult(intent, ADD_CARD);
 

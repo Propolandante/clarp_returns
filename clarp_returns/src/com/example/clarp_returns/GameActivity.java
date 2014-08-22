@@ -51,47 +51,45 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 	MyAdapter adapter;
 	HistoryFragment historyFragment;
 	int page = 0;
-	Player selectedPlayer;	
+	Player selectedPlayer;
+	
+	/*
+	 * This enum is currently in its own class... 
+	 * can it be moved to ClarpApplication to make it a global enum that doesn't need its own file and class?
+	 * Just a thought
+	 * -Derky
+	 */
 	CardTypes selectType = CardTypes.SUSPECT;
-
 	
 	
-
-	private void buildDeck(){
-		for(int i = 0; i < num_of_players; ++i){
-			Resources res = getResources();
-			String picName = players.get(i).name.toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(players.get(i).name, resID, CardTypes.SUSPECT));
-		}
-		for(int i = 0; i < num_of_weapons; ++i){
-			Resources res = getResources();
-			String picName = weapons.get(i).toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(weapons.get(i),resID,CardTypes.WEAPON));
-		}
-		for(int i = 0; i < num_of_scenes; ++i){
-			Resources res = getResources();
-			String picName = scenes.get(i).toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(scenes.get(i),resID,CardTypes.SUSPECT));
-		}
-		Collections.shuffle(cards);
-	}
-	
-	public void dealCards(){
-		int player = 0;
-		for (int i = 0; i < cards.size()-1; ++i){
-			players.get(player++).cards.add(cards.get(i));
-			if (player == num_of_players) player = 0;
-		}
-	}
+	/*
+	 * I moved buildDeck() and dealCards() down below onCreate() and onResume()
+	 * Just to be more consistent with the flow of our other Activities
+	 * -DJD
+	 */
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         total_cards = num_of_players + num_of_weapons + num_of_scenes;
+        
+        /*
+         * We may not have to add all the cards in this step, that might be handled by the PreGameActivity (to be created)
+         * -Dongahue
+         */
+        
+        
+        
+        /*
+         * Our current framework distinguishes between "player" and suspect".
+         * Players are the ones taking turns, suspects are cards
+         * Every player is a suspect, but often there will be more suspects than player.
+         * I suspect (heh) that this is meant to be suspects and not players
+         * Regardless, this is all placeholder code. Once we implement PreGameActivity this will all be done
+         * And with real user-generated cards!
+         * -DerkDerkDerk
+         */
         players.add(new Player("Joe"));
         players.add(new Player("Derek"));
         players.add(new Player("Brittany"));
@@ -128,6 +126,12 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     @Override
     public void onResume(){
     	super.onResume();
+    	
+    	/*
+    	 * I know what some of these words mean!
+    	 * The Snapchat-style swiping is really cool
+    	 * -Dennis
+    	 */
     	
     	viewPager = (ViewPager) findViewById(R.id.pager);
 		FragmentManager fragmentManager = getSupportFragmentManager();
@@ -174,6 +178,59 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 //        }
 //    }
     
+    private void buildDeck(){
+    	
+    	/*
+    	 * This will be all Parse-ified
+    	 * Once this activity has started, all of the ObjectIds of the cards created in PreGameActivity 
+    	 * will already have been stored in their appropriate suspects[] weapons[] and locations[] arrays
+    	 * Though, maybe we should take Joe's approach and just store them all in one array called cards[]
+    	 * We will need to be able to just list them separately at times (like when making selections),
+    	 * but a simple if statement within a for loop can be used to add them to the ListView's Array
+    	 * Either way, this function will really only need to shuffle the existing deck, since it will already be built
+    	 * In that case, the shuffling can probably be done in dealCards(), with this function deleted entirely
+    	 * -djdonahu
+    	 */
+    	
+		for(int i = 0; i < num_of_players; ++i){
+			Resources res = getResources();
+			String picName = players.get(i).name.toLowerCase().replaceAll(" ", "_");
+			int resID = res.getIdentifier(picName, "drawable", getPackageName());
+			cards.add(new Card(players.get(i).name, resID, CardTypes.SUSPECT));
+		}
+		for(int i = 0; i < num_of_weapons; ++i){
+			Resources res = getResources();
+			String picName = weapons.get(i).toLowerCase().replaceAll(" ", "_");
+			int resID = res.getIdentifier(picName, "drawable", getPackageName());
+			cards.add(new Card(weapons.get(i),resID,CardTypes.WEAPON));
+		}
+		for(int i = 0; i < num_of_scenes; ++i){
+			Resources res = getResources();
+			String picName = scenes.get(i).toLowerCase().replaceAll(" ", "_");
+			int resID = res.getIdentifier(picName, "drawable", getPackageName());
+			cards.add(new Card(scenes.get(i),resID,CardTypes.SUSPECT));
+		}
+		Collections.shuffle(cards);
+	}
+	
+	public void dealCards(){
+		
+		/*
+		 * I think we can all agree that this is a sexy, sexy string of functions.
+		 * I wouldn't change a thing.
+		 * Except for how it needs to use Parse.
+		 * Aw, we have to change it.
+		 * Fuck.
+		 * -His Derkiness
+		 */
+		
+		int player = 0;
+		for (int i = 0; i < cards.size()-1; ++i){
+			players.get(player++).cards.add(cards.get(i));
+			if (player == num_of_players) player = 0;
+		}
+	}
+    
     
     public void clickSuggest(View v) {
 		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -190,6 +247,14 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		
 		ListView listCards = (ListView) findViewById(R.id.listCards);
 		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
+		
+		/*
+		 * I get a NPE when the following line attempts to execute
+		 * Pretty sure this is a known bug Joe is working on though
+		 * Just wanted to be sure.
+		 * - Diligent Derk
+		 */
+		
 		listCards.setAdapter(adapter);
 		
 		

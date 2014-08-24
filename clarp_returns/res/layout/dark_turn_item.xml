@@ -7,13 +7,13 @@
    android:paddingTop="5dp"
    android:paddingLeft="5dp"
    android:orientation="vertical"
-   android:background="@drawable/whitebox">
+   android:background="@drawable/darkbox">
  	 <TextView
             android:id="@+id/textView_TallyVal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Joe's Suggestion:"
+            android:text="Joe's Accusation:"
             android:textSize="16sp" />
     
 	<LinearLayout

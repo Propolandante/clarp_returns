@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,7 +83,7 @@ public class NewClarpCardFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                ClarpCard card = ((NewClarpCardActivity) getActivity()).getCurrentClarpCard();
+                final ClarpCard card = ((NewClarpCardActivity) getActivity()).getCurrentClarpCard();
 
                 // When the user clicks "Save," upload the card to Parse
                 // Add data to the card object:
@@ -95,7 +96,7 @@ public class NewClarpCardFragment extends Fragment {
                 // this may become obsolete as we refine the
                 // card submission process
                 //card.setCardType(cardType.getSelectedItem().toString());
-                card.setCardType(Integer.toString(0));
+                card.setCardType("suspect");
 
                 // If the user added a photo, that data will be
                 // added in the CameraFragment
@@ -105,14 +106,17 @@ public class NewClarpCardFragment extends Fragment {
 
                     @Override
                     public void done(ParseException e) {
-                        if (e == null) {
-                            getActivity().setResult(Activity.RESULT_OK);
+                        if (e == null) 
+                        {
+                        	Intent resultIntent = new Intent();
+                        	resultIntent.putExtra("cardId", card.getObjectId());
+                        	
+                            getActivity().setResult(Activity.RESULT_OK, resultIntent);
                             getActivity().finish();
-                        } else {
-                            Toast.makeText(
-                                    getActivity().getApplicationContext(),
-                                    "Error saving: " + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
+                        } 
+                        else 
+                        {
+                            Toast.makeText( getActivity().getApplicationContext(), "Error saving: " + e.getMessage(), Toast.LENGTH_SHORT ).show();
                         }
                     }
 

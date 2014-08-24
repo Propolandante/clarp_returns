@@ -25,6 +25,9 @@ public class ClarpGame extends ParseObject {
     }
 
     public void initialize() throws ParseException {
+    	
+    	//Boolean to indicate if the game is started yet
+    	put("isStarted", false);
 
         //array of JSONObjects with relevant player information.
         put("players", new JSONArray());
@@ -62,6 +65,16 @@ public class ClarpGame extends ParseObject {
     }
     public void setOwner(ParseUser user) {
         put("owner", user.getObjectId());
+    }
+    
+    public Boolean ifStarted()
+    {
+    	return getBoolean("isStarted");
+    }
+    
+    public void startGame()
+    {
+    	put("isStarted", true);
     }
 
     public void addPlayer( ParseUser user ) throws JSONException

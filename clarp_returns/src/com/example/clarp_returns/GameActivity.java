@@ -3,6 +3,10 @@ package com.example.clarp_returns;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+
 import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -53,6 +57,8 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 	int page = 0;
 	Player selectedPlayer;
 	
+	ClarpGame game = null;
+	
 	/*
 	 * This enum is currently in its own class... 
 	 * can it be moved to ClarpApplication to make it a global enum that doesn't need its own file and class?
@@ -75,11 +81,24 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
         total_cards = num_of_players + num_of_weapons + num_of_scenes;
         
         /*
-         * We may not have to add all the cards in this step, that might be handled by the PreGameActivity (to be created)
-         * -Dongahue
+         * First, get the ClarpGame so we know what we're working with
          */
         
-        
+        Intent mainIntent = getIntent();
+        ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+        query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
+            @Override
+            public void done(ClarpGame object, ParseException e) {
+                if (e == null)
+                {
+                    game = object;
+                }
+                else
+                {
+                    Log.d(ClarpApplication.TAG, "Something went wrong when querying the ClarpGame in GA");
+                }
+            }
+        });
         
         /*
          * Our current framework distinguishes between "player" and suspect".
@@ -90,6 +109,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
          * And with real user-generated cards!
          * -DerkDerkDerk
          */
+        
         players.add(new Player("Joe"));
         players.add(new Player("Derek"));
         players.add(new Player("Brittany"));

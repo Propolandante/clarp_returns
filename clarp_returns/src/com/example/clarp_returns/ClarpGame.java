@@ -56,6 +56,13 @@ public class ClarpGame extends ParseObject {
     public void setGameName(String name) {
         put("gameName", name);
     }
+    
+    public String getOwner() {
+        return getString("owner");
+    }
+    public void setOwner(ParseUser user) {
+        put("owner", user.getObjectId());
+    }
 
     public void addPlayer( ParseUser user ) throws JSONException
     {

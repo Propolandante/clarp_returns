@@ -422,7 +422,7 @@ public class StartActivity extends ActionBarActivity {
     // this is just here to test the picture taking/card adding
     // system, without having cards linked to games
     public void clickCardsList(View v) {
-        Intent intent = new Intent(StartActivity.this, NewClarpCardActivity.class);
+        Intent intent = new Intent(StartActivity.this, CardListActivity.class);
         startActivityForResult(intent, ADD_CARD);
 
     }

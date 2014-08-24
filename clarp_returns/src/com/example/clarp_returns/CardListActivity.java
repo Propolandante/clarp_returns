@@ -50,6 +50,11 @@ public class CardListActivity extends ListActivity {
                 break;
             }
 
+            case R.id.action_refresh: {
+                updateCardList();
+                break;
+            }
+
             case R.id.action_new: {
                 newClarpCard();
                 break;

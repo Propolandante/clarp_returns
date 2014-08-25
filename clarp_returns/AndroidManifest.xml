@@ -12,6 +12,15 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+	
+	<permission android:protectionLevel="signature"
+	    android:name="com.example.clarp_returns.permission.C2D_MESSAGE" />
+	<uses-permission android:name="com.example.clarp_returns.permission.C2D_MESSAGE" />
 
     <application
         android:name="com.example.clarp_returns.ClarpApplication"
@@ -36,24 +45,16 @@
         <activity android:name="com.facebook.LoginActivity" >
         </activity>
         <activity
-            android:name="com.example.clarp_returns.GameActivity"
-            android:label="@string/title_activity_game" >
-        </activity>
-        <activity
-            android:name="com.example.clarp_returns.PreGameActivity"
-            android:label="@string/title_activity_pre_game" >
-        </activity>
-        <activity
             android:name="com.example.clarp_returns.NewGameActivity"
             android:label="@string/title_activity_new_game" >
         </activity>
         <activity
-            android:name="com.example.clarp_returns.NotesActivity"
-            android:label="@string/title_activity_notes" >
+            android:name="com.example.clarp_returns.InviteActivity"
+            android:label="@string/title_activity_invite" >
         </activity>
         <activity
-            android:name="com.example.clarp_returns.CardListActivity"
-            android:label="@string/title_activity_card_list" >
+            android:name="com.example.clarp_returns.PreGameActivity"
+            android:label="@string/title_activity_pre_game" >
         </activity>
         <activity
             android:name="com.example.clarp_returns.NewClarpCardActivity"
@@ -63,6 +64,35 @@
             android:name="com.example.clarp_returns.NewClarpCardFragment"
             android:label="@string/title_activity_new_clarp_card_fragment" >
         </activity>
+        <activity
+            android:name="com.example.clarp_returns.GameActivity"
+            android:label="@string/title_activity_game" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.NotesActivity"
+            android:label="@string/title_activity_notes" >
+        </activity>
+        <activity
+            android:name="com.example.clarp_returns.CardListActivity"
+            android:label="@string/title_activity_card_list" >
+        </activity>
+        
+        
+        
+        <service android:name="com.parse.PushService" />
+        <receiver android:name="com.parse.ParseBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.example.clarp_returns" />
+            </intent-filter>
+        </receiver>
     </application>
-
 </manifest>

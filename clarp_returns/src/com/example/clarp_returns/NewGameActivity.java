@@ -2,6 +2,7 @@ package com.example.clarp_returns;
 
 import org.json.JSONException;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -113,11 +114,23 @@ public class NewGameActivity extends ActionBarActivity {
         game.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                Log.d(ClarpApplication.TAG, "Game saved");
+            	if (e == null)
+            	{
+            		Log.d(ClarpApplication.TAG, "Game saved");
+            		
+            		Intent intent = new Intent(NewGameActivity.this, InviteActivity.class);
+            		intent.putExtra("game_id", game.getObjectId());
+            		startActivity(intent);
+            	}
+            	else
+            	{
+            		Log.d(ClarpApplication.TAG, "Error saving new ClarpGame");
+            		finish();
+            	}
             }
         });
 
-        finish();
+        
     }
 
 }

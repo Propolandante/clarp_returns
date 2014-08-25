@@ -350,76 +350,7 @@ public class PreGameActivity extends ActionBarActivity
     	}
     }
     
-//    /**
-//     * A placeholder fragment containing a simple view.
-//     */
-//    public static class PlaceholderFragment extends Fragment {
-//
-//        public PlaceholderFragment() {
-//        }
-//
-//        @Override
-//        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//            View rootView = inflater.inflate(R.layout.fragment_pre_game, container, false);
-//            
-//            TextView playerCountView = (TextView) rootView.findViewById(R.id.playerCount);
-//            TextView suspectCountView = (TextView) rootView.findViewById(R.id.suspectCount);
-//            TextView weaponCountView = (TextView) rootView.findViewById(R.id.weaponCount);
-//            TextView locationCountView = (TextView) rootView.findViewById(R.id.locationCount);
-//            
-//            Button addCardButton = (Button) rootView.findViewById(R.id.addCardButton);
-//            addCardButton.setOnClickListener(new View.OnClickListener() {
-//            	@Override
-//                public void onClick(View v) {
-//                	
-//                	/*
-//                	 * Takes user to the card creation activity.
-//                	 * Currently, this does not actually add the card to any game.
-//                	 * We will store all the card ObjectIds in local arrays,
-//                	 * and only save them to Parse once the Start Game button is pushed.
-//                	 * 
-//                	 * I don't think it's vital to send any extra data with the intent.
-//                	 * The only thing I can think of would be to send the game name
-//                	 * for a more helpful UI in the NewCard activity.
-//                	 * Or maybe, send the current counts, so it can suggest a card type that the
-//                	 * game needs more of. #stretchgoal
-//                	 */
-//                	
-//                	Intent intent = new Intent(getActivity(), NewClarpCardActivity.class);
-//                    startActivityForResult(intent, ClarpApplication.ADD_CARD);
-//               }
-//            });
-//            
-//            Button startGameButton = (Button) rootView.findViewById(R.id.startGameButton);
-//            startGameButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                	
-//                	/*
-//                	 * Takes user to the game activity.
-//                	 * 
-//                	 */
-//                	
-//                	// set isStarted to TRUE, so that we skip PreGame from now on.
-//                	game.startGame();
-//                	
-//                	Intent intent = new Intent(getActivity(), GameActivity.class);
-//                    intent.putExtra("game_id", game.getObjectId());
-//                    startActivity(intent);
-//                }
-//            });
-//            
-//            Button refreshButton = (Button) rootView.findViewById(R.id.refreshButton);
-//            refreshButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                	refreshCounts();
-//                }
-//            });
-//            return rootView;
-//        }
-//    }
-//    
+
     
     
     

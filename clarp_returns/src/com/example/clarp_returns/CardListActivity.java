@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -12,6 +13,7 @@ public class CardListActivity extends ListActivity {
     // result codes
     static final int NEW_CARD = 0;
 
+    protected static final String TAG = "CardListActivity";
 
     private CardViewAdapter mainAdapter;
 
@@ -65,6 +67,7 @@ public class CardListActivity extends ListActivity {
 
     private void updateCardList() {
         mainAdapter.loadObjects();
+        Log.v(TAG, "Card objects loaded");
         //setListAdapter(mainAdapter);
     }
 
@@ -79,6 +82,8 @@ public class CardListActivity extends ListActivity {
             // if there's a new card,
             // update the list of current cards
             updateCardList();
+            Log.v(TAG, "Returned from NewCard");
+            Log.v(TAG, "Card List updated");
         }
     }
 

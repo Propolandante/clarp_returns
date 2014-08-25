@@ -40,6 +40,10 @@
             android:label="@string/title_activity_game" >
         </activity>
         <activity
+            android:name="com.example.clarp_returns.PreGameActivity"
+            android:label="@string/title_activity_pre_game" >
+        </activity>
+        <activity
             android:name="com.example.clarp_returns.NewGameActivity"
             android:label="@string/title_activity_new_game" >
         </activity>

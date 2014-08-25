@@ -50,8 +50,7 @@ import com.parse.SaveCallback;
 public class StartActivity extends ActionBarActivity {
 
     // result codes for activities that return with a result
-    public static final int NEW_GAME = 10;
-    public static final int ADD_CARD = 11;
+    
 
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
@@ -130,8 +129,27 @@ public class StartActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Intent intent = new Intent(StartActivity.this, GameActivity.class);
-                ClarpGame clickedGame = gameList.get((int) id);
+            	
+            	/*
+            	 * The user clicked on a game!
+            	 * First, we have to see if this game has been started
+            	 * If so, we send it to GameActivity (GA)
+            	 * If not, we send it to PreGameActivity (PGA)
+            	 * Either way, we must be sure to send the game's ObjectId as part of the Intent
+            	 */
+            	
+            	ClarpGame clickedGame = gameList.get((int) id);
+            	Intent intent;
+            	
+            	if(clickedGame.ifStarted())
+            	{
+            		intent = new Intent(StartActivity.this, GameActivity.class);
+            	}
+            	else
+            	{
+            		intent = new Intent(StartActivity.this, PreGameActivity.class);
+            	}
+            	
                 intent.putExtra("game_id", clickedGame.getObjectId());
                 startActivity(intent);
             }
@@ -250,16 +268,16 @@ public class StartActivity extends ActionBarActivity {
 
     public void clickNewGame(View v) {
         Intent intent = new Intent(StartActivity.this, NewGameActivity.class);
-        startActivityForResult(intent, NEW_GAME);
+        startActivityForResult(intent, ClarpApplication.NEW_GAME);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ParseUser currentUser = ParseUser.getCurrentUser();
-        if(requestCode == NEW_GAME) {
+        if(requestCode == ClarpApplication.NEW_GAME) {
             //refreshGameList(currentUser);
-        } else if(requestCode == ADD_CARD) {
+        } else if(requestCode == ClarpApplication.ADD_CARD) {
             //do nothing...
         } else {
             ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
@@ -423,7 +441,7 @@ public class StartActivity extends ActionBarActivity {
     // system, without having cards linked to games
     public void clickCardsList(View v) {
         Intent intent = new Intent(StartActivity.this, CardListActivity.class);
-        startActivityForResult(intent, ADD_CARD);
+        startActivityForResult(intent, ClarpApplication.ADD_CARD);
 
     }
 

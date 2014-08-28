@@ -44,6 +44,7 @@
     <string name="scene6">Scene 6</string>
     <string name="title_activity_card_list">CardListActivity</string>
     <string name="action_new">Add a Card</string>
+    <string name="action_refresh">Refresh</string>
     <string name="cards_list">Cards List</string>
     <string name="card_label">Add a Card</string>
     <string name="save_button_text">Save</string>
@@ -58,5 +59,7 @@
 
     <string name="title_activity_new_clarp_card">NewClarpCardActivity</string>
     <string name="title_activity_new_clarp_card_fragment">NewClarpCardFragment</string>
+    <string name="title_activity_pre_game">Pre Game Activity</string>
+    <string name="title_activity_invite">Invite Activity</string>
 
 </resources>

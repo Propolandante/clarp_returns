@@ -2,6 +2,7 @@ package com.example.clarp_returns;
 
 import org.json.JSONException;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -81,7 +82,9 @@ public class NewGameActivity extends ActionBarActivity {
     public void clickStart(View v) throws JSONException, ParseException {
 
 
-        Log.d(ClarpApplication.TAG, "Start clicked");
+        ParseUser user = ParseUser.getCurrentUser();
+    	
+    	Log.d(ClarpApplication.TAG, "Start clicked");
 
         final ClarpGame game = new ClarpGame();
 
@@ -96,24 +99,38 @@ public class NewGameActivity extends ActionBarActivity {
             game.setGameName(gameName);
             Log.d(ClarpApplication.TAG, "gameName set to " + gameName);
         }
+        
+        game.setOwner(user);
 
         //create necessary data structures
         game.initialize();
         Log.d(ClarpApplication.TAG, "initialization complete");
 
         //Add user to game's player list
-        game.addPlayer(ParseUser.getCurrentUser());
+        game.addPlayer(user);
         Log.d(ClarpApplication.TAG, "player added");
 
         //save this information to the Parse Object online
         game.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                Log.d(ClarpApplication.TAG, "Game saved");
+            	if (e == null)
+            	{
+            		Log.d(ClarpApplication.TAG, "Game saved");
+            		
+            		Intent intent = new Intent(NewGameActivity.this, InviteActivity.class);
+            		intent.putExtra("game_id", game.getObjectId());
+            		startActivity(intent);
+            	}
+            	else
+            	{
+            		Log.d(ClarpApplication.TAG, "Error saving new ClarpGame");
+            		finish();
+            	}
             }
         });
 
-        finish();
+        
     }
 
 }

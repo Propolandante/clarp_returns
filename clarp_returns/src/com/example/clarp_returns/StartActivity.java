@@ -40,9 +40,11 @@ import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.GetCallback;
 import com.parse.LogInCallback;
+import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -50,8 +52,7 @@ import com.parse.SaveCallback;
 public class StartActivity extends ActionBarActivity {
 
     // result codes for activities that return with a result
-    public static final int NEW_GAME = 10;
-    public static final int ADD_CARD = 11;
+    
 
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
@@ -68,9 +69,10 @@ public class StartActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_start);
-
-        Log.v(ClarpApplication.TAG, "Log?");
-
+        
+        // Parse Analytics to track when people respond to Push Notifications
+        ParseAnalytics.trackAppOpened(getIntent());
+        
         // this view displays the name of the logged in user
         userNameView = (TextView) findViewById(R.id.message);
         // this is the list of the user's active games. Each is a button to enter Game activity
@@ -91,6 +93,19 @@ public class StartActivity extends ActionBarActivity {
             // Go to the user info activity
             ClarpApplication.IS_LOGGED_IN = true;
             Log.v(ClarpApplication.TAG, "User already logged in!");
+            
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            try {
+				installation.put("facebookId", currentUser.getJSONObject("profile").getString("facebookId"));
+				installation.saveInBackground();
+			} catch (IllegalArgumentException e) {
+				Log.d(ClarpApplication.TAG, "ArgumentError putting installation info");
+				e.printStackTrace();
+			} catch (JSONException e) {
+				Log.d(ClarpApplication.TAG, "JSONError putting installation info");
+				e.printStackTrace();
+			}
+            ParseInstallation.getCurrentInstallation().saveInBackground();
         }
         else
         {
@@ -130,8 +145,27 @@ public class StartActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Intent intent = new Intent(StartActivity.this, GameActivity.class);
-                ClarpGame clickedGame = gameList.get((int) id);
+            	
+            	/*
+            	 * The user clicked on a game!
+            	 * First, we have to see if this game has been started
+            	 * If so, we send it to GameActivity (GA)
+            	 * If not, we send it to PreGameActivity (PGA)
+            	 * Either way, we must be sure to send the game's ObjectId as part of the Intent
+            	 */
+            	
+            	ClarpGame clickedGame = gameList.get((int) id);
+            	Intent intent;
+            	
+            	if(clickedGame.ifStarted())
+            	{
+            		intent = new Intent(StartActivity.this, GameActivity.class);
+            	}
+            	else
+            	{
+            		intent = new Intent(StartActivity.this, PreGameActivity.class);
+            	}
+            	
                 intent.putExtra("game_id", clickedGame.getObjectId());
                 startActivity(intent);
             }
@@ -240,26 +274,24 @@ public class StartActivity extends ActionBarActivity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_start,
-                    container, false);
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_start, container, false);
             return rootView;
         }
     }
 
     public void clickNewGame(View v) {
         Intent intent = new Intent(StartActivity.this, NewGameActivity.class);
-        startActivityForResult(intent, NEW_GAME);
+        startActivityForResult(intent, ClarpApplication.NEW_GAME);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ParseUser currentUser = ParseUser.getCurrentUser();
-        if(requestCode == NEW_GAME) {
+        if(requestCode == ClarpApplication.NEW_GAME) {
             //refreshGameList(currentUser);
-        } else if(requestCode == ADD_CARD) {
+        } else if(requestCode == ClarpApplication.ADD_CARD) {
             //do nothing...
         } else {
             ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
@@ -268,26 +300,22 @@ public class StartActivity extends ActionBarActivity {
 
 
     public void onLoginButtonClicked() {
-        StartActivity.this.progressDialog = ProgressDialog.show(
-                StartActivity.this, "", "Logging in...", true);
+        StartActivity.this.progressDialog = ProgressDialog.show(StartActivity.this, "", "Logging in...", true);
         List<String> permissions = Arrays.asList("public_profile", "user_friends");
         ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException err) {
                 StartActivity.this.progressDialog.dismiss();
                 if (user == null) {
-                    Log.d(ClarpApplication.TAG,
-                            "Uh oh. The user cancelled the Facebook login.");
+                    Log.d(ClarpApplication.TAG, "Uh oh. The user cancelled the Facebook login.");
                     ClarpApplication.IS_LOGGED_IN = false;
                 } else if (user.isNew()) {
-                    Log.d(ClarpApplication.TAG,
-                            "User signed up and logged in through Facebook!");
+                    Log.d(ClarpApplication.TAG, "User signed up and logged in through Facebook!");
                     ClarpApplication.IS_LOGGED_IN = true;
                     makeMeRequest();
                     //showUserDetailsActivity();
                 } else {
-                    Log.d(ClarpApplication.TAG,
-                            "User logged in through Facebook!");
+                    Log.d(ClarpApplication.TAG, "User logged in through Facebook!");
                     ClarpApplication.IS_LOGGED_IN = true;
                     makeMeRequest();
                     //showUserDetailsActivity();
@@ -299,8 +327,7 @@ public class StartActivity extends ActionBarActivity {
     }
 
     private void makeMeRequest() {
-        Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
-                new Request.GraphUserCallback() {
+        Request request = Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
             @Override
             public void onCompleted(GraphUser user, Response response) {
                 if (user != null) {
@@ -308,13 +335,12 @@ public class StartActivity extends ActionBarActivity {
                     JSONObject userProfile = new JSONObject();
                     try {
                         // Populate the JSON object
-                        userProfile.put("facebookId", user.getId());
-                        userProfile.put("name", user.getName());
-                        userProfile.put("firstName", user.getFirstName());
+                        userProfile.put( "facebookId", user.getId() );
+                        userProfile.put( "name", user.getName() );
+                        userProfile.put( "firstName", user.getFirstName() );
 
                         // Save the user profile info in a user property
-                        ParseUser currentUser = ParseUser
-                                .getCurrentUser();
+                        ParseUser currentUser = ParseUser.getCurrentUser();
                         currentUser.put("profile", userProfile);
                         currentUser.saveInBackground(); // why? when do I use this?
 
@@ -323,21 +349,15 @@ public class StartActivity extends ActionBarActivity {
                         // Show the user info
                         updateViewsWithProfileInfo();
                     } catch (JSONException e) {
-                        Log.d(ClarpApplication.TAG,
-                                "Error parsing returned user data.");
+                        Log.d(ClarpApplication.TAG, "Error parsing returned user data.");
                     }
 
                 } else if (response.getError() != null) {
-                    if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY)
-                            || (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
-                        Log.d(ClarpApplication.TAG,
-                                "The facebook session was invalidated.");
+                    if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY) || (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
+                        Log.d(ClarpApplication.TAG, "The facebook session was invalidated.");
                         //onLogoutButtonClicked();
                     } else {
-                        Log.d(ClarpApplication.TAG,
-                                "Some other error: "
-                                        + response.getError()
-                                        .getErrorMessage());
+                        Log.d(ClarpApplication.TAG, "Some other error: " + response.getError().getErrorMessage());
                     }
                 }
             }
@@ -397,8 +417,7 @@ public class StartActivity extends ActionBarActivity {
                     userNameView.setText("No user.");
                 }
             } catch (JSONException e) {
-                Log.d(ClarpApplication.TAG,
-                        "Error parsing saved user data.");
+                Log.d(ClarpApplication.TAG, "Error parsing saved user data.");
             }
 
         }
@@ -422,8 +441,8 @@ public class StartActivity extends ActionBarActivity {
     // this is just here to test the picture taking/card adding
     // system, without having cards linked to games
     public void clickCardsList(View v) {
-        Intent intent = new Intent(StartActivity.this, NewClarpCardActivity.class);
-        startActivityForResult(intent, ADD_CARD);
+        Intent intent = new Intent(StartActivity.this, CardListActivity.class);
+        startActivityForResult(intent, ClarpApplication.ADD_CARD);
 
     }
 

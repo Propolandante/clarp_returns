@@ -19,7 +19,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -27,8 +26,11 @@ import com.facebook.model.GraphUser;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SendCallback;
 
 public class InviteActivity extends ActionBarActivity
 {
@@ -46,7 +48,7 @@ public class InviteActivity extends ActionBarActivity
 	 */
 	
 	private ListView friendListView;
-    private ArrayList<GraphUser> friendList;
+    private ArrayList<Friend> friendList;
     private FriendAdapter friendAdapter;
     private Button inviteButton;
 	
@@ -83,7 +85,48 @@ public class InviteActivity extends ActionBarActivity
                         public void onClick(View v) {
                         	
                         	/*
-                        	 * Takes user to the game activity.
+                        	 * Send push notifications to the invited users
+                        	 */
+                        	
+                        	for (int i = 0; i < friendList.size(); i++)
+                        	{
+                        		/*
+                        		 * If the friend's box was checked when the button was pressed...
+                        		 */
+                        		
+                        		if(friendList.get(i).isChecked())
+                        		{
+                        			// Create our Installation query
+                                	ParseQuery<ParseInstallation> pushQuery = ParseInstallation.getQuery();
+                                	pushQuery.whereEqualTo("facebookId", friendList.get(i).getId());
+                                	 
+                                	// Send push notification to query
+                                	ParsePush push = new ParsePush();
+                                	push.setQuery(pushQuery); // Set our Installation query
+                                	push.setMessage("ARE YOU READY TO CLARP???");
+                                	push.sendInBackground(new SendCallback() {
+                                		
+                                		@Override
+                                		public void done(ParseException e)
+                                		{
+                                			if (e == null)
+                                			{
+                                				Log.d(ClarpApplication.TAG, "Sent push notification");
+                                			}
+                                			else
+                                			{
+                                				Log.d(ClarpApplication.TAG, "Push notification NOT sent");
+                                			}
+                                		}
+                                	});
+                        		}
+                        		
+                        	}
+                        	
+                        	
+                        	
+                        	/*
+                        	 * Takes user to the pregame activity.
                         	 * 
                         	 */
                         	
@@ -91,7 +134,7 @@ public class InviteActivity extends ActionBarActivity
                             intent.putExtra("game_id", game.getObjectId());
                             startActivity(intent);
                         }
-                    });
+                        });
                     
                 }
                 else
@@ -126,15 +169,23 @@ public class InviteActivity extends ActionBarActivity
             public void onCompleted(List<GraphUser> userList, Response response) {
             	
             	/*
-            	 *First, load the List of Graph users into the ArrayList
+            	 *First, load the List of Graph users into the ArrayList of Freinds
+            	 *NOTE: Friend is a custom object type for this Activity (see class below)
             	 *Then, do that... weird... ArrayAdapter thingy and make the ListView work
             	 */
-            	friendList = new ArrayList<GraphUser>();
+            	friendList = new ArrayList<Friend>();
             	
             	for(int i = 0; i < userList.size(); ++i)
             	{
-            		friendList.add(userList.get(i));
+            		
+            		/*
+            		 * Copy each GraphUser as a Friend object into the Array
+            		 */
+            		
+            		friendList.add(new Friend(userList.get(i)));
             		Log.d(ClarpApplication.TAG, friendList.get(i).getName());
+            		
+            		
             	}
             	
             	
@@ -170,7 +221,7 @@ public class InviteActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
     
-    public class FriendAdapter extends ArrayAdapter<GraphUser> {
+    public class FriendAdapter extends ArrayAdapter<Friend> {
     	
     	/*
     	 * Sources:
@@ -179,9 +230,9 @@ public class InviteActivity extends ActionBarActivity
     	 */
     	
     	private final Context context;
-    	private final ArrayList<GraphUser> friends;
+    	private final ArrayList<Friend> friends;
     	
-    	public FriendAdapter(Context context, ArrayList<GraphUser> friends) {
+    	public FriendAdapter(Context context, ArrayList<Friend> friends) {
     		super(context, R.layout.friend_item, friends);
     	    this.context = context;
     	    this.friends = friends;
@@ -215,9 +266,20 @@ public class InviteActivity extends ActionBarActivity
         			public void onClick(View v) {
         				CheckBox cb = (CheckBox) v;
         				
-        				GraphUser user = (GraphUser) cb.getTag();
+        				/*
+        				 * If the checkbox is clicked, select/deselect the Friend
+        				 */
         				
-        				Log.d(ClarpApplication.TAG, "Clicked on " + user.getName());
+        				if (((Friend) cb.getTag()).isChecked())
+        				{
+        					((Friend) cb.getTag()).deselect();
+        				}
+        				else
+        				{
+        					((Friend) cb.getTag()).select();
+        				}
+        				
+        				Log.d(ClarpApplication.TAG, ((Friend) cb.getTag()).getName() + " checked: " + ((Friend) cb.getTag()).isChecked());
         				
         			}
         			
@@ -234,7 +296,7 @@ public class InviteActivity extends ActionBarActivity
     		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	    
     	    
-    	    GraphUser friend = friends.get(position);
+    	    Friend friend = friends.get(position);
     	    
     	    // holder.image.setImageResource(something?);
     	    holder.text.setText(friends.get(position).getName());
@@ -244,5 +306,62 @@ public class InviteActivity extends ActionBarActivity
 
     	    return convertView;
     	  }
-    	} 
+    	}
+    
+    private class Friend
+    {
+    	private String facebookId;
+		private String name;
+		private Boolean isChecked;
+    	
+    	Friend(GraphUser user)
+    	{
+    		this.facebookId = user.getId();
+    		this.name = user.getName();
+    		this.isChecked = false;
+    	}
+    	
+    	String getId()
+    	{
+    		return this.facebookId;
+    	}
+    	
+    	String getName()
+    	{
+    		return this.name;
+    	}
+    	
+    	Boolean isChecked()
+    	{
+    		return this.isChecked;
+    	}
+    	
+    	void select()
+    	{
+    		this.isChecked = true;
+    	}
+    	
+    	void deselect()
+    	{
+    		this.isChecked = false;
+    	}
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

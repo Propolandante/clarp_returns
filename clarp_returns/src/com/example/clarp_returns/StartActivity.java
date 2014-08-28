@@ -72,7 +72,6 @@ public class StartActivity extends ActionBarActivity {
         
         // Parse Analytics to track when people respond to Push Notifications
         ParseAnalytics.trackAppOpened(getIntent());
-        ParseInstallation.getCurrentInstallation().saveInBackground();
         
         // this view displays the name of the logged in user
         userNameView = (TextView) findViewById(R.id.message);
@@ -94,6 +93,19 @@ public class StartActivity extends ActionBarActivity {
             // Go to the user info activity
             ClarpApplication.IS_LOGGED_IN = true;
             Log.v(ClarpApplication.TAG, "User already logged in!");
+            
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            try {
+				installation.put("facebookId", currentUser.getJSONObject("profile").getString("facebookId"));
+				installation.saveInBackground();
+			} catch (IllegalArgumentException e) {
+				Log.d(ClarpApplication.TAG, "ArgumentError putting installation info");
+				e.printStackTrace();
+			} catch (JSONException e) {
+				Log.d(ClarpApplication.TAG, "JSONError putting installation info");
+				e.printStackTrace();
+			}
+            ParseInstallation.getCurrentInstallation().saveInBackground();
         }
         else
         {

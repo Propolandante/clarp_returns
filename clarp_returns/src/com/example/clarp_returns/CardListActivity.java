@@ -5,7 +5,6 @@ import java.util.List;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +17,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+
 public class CardListActivity extends Activity {
 
     // result codes
@@ -29,7 +29,7 @@ public class CardListActivity extends Activity {
     ListView cardListView;
     List<ParseObject> ob;
     ProgressDialog cardProgressDialog;
-    ListViewAdapter cardAdapter;
+    CardListViewAdapter cardAdapter;
     private List<ClarpCard> cardList = null;
 
 
@@ -44,20 +44,36 @@ public class CardListActivity extends Activity {
 
         setContentView(R.layout.activity_card_list);
 
-        new RemoteDataTask().execute();
+        //new RemoteDataTask().execute();
+
+        ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
+        query.findInBackground(new FindCallback<ClarpCard>() {
+            @Override
+            public void done(List<ClarpCard> objects, ParseException e) {
+                if (e == null) {
+                    //objectsWereRetrievedSuccessfully(objects);
+                    for(ClarpCard card: objects) {
+                        ParseFile image = card.getPhotoFile();
+
+                        ClarpCard clarpCard = new ClarpCard();
+                        clarpCard.setCardType(Integer.toString(0)); // will need to change
+                        clarpCard.setCardName(card.getCardName());
+                        clarpCard.setPhotoFile(image);
+
+                        cardList.add(clarpCard);
+                    }
+
+                } else {
+                    //objectRetrievalFailed();
+                    Log.e("Error", e.getMessage());
+                    e.printStackTrace();
+                    Log.d(ClarpApplication.TAG, "Card retrieval failed");
+                }
+            }
+        });
+
+
     }
-
-
-
-    //        @Override
-    //        protected void doInBackground(Void... params) { // ...?????
-    //            cardList = new ArrayList<ClarpCard>();
-    //            try {
-    //                // locate ClarpCard in Parse (????)
-    //                ParseQuery<>
-    //            }
-    //
-    //        }
 
 
     @Override
@@ -94,7 +110,7 @@ public class CardListActivity extends Activity {
     }
 
     private void updateCardList() {
-        mainAdapter.loadObjects();
+        //mainAdapter.loadObjects();
         Log.v(ClarpApplication.TAG, "Card objects loaded");
         //setListAdapter(mainAdapter);
     }
@@ -115,43 +131,46 @@ public class CardListActivity extends Activity {
         }
     }
 
-    private class RemoteDataTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            cardProgressDialog = new ProgressDialog(CardListActivity.this);
-            cardProgressDialog.setTitle("Card ListView");
+    private void startTask() {
+        cardProgressDialog = new ProgressDialog(CardListActivity.this);
+        cardProgressDialog.setTitle("Card ListView");
 
-            cardProgressDialog.setMessage("Loading...");
-            cardProgressDialog.setIndeterminate(false);
-            cardProgressDialog.show();
-        }
-
-        ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
-        query.findInBackground(new FindCallback<ClarpCard>() {
-            @Override
-            public void done(List<ClarpCard> objects, ParseException e) {
-                if (e == null) {
-                    //objectsWereRetrievedSuccessfully(objects);
-                    for(ClarpCard card: objects) {
-                        ParseFile image = card.getPhotoFile();
-
-                        ClarpCard clarpCard = new ClarpCard();
-                        clarpCard.setCardType(Integer.toString(0)); // will need to change
-                        clarpCard.setCardName(card.getCardName());
-                        clarpCard.setPhotoFile(image);
-                    }
-
-                } else {
-                    //objectRetrievalFailed();
-                    Log.e("Error", e.getMessage());
-                    e.printStackTrace();
-                    Log.d(ClarpApplication.TAG, "Card retrieval failed");
-                }
-            }
-        });
+        cardProgressDialog.setMessage("Loading...");
+        cardProgressDialog.setIndeterminate(false);
+        cardProgressDialog.show();
     }
+
+    private void endTask() {
+        cardListView = (ListView) findViewById(R.id.card_list_view);
+        cardAdapter = new CardListViewAdapter(CardListActivity.this, cardList);
+        cardListView.setAdapter(cardAdapter);
+        cardProgressDialog.dismiss();
+    }
+
+    //    private class RemoteDataTask extends AsyncTask<Void, Void, Void> {
+    //        @Override
+    //        protected void onPreExecute() {
+    //            super.onPreExecute();
+    //            cardProgressDialog = new ProgressDialog(CardListActivity.this);
+    //            cardProgressDialog.setTitle("Card ListView");
+    //
+    //            cardProgressDialog.setMessage("Loading...");
+    //            cardProgressDialog.setIndeterminate(false);
+    //            cardProgressDialog.show();
+    //        }
+    //
+    //
+    //        @Override
+    //        protected Void doInBackground(Void... params) {
+    //            // TODO Auto-generated method stub
+    //            return null;
+    //
+    //
+    //
+    //        }
+    //    }
 }
+
 
 
 

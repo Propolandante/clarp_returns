@@ -1,36 +1,64 @@
 package com.example.clarp_returns;
 
+import java.util.List;
+
 import android.app.Activity;
-import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
-public class CardListActivity extends ListActivity {
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+public class CardListActivity extends Activity {
 
     // result codes
     static final int NEW_CARD = 0;
 
-    protected static final String TAG = "CardListActivity";
+    //private CardViewAdapter mainAdapter;
+    //private ParseQueryAdapter<ClarpCard> mainAdapter;
 
-    private CardViewAdapter mainAdapter;
+    ListView cardListView;
+    List<ParseObject> ob;
+    ProgressDialog cardProgressDialog;
+    ListViewAdapter cardAdapter;
+    private List<ClarpCard> cardList = null;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_card_list);
 
-        mainAdapter = new CardViewAdapter(this);
-        setListAdapter(mainAdapter);
+        //mainAdapter = new CardViewAdapter(this);
+        //mainAdapter = new ParseQueryAdapter<ClarpCard>(this, ClarpCard.class);
+        //setListAdapter(mainAdapter);
 
-        //        if (savedInstanceState == null) {
-        //            getSupportFragmentManager().beginTransaction()
-        //            .add(R.id.container, new PlaceholderFragment()).commit();
-        //        }
+        setContentView(R.layout.activity_card_list);
+
+        new RemoteDataTask().execute();
     }
+
+
+
+    //        @Override
+    //        protected void doInBackground(Void... params) { // ...?????
+    //            cardList = new ArrayList<ClarpCard>();
+    //            try {
+    //                // locate ClarpCard in Parse (????)
+    //                ParseQuery<>
+    //            }
+    //
+    //        }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,7 +95,7 @@ public class CardListActivity extends ListActivity {
 
     private void updateCardList() {
         mainAdapter.loadObjects();
-        Log.v(TAG, "Card objects loaded");
+        Log.v(ClarpApplication.TAG, "Card objects loaded");
         //setListAdapter(mainAdapter);
     }
 
@@ -82,9 +110,49 @@ public class CardListActivity extends ListActivity {
             // if there's a new card,
             // update the list of current cards
             updateCardList();
-            Log.v(TAG, "Returned from NewCard");
-            Log.v(TAG, "Card List updated");
+            Log.v(ClarpApplication.TAG, "Returned from NewCard");
+            Log.v(ClarpApplication.TAG, "Card List updated");
         }
     }
 
+    private class RemoteDataTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            cardProgressDialog = new ProgressDialog(CardListActivity.this);
+            cardProgressDialog.setTitle("Card ListView");
+
+            cardProgressDialog.setMessage("Loading...");
+            cardProgressDialog.setIndeterminate(false);
+            cardProgressDialog.show();
+        }
+
+        ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
+        query.findInBackground(new FindCallback<ClarpCard>() {
+            @Override
+            public void done(List<ClarpCard> objects, ParseException e) {
+                if (e == null) {
+                    //objectsWereRetrievedSuccessfully(objects);
+                    for(ClarpCard card: objects) {
+                        ParseFile image = card.getPhotoFile();
+
+                        ClarpCard clarpCard = new ClarpCard();
+                        clarpCard.setCardType(Integer.toString(0)); // will need to change
+                        clarpCard.setCardName(card.getCardName());
+                        clarpCard.setPhotoFile(image);
+                    }
+
+                } else {
+                    //objectRetrievalFailed();
+                    Log.e("Error", e.getMessage());
+                    e.printStackTrace();
+                    Log.d(ClarpApplication.TAG, "Card retrieval failed");
+                }
+            }
+        });
+    }
 }
+
+
+
+

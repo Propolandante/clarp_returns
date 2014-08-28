@@ -1,6 +1,7 @@
 package com.example.clarp_returns;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,6 +23,8 @@ public class CardViewAdapter extends ParseQueryAdapter<ClarpCard>{
                 return query;
             }
         });
+
+        Log.d(ClarpApplication.TAG, "CardViewAdapter constructed");
     }
 
     @Override
@@ -33,6 +36,8 @@ public class CardViewAdapter extends ParseQueryAdapter<ClarpCard>{
 
         super.getItemView(card, v, parent);
 
+        Log.d(ClarpApplication.TAG, "got itemView of " + card.getCardName());
+
         ParseImageView cardImage = (ParseImageView) v.findViewById(R.id.icon);
         ParseFile photoFile = card.getParseFile("photo");
         if(photoFile != null) {
@@ -43,7 +48,12 @@ public class CardViewAdapter extends ParseQueryAdapter<ClarpCard>{
                     //nothing
                 }
             });
+
+            Log.d(ClarpApplication.TAG, "loaded photo " + card.getCardName());
+        } else {
+            Log.d(ClarpApplication.TAG, "PhotoFile is null");
         }
+
 
         TextView nameTextView = (TextView) v.findViewById(R.id.cardName);
         nameTextView.setText(card.getCardName());

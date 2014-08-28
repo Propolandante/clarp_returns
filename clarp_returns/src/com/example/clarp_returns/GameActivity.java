@@ -46,6 +46,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 	ArrayList<Player> players = new ArrayList<Player>();
 	ArrayList<String> weapons = new ArrayList<String>();
 	ArrayList<String> scenes = new ArrayList<String>();
+	View popupView;
 	PopupWindow pw;
 	ListPopupWindow lpw;
 	MyAdapter adapter;
@@ -74,7 +75,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 			Resources res = getResources();
 			String picName = scenes.get(i).toLowerCase().replaceAll(" ", "_");
 			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(scenes.get(i),resID,CardTypes.SUSPECT));
+			cards.add(new Card(scenes.get(i),resID,CardTypes.LOCATION));
 		}
 		Collections.shuffle(cards);
 	}
@@ -177,20 +178,20 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     
     public void clickSuggest(View v) {
 		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		View popupView = inflater.inflate(R.layout.popup_suggest,null);
+		popupView = inflater.inflate(R.layout.popup_suggest,null);
 		popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight());
 		pw.setAnimationStyle(android.R.style.Animation_Dialog);
 		pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
-		ArrayList<Card> suspectList = new ArrayList<Card>();
-		for (Card c : cards){
-			if (c.type == CardTypes.SUSPECT)
-				suspectList.add(c);
-		}
-		
-		ListView listCards = (ListView) findViewById(R.id.listCards);
-		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
-		listCards.setAdapter(adapter);
+//		ArrayList<Card> suspectList = new ArrayList<Card>();
+//		for (Card c : cards){
+//			if (c.type == CardTypes.SUSPECT)
+//				suspectList.add(c);
+//		}
+//		
+//		ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
+//		final CardAdapter adapter = new CardAdapter(GameActivity.this, android.R.layout.simple_list_item_1, suspectList);
+//		listCards.setAdapter(adapter);
 		
 		
 //		ImageView playerPic = (ImageView) findViewById(R.id.imageSuspectSelect);
@@ -203,7 +204,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     
     public void clickAccuse(View v) {
 		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		View popupView = inflater.inflate(R.layout.popup_accuse,null);
+		popupView = inflater.inflate(R.layout.popup_accuse,null);
 		popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight());
 		pw.setAnimationStyle(android.R.style.Animation_Dialog);
@@ -211,25 +212,33 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		
 	}
     
-    public void clickSelectSuspect(View v) {
-		//LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		//ImageView anchor =(ImageView) findViewById(R.id.imageSuspectSelect);
-		//lpw = new ListPopupWindow(GameActivity.this);
-		ArrayList<Card> suspectList = new ArrayList<Card>();
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void clickSelectSuspect(View v) {
+    	ArrayList<Card> suspectList = new ArrayList<Card>();
 		for (Card c : cards){
 			if (c.type == CardTypes.SUSPECT)
 				suspectList.add(c);
 		}
-		
-		ListView listCards = (ListView) findViewById(R.id.listCards);
+    	ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
 		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
 		listCards.setAdapter(adapter);
-//		lpw.setAnchorView(anchor);
-//		lpw.setContentWidth(400);
-//		lpw.setModal(false);
-//		lpw.setOnItemClickListener(GameActivity.this);
+		/*LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		ImageView anchor =(ImageView) findViewById(R.id.imageSuspectSelect);
+		lpw = new ListPopupWindow(GameActivity.this);
+		/*
+		
+		String[] suspectList = {"1","2","3","4","5"};
+		//ListView listCards = (ListView) findViewById(R.id.listCards);
+		//final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
+		//final ArrayAdapter<String> adapter = new ArrayAdapter<String>(GameActivity.this, android.R.layout.simple_list_item_1, suspectList);
+		lpw.setAdapter(new ArrayAdapter(GameActivity.this, android.R.layout.simple_list_item_1, suspectList));
+		lpw.setAnchorView(anchor);
+		lpw.setContentWidth(400);
+		lpw.setHeight(300);
+		lpw.setModal(false);
+		lpw.setOnItemClickListener(GameActivity.this);
 		selectType = CardTypes.SUSPECT;
-//		lpw.show();
+		lpw.show();*/
 //		anchor.setOnClickListener(new OnClickListener(){
 //			public void onClick(View v) {
 //				

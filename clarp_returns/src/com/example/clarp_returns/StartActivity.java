@@ -52,7 +52,7 @@ import com.parse.SaveCallback;
 public class StartActivity extends ActionBarActivity {
 
     // result codes for activities that return with a result
-    
+
 
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
@@ -69,10 +69,10 @@ public class StartActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_start);
-        
+
         // Parse Analytics to track when people respond to Push Notifications
         ParseAnalytics.trackAppOpened(getIntent());
-        
+
         // this view displays the name of the logged in user
         userNameView = (TextView) findViewById(R.id.message);
         // this is the list of the user's active games. Each is a button to enter Game activity
@@ -93,18 +93,18 @@ public class StartActivity extends ActionBarActivity {
             // Go to the user info activity
             ClarpApplication.IS_LOGGED_IN = true;
             Log.v(ClarpApplication.TAG, "User already logged in!");
-            
+
             ParseInstallation installation = ParseInstallation.getCurrentInstallation();
             try {
-				installation.put("facebookId", currentUser.getJSONObject("profile").getString("facebookId"));
-				installation.saveInBackground();
-			} catch (IllegalArgumentException e) {
-				Log.d(ClarpApplication.TAG, "ArgumentError putting installation info");
-				e.printStackTrace();
-			} catch (JSONException e) {
-				Log.d(ClarpApplication.TAG, "JSONError putting installation info");
-				e.printStackTrace();
-			}
+                installation.put("facebookId", currentUser.getJSONObject("profile").getString("facebookId"));
+                installation.saveInBackground();
+            } catch (IllegalArgumentException e) {
+                Log.d(ClarpApplication.TAG, "ArgumentError putting installation info");
+                e.printStackTrace();
+            } catch (JSONException e) {
+                Log.d(ClarpApplication.TAG, "JSONError putting installation info");
+                e.printStackTrace();
+            }
             ParseInstallation.getCurrentInstallation().saveInBackground();
         }
         else
@@ -145,27 +145,27 @@ public class StartActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-            	
-            	/*
-            	 * The user clicked on a game!
-            	 * First, we have to see if this game has been started
-            	 * If so, we send it to GameActivity (GA)
-            	 * If not, we send it to PreGameActivity (PGA)
-            	 * Either way, we must be sure to send the game's ObjectId as part of the Intent
-            	 */
-            	
-            	ClarpGame clickedGame = gameList.get((int) id);
-            	Intent intent;
-            	
-            	if(clickedGame.ifStarted())
-            	{
-            		intent = new Intent(StartActivity.this, GameActivity.class);
-            	}
-            	else
-            	{
-            		intent = new Intent(StartActivity.this, PreGameActivity.class);
-            	}
-            	
+
+                /*
+                 * The user clicked on a game!
+                 * First, we have to see if this game has been started
+                 * If so, we send it to GameActivity (GA)
+                 * If not, we send it to PreGameActivity (PGA)
+                 * Either way, we must be sure to send the game's ObjectId as part of the Intent
+                 */
+
+                ClarpGame clickedGame = gameList.get((int) id);
+                Intent intent;
+
+                if(clickedGame.ifStarted())
+                {
+                    intent = new Intent(StartActivity.this, GameActivity.class);
+                }
+                else
+                {
+                    intent = new Intent(StartActivity.this, PreGameActivity.class);
+                }
+
                 intent.putExtra("game_id", clickedGame.getObjectId());
                 startActivity(intent);
             }

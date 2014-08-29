@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 		implements OnClickListener{
@@ -51,9 +53,18 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
         			break;
         	}
             convertView.setTag(holder);
+            
     	}else{
     		holder = (ViewHolder)convertView.getTag();
     	}
+        ImageView suspectPic = (ImageView) convertView.findViewById(R.id.imageSuspect);
+        suspectPic.setImageResource(items.get(position).person);
+        ImageView weaponPic = (ImageView) convertView.findViewById(R.id.imageWeapon);
+        weaponPic.setImageResource(items.get(position).weapon);
+        ImageView scenePic = (ImageView) convertView.findViewById(R.id.imageLocation);
+        scenePic.setImageResource(items.get(position).location);
+        TextView result = (TextView) convertView.findViewById(R.id.textResult);
+        result.setText(items.get(position).result);
            
         //final TurnHistoryItem item = items.get(position);
         

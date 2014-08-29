@@ -58,6 +58,14 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 	int page = 0;
 	Player selectedPlayer;
 	
+	Card queuedSuspect = null;
+	Card queuedWeapon = null;
+	Card queuedScene = null;
+	
+	Card murderer = null;
+	Card murderWeapon = null;
+	Card crimeScene = null;
+	
 	ClarpGame game = null;
 	
 	/*
@@ -70,27 +78,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 	
 	
 
-	private void buildDeck(){
-		for(int i = 0; i < num_of_players; ++i){
-			Resources res = getResources();
-			String picName = players.get(i).name.toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(players.get(i).name, resID, CardTypes.SUSPECT));
-		}
-		for(int i = 0; i < num_of_weapons; ++i){
-			Resources res = getResources();
-			String picName = weapons.get(i).toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(weapons.get(i),resID,CardTypes.WEAPON));
-		}
-		for(int i = 0; i < num_of_scenes; ++i){
-			Resources res = getResources();
-			String picName = scenes.get(i).toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(scenes.get(i),resID,CardTypes.LOCATION));
-		}
-		Collections.shuffle(cards);
-	}
+	
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,8 +205,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 //    }
     
     private void buildDeck(){
-    	
-    	/*
+		/*
     	 * This will be all Parse-ified
     	 * Once this activity has started, all of the ObjectIds of the cards created in PreGameActivity 
     	 * will already have been stored in their appropriate suspects[] weapons[] and locations[] arrays
@@ -229,7 +216,6 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     	 * In that case, the shuffling can probably be done in dealCards(), with this function deleted entirely
     	 * -djdonahu
     	 */
-    	
 		for(int i = 0; i < num_of_players; ++i){
 			Resources res = getResources();
 			String picName = players.get(i).name.toLowerCase().replaceAll(" ", "_");
@@ -246,7 +232,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 			Resources res = getResources();
 			String picName = scenes.get(i).toLowerCase().replaceAll(" ", "_");
 			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(scenes.get(i),resID,CardTypes.SUSPECT));
+			cards.add(new Card(scenes.get(i),resID,CardTypes.LOCATION));
 		}
 		Collections.shuffle(cards);
 	}
@@ -264,6 +250,18 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		
 		int player = 0;
 		for (int i = 0; i < cards.size()-1; ++i){
+			if (murderer == null && cards.get(i).type == CardTypes.SUSPECT){
+				murderer = cards.get(i);
+				continue;
+			}
+			if (murderWeapon == null && cards.get(i).type == CardTypes.WEAPON){
+				murderWeapon = cards.get(i);
+				continue;
+			}
+			if (crimeScene == null && cards.get(i).type == CardTypes.LOCATION){
+				crimeScene = cards.get(i);
+				continue;
+			}
 			players.get(player++).cards.add(cards.get(i));
 			if (player == num_of_players) player = 0;
 		}
@@ -274,25 +272,31 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		popupView = inflater.inflate(R.layout.popup_suggest,null);
 		popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+		
+		
+		for (Card c : cards){
+			if (queuedSuspect == null && c.type == CardTypes.SUSPECT)
+				queuedSuspect = c;
+			if (queuedWeapon == null && c.type == CardTypes.WEAPON)
+				queuedWeapon = c;
+			if (queuedScene == null && c.type == CardTypes.LOCATION)
+				queuedScene = c;
+			if (queuedSuspect != null && queuedWeapon != null && queuedScene != null)
+				break;
+		}
+		
+		ImageView suspectPic = (ImageView) popupView.findViewById(R.id.imageSuspectSelect);
+		suspectPic.setImageResource(queuedSuspect.pic);
+		ImageView weaponPic = (ImageView) popupView.findViewById(R.id.imageWeaponSelect);
+		weaponPic.setImageResource(queuedWeapon.pic);
+		ImageView scenePic = (ImageView) popupView.findViewById(R.id.imageSceneSelect);
+		scenePic.setImageResource(queuedScene.pic);
+		
 		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight());
 		pw.setAnimationStyle(android.R.style.Animation_Dialog);
 		pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
-//		ArrayList<Card> suspectList = new ArrayList<Card>();
-//		for (Card c : cards){
-//			if (c.type == CardTypes.SUSPECT)
-//				suspectList.add(c);
-//		}
-//		
-//		ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
-//		final CardAdapter adapter = new CardAdapter(GameActivity.this, android.R.layout.simple_list_item_1, suspectList);
-//		listCards.setAdapter(adapter);
 		
-		
-//		ImageView playerPic = (ImageView) findViewById(R.id.imageSuspectSelect);
-//		Resources res = getResources();
-//		String picName = "derek";
-//		int resID = res.getIdentifier(picName, "drawable", getPackageName());
-//		playerPic.setImageResource(resID);
+		//TODO When all the parse pic stuff is in, we will need to set default pics.
 		
 	}
     
@@ -308,45 +312,90 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectSuspect(View v) {
+    	selectType = CardTypes.SUSPECT;
     	ArrayList<Card> suspectList = new ArrayList<Card>();
 		for (Card c : cards){
 			if (c.type == CardTypes.SUSPECT)
 				suspectList.add(c);
 		}
-    	ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
+    	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
 		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
 		listCards.setAdapter(adapter);
-		/*LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		ImageView anchor =(ImageView) findViewById(R.id.imageSuspectSelect);
-		lpw = new ListPopupWindow(GameActivity.this);
-		/*
-		
-		String[] suspectList = {"1","2","3","4","5"};
-		//ListView listCards = (ListView) findViewById(R.id.listCards);
-		//final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
-		//final ArrayAdapter<String> adapter = new ArrayAdapter<String>(GameActivity.this, android.R.layout.simple_list_item_1, suspectList);
-		lpw.setAdapter(new ArrayAdapter(GameActivity.this, android.R.layout.simple_list_item_1, suspectList));
-		lpw.setAnchorView(anchor);
-		lpw.setContentWidth(400);
-		lpw.setHeight(300);
-		lpw.setModal(false);
-		lpw.setOnItemClickListener(GameActivity.this);
-		selectType = CardTypes.SUSPECT;
-		lpw.show();*/
-//		anchor.setOnClickListener(new OnClickListener(){
-//			public void onClick(View v) {
-//				
-//			}
-//		});
-		
-		
+		listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			 @Override
+			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
+				 queuedSuspect = (Card) listCards.getItemAtPosition(position);
+				 ImageView suspectPic = (ImageView) popupView.findViewById(R.id.imageSuspectSelect);
+				 suspectPic.setImageResource(queuedSuspect.pic);
+			 }
+		});
+	}
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void clickSelectWeapon(View v) {
+    	//TODO current work
+    	selectType = CardTypes.WEAPON;
+    	ArrayList<Card> weaponList = new ArrayList<Card>();
+		for (Card c : cards){
+			if (c.type == CardTypes.WEAPON)
+				weaponList.add(c);
+		}
+    	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
+		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, weaponList);
+		listCards.setAdapter(adapter);
+		listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			 @Override
+			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
+				 queuedWeapon = (Card) listCards.getItemAtPosition(position);
+				 ImageView weaponPic = (ImageView) popupView.findViewById(R.id.imageWeaponSelect);
+				 weaponPic.setImageResource(queuedWeapon.pic);
+			 }
+		});
+	}
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void clickSelectScene(View v) {
+    	//TODO current work
+    	selectType = CardTypes.LOCATION;
+    	ArrayList<Card> sceneList = new ArrayList<Card>();
+		for (Card c : cards){
+			if (c.type == CardTypes.LOCATION)
+				sceneList.add(c);
+		}
+    	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
+		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, sceneList);
+		listCards.setAdapter(adapter);
+		listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			 @Override
+			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
+				 queuedScene = (Card) listCards.getItemAtPosition(position);
+				 ImageView scenePic = (ImageView) popupView.findViewById(R.id.imageSceneSelect);
+				 scenePic.setImageResource(queuedScene.pic);
+			 }
+		});
 	}
     
     public void clickSuggestSubmit(View v) {
     	historyFragment = adapter.getHistoryFragment();
     	TurnHistoryItem temp = new TurnHistoryItem(TYPE_SUGGEST);
-    	historyFragment.add(temp);
+    	temp.person = queuedSuspect.pic;
+    	temp.weapon = queuedWeapon.pic;
+    	temp.location = queuedScene.pic;
     	
+    	String disprover = refuteSuggestion();
+    	
+    	temp.result = disprover + " proved " + players.get(0).name + " wrong";
+    	
+    	historyFragment.add(temp);
+    	queuedSuspect = null;
+    	queuedWeapon = null;
+    	queuedScene = null;
     	pw.dismiss();
     }
     
@@ -356,6 +405,16 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     	historyFragment.add(temp);
     	
     	pw.dismiss();
+    }
+    
+    public String refuteSuggestion(){
+    	for (Player p : players.subList(1, players.size())){
+    		for (Card c : p.cards){
+    			if (c.equals(queuedSuspect) || c.equals(queuedWeapon) || c.equals(queuedScene))
+    				return p.name;
+    		}
+    	}
+    	return "No one";
     }
     
     public void clickCancel(View v){
@@ -383,7 +442,7 @@ class MyAdapter extends FragmentPagerAdapter{
 		super(fm);
 		//TODO This is a temp first item
 		historyItems = new ArrayList<TurnHistoryItem>();
-		historyItems.add(new TurnHistoryItem(0));
+		//historyItems.add(new TurnHistoryItem(0));
 	}
 	
 	@Override

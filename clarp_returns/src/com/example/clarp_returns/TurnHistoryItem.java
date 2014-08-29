@@ -2,6 +2,7 @@ package com.example.clarp_returns;
 
 public class TurnHistoryItem {
 	public String playerName;
+	public String result;
 	public int type;
 	public int person;
 	public int weapon;

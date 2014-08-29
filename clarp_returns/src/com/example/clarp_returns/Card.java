@@ -10,5 +10,11 @@ public class Card {
 		this.pic = pic;
 		this.type = type;
 	}
+	
+	public boolean equals(Card c){
+		if (this.name == c.name  && this.pic == c.pic && this.type == c.type)
+			return true;
+		return false;
+	}
 
 }

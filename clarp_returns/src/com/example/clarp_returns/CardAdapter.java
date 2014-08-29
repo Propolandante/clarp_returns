@@ -49,6 +49,6 @@ public class CardAdapter extends ArrayAdapter<Card> {
         		cardImage.setImageResource(card.pic);
             }
         }
-        return convertView;
+        return v;
     }
 }

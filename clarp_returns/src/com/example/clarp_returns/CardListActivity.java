@@ -1,5 +1,6 @@
 package com.example.clarp_returns;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -45,32 +47,64 @@ public class CardListActivity extends Activity {
         setContentView(R.layout.activity_card_list);
 
         //new RemoteDataTask().execute();
+        cardList = new ArrayList<ClarpCard>();
+        cardAdapter = new CardListViewAdapter(CardListActivity.this, cardList);
+        cardListView.setAdapter(cardAdapter); // this apparently causes a NPE
+
 
         ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
         query.findInBackground(new FindCallback<ClarpCard>() {
             @Override
             public void done(List<ClarpCard> objects, ParseException e) {
+                Log.d(ClarpApplication.TAG, "Trying card retrieval");
                 if (e == null) {
-                    //objectsWereRetrievedSuccessfully(objects);
+
+                    Log.d(ClarpApplication.TAG, "Card retrieval successful");
+
                     for(ClarpCard card: objects) {
-                        ParseFile image = card.getPhotoFile();
+
+                        ParseFile image = (ParseFile) card.get("photo");
 
                         ClarpCard clarpCard = new ClarpCard();
                         clarpCard.setCardType(Integer.toString(0)); // will need to change
-                        clarpCard.setCardName(card.getCardName());
-                        clarpCard.setPhotoFile(image);
+                        clarpCard.setCardName((String) card.get("cardName"));
 
-                        cardList.add(clarpCard);
+                        if(image != null) {
+
+                            Log.d(ClarpApplication.TAG, "Image is not null");
+                            image.getDataInBackground(new GetDataCallback() {
+                                @Override
+                                public void done(byte[] data, ParseException e) {
+
+                                    if (e == null) {
+                                        Log.d(ClarpApplication.TAG, "We've got data in data.");
+                                    } else {
+                                        Log.d(ClarpApplication.TAG, "There was a problem downloading data");
+                                    }
+                                }
+                            });
+
+                            clarpCard.setPhotoFile(image);
+                            cardList.add(clarpCard);
+
+                        } else {
+
+                            Log.d(ClarpApplication.TAG, "Image is null"); // this happens a lot
+                            //clarpCard.setPhotoFile((ParseFile) getResources().getDrawable(R.drawable.jordan));
+                        }
                     }
-
                 } else {
+
+                    Log.d(ClarpApplication.TAG, "Card retrieval failed");
                     //objectRetrievalFailed();
                     Log.e("Error", e.getMessage());
                     e.printStackTrace();
-                    Log.d(ClarpApplication.TAG, "Card retrieval failed");
                 }
             }
         });
+
+
+        cardAdapter.notifyDataSetChanged();
 
 
     }

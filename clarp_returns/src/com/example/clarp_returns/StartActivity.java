@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -57,7 +60,7 @@ public class StartActivity extends ActionBarActivity {
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
     private ArrayList<ClarpGame> gameList;
-    private ArrayAdapter<ClarpGame> arrayAdapter;
+    private GameAdapter arrayAdapter;
     private Dialog progressDialog;
     private Button newGameButton;
     private Button loginButton;
@@ -187,7 +190,7 @@ public class StartActivity extends ActionBarActivity {
             gameList.clear();
         }
         gameList = new ArrayList<ClarpGame>();
-        arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+        arrayAdapter = new GameAdapter(getApplicationContext(), gameList);
         gameListView.setAdapter(arrayAdapter);
 
         // loop through all the user's active games and add them to the array
@@ -444,6 +447,62 @@ public class StartActivity extends ActionBarActivity {
         Intent intent = new Intent(StartActivity.this, CardListActivity.class);
         startActivityForResult(intent, ClarpApplication.ADD_CARD);
 
+    }
+    
+    
+    public class GameAdapter extends ArrayAdapter<ClarpGame> {
+    	
+    	private final Context context;
+    	private final ArrayList<ClarpGame> games;
+    	
+    	public GameAdapter(Context context, ArrayList<ClarpGame> games) {
+    		super(context, R.layout.game_item, games);
+    	    this.context = context;
+    	    this.games = games;
+    	  }
+    	
+    	private class ViewHolder {
+    		TextView leftView;
+    		TextView rightView;
+    		}
+    	
+    	@Override
+    	public View getView(int position, View convertView, ViewGroup parent) {
+    		
+    		ViewHolder holder = null;
+    		
+    		if (convertView == null)
+    		{
+    			
+    			LayoutInflater vi = (LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE);
+    			convertView = vi.inflate(R.layout.game_item, null);
+    			
+    			holder = new ViewHolder();
+        		holder.leftView = (TextView) convertView.findViewById(R.id.gameName);
+        		holder.rightView = (TextView) convertView.findViewById(R.id.playerTurn);
+        		convertView.setTag(holder);
+        		
+        		
+    		}
+    		else
+    		{
+    			holder = (ViewHolder) convertView.getTag();
+    		}
+    		
+    		
+    		
+    		
+    		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	    
+    	    
+    	    
+    	    holder.leftView.setText(games.get(position).getGameName());
+    	    holder.rightView.setText("Derk's turn");
+    	    
+    	    
+
+    	    return convertView;
+    	  }
     }
 
 }

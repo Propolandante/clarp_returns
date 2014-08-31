@@ -16,8 +16,10 @@ import android.widget.TextView;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.RefreshCallback;
 import com.parse.SaveCallback;
 
 
@@ -144,21 +146,6 @@ public class PreGameActivity extends ActionBarActivity
                     	Log.d(ClarpApplication.TAG, "User is NOT owner of this ClarpGame");
                     }
                     
-                    /*
-                     *  Initialize the card arrays
-                     *  We're going to work with a local copy of the arrays,
-                     *  and then push the final, curated version to the ClarpGame when we're done
-                     */
-                    
-                    
-                    
-                    
-                    
-                    
-                    /*
-                     * Set the text for the TextViews (requires game, so must wait for game to download)
-                     */
-                    
                     refreshCounts();
                 }
                 else
@@ -277,44 +264,47 @@ public class PreGameActivity extends ActionBarActivity
     
     private void syncGame()
     {
-    	gameLoaded = false;
+    	Log.d(ClarpApplication.TAG, "SYNC!");
     	
-    	if (game.isDataAvailable())
-    	{
-    		game.fetchInBackground(new GetCallback<ClarpGame>() {
-                
-
-    			@Override
-    			public void done(ClarpGame fetchedGame, ParseException e) {
-    				
-    				if (e == null)
-    				{
-    					Log.d(ClarpApplication.TAG, "Game fetched");
-    					
-    					// do I even need to do this? I assume this is already taken care of...
-    					game = fetchedGame;
-    					
-    					gameName = game.getGameName();
-    					players = game.getJSONArray("players");
-    			        suspects = game.getJSONArray("suspects");
-    			        weapons = game.getJSONArray("weapons");
-    			        locations = game.getJSONArray("locations");
-    			        
-    			        refreshCounts();
-    				}
-    				else
-    				{
-    					e.printStackTrace();
-    					Log.d(ClarpApplication.TAG, "Error fetching game");
-    				}
-    			}	
-            });
-    	}
-    	else
-    	{
-    		refreshCounts();
-    	}
-    }
+    	gameLoaded = false;
+    	updateViewVisibility();
+    	
+    	//Log.d(ClarpApplication.TAG, "Weapons before: " + game.getJSONArray("weapons").length());
+    	
+		Log.d(ClarpApplication.TAG, "Must fetch data");
+		Log.d(ClarpApplication.TAG, "Weapons old: " + game.getJSONArray("weapons").length());
+		/*
+		 * I tried using refreshInBackground, and fetchInBackground, but neither of them worked. Oh well...
+		 */
+		
+		ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+        query.getInBackground(game.getObjectId(), new GetCallback<ClarpGame>() {
+            @Override
+            public void done(ClarpGame object, ParseException e) {
+                if (e == null)
+                {
+                    game = object;
+                    
+                    Log.d(ClarpApplication.TAG, "Weapons new: " + game.getJSONArray("weapons").length());
+					
+					gameName = game.getGameName();
+					players = game.getJSONArray("players");
+			        suspects = game.getJSONArray("suspects");
+			        weapons = game.getJSONArray("weapons");
+			        locations = game.getJSONArray("locations");
+			        
+			        refreshCounts();
+                }
+                else
+                {
+                    Log.d(ClarpApplication.TAG, "Error fetching game");
+                }
+            }
+        });
+		
+		
+	}
+	
     
     private void refreshCounts()
     {
@@ -324,10 +314,6 @@ public class PreGameActivity extends ActionBarActivity
     		Log.d(ClarpApplication.TAG, "Attempted to refresh with null game!");
     		return;
     	}
-    	
-    	/*
-    	 * Determine if we need to wtch new data. I feel like I should do this BEFORE calling refreshcounts...
-    	 */
     	
     	gameNameView.setText(gameName);
         playerCountView.setText("Players: " + players.length() + "/" + minPlayers);

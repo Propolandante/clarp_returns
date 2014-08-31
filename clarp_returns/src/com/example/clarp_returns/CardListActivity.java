@@ -46,6 +46,8 @@ public class CardListActivity extends Activity {
 
         setContentView(R.layout.activity_card_list);
 
+        cardListView = (ListView) findViewById(R.id.card_list_view);
+
         //new RemoteDataTask().execute();
         cardList = new ArrayList<ClarpCard>();
         cardAdapter = new CardListViewAdapter(CardListActivity.this, cardList);
@@ -103,9 +105,7 @@ public class CardListActivity extends Activity {
             }
         });
 
-
         cardAdapter.notifyDataSetChanged();
-
 
     }
 

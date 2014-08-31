@@ -2,13 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal" >
 
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:src="@drawable/joe" />
+        android:src="@drawable/joe" 
+        android:focusableInTouchMode="false"
+		android:clickable="false"
+		android:focusable="false"/>
 
     <TextView
         android:id="@+id/textView1"
@@ -17,6 +21,9 @@
         android:text="Large Text"
         android:paddingLeft="10dp"
         android:layout_gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge" 
+        android:focusableInTouchMode="false"
+		android:clickable="false"
+		android:focusable="false"/>
 
 </LinearLayout>

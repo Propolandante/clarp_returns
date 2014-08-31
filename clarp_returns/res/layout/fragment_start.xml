@@ -17,11 +17,19 @@
         android:layout_centerHorizontal="true"
         android:text="New Game" />
     
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        android:layout_below="@+id/message"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true" />
+    
     <ListView
         android:id="@+id/games_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/message"
+        android:layout_below="@+id/progressBar1"
         android:layout_weight="10" >
     </ListView>
     
@@ -48,5 +56,4 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
-    
 </RelativeLayout>

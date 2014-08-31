@@ -41,8 +41,7 @@ public class CardQueryAdapter extends ParseQueryAdapter<ClarpCard>{
             cardImage.loadInBackground();
         }
 
-        // add the name and type texts
-
+        // add the name and type text
         TextView nameTextView = (TextView) v.findViewById(R.id.cardName);
         nameTextView.setText(card.getCardName());
 

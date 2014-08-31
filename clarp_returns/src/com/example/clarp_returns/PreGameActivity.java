@@ -2,25 +2,23 @@ package com.example.clarp_returns;
 
 import org.json.JSONArray;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
+import com.parse.SaveCallback;
 
 
 public class PreGameActivity extends ActionBarActivity
@@ -46,8 +44,8 @@ public class PreGameActivity extends ActionBarActivity
 	 */
 	
 	
-	
-	
+	private TextView loadTextView;
+	private ProgressBar loadingBar;
 	private TextView gameNameView;
 	private TextView playerCountView;
 	private TextView suspectCountView;
@@ -60,8 +58,10 @@ public class PreGameActivity extends ActionBarActivity
 	ClarpGame game = null;
 	ParseUser user;
 	Boolean isOwner = false;
+	Boolean gameLoaded = false;
 	Boolean gameReady = true; // SET THIS TO FALSE, IT IS ONLY TRUE FOR TESTING PURPOSES
 	
+	String gameName;
 	JSONArray players;
 	JSONArray suspects;
 	JSONArray weapons;
@@ -78,13 +78,34 @@ public class PreGameActivity extends ActionBarActivity
 	int maxLocations = 8;
 	
 	
+	
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pre_game);
         
+        
+        
         /*
-         * First, get the ClarpGame so we know what we're working with
+         * Initialize all the views (requires game, so must wait for game to download)
+         */
+        
+        loadTextView = (TextView) findViewById(R.id.loadText);
+        loadingBar = (ProgressBar) findViewById(R.id.progressBar1);
+        gameNameView = (TextView) findViewById(R.id.gameName);
+        playerCountView = (TextView) findViewById(R.id.playerCount);
+        suspectCountView = (TextView) findViewById(R.id.suspectCount);
+        weaponCountView = (TextView) findViewById(R.id.weaponCount);
+        locationCountView = (TextView) findViewById(R.id.locationCount);
+        addCardButton = (Button) findViewById(R.id.addCardButton);
+        startGameButton = (Button) findViewById(R.id.startGameButton);
+        refreshButton = (Button) findViewById(R.id.refreshButton);
+        
+        updateViewVisibility();
+        
+        /*
+         * Next, get the ClarpGame so we know what we're working with
          */
         
         Intent mainIntent = getIntent();
@@ -95,7 +116,16 @@ public class PreGameActivity extends ActionBarActivity
                 if (e == null)
                 {
                     game = object;
-                    Log.d(ClarpApplication.TAG, "Pregame: Game found, name is " + game.getGameName());
+                    
+                    gameName = game.getGameName();
+                    players = game.getJSONArray("players");
+			        suspects = game.getJSONArray("suspects");
+			        weapons = game.getJSONArray("weapons");
+			        locations = game.getJSONArray("locations");
+                    
+                    Log.d(ClarpApplication.TAG, "Pregame: Game found, name is " + gameName);
+                    
+                    
                     
                     /*
                      * Next, determine if the current user is the owner of this game
@@ -121,21 +151,9 @@ public class PreGameActivity extends ActionBarActivity
                      */
                     
                     
-                    players = game.getJSONArray("players");
-                    suspects = game.getJSONArray("suspects");
-                    weapons = game.getJSONArray("weapons");
-                    locations = game.getJSONArray("locations");
                     
-                    /*
-                     * Initialize all the views (requires game, so must wait for game to download)
-                     */
                     
-                    gameNameView = (TextView) findViewById(R.id.gameName);
-                    gameNameView.setText("test");
-                    playerCountView = (TextView) findViewById(R.id.playerCount);
-                    suspectCountView = (TextView) findViewById(R.id.suspectCount);
-                    weaponCountView = (TextView) findViewById(R.id.weaponCount);
-                    locationCountView = (TextView) findViewById(R.id.locationCount);
+                    
                     
                     /*
                      * Set the text for the TextViews (requires game, so must wait for game to download)
@@ -158,7 +176,7 @@ public class PreGameActivity extends ActionBarActivity
         
         
         
-        addCardButton = (Button) findViewById(R.id.addCardButton);
+        
         addCardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -180,30 +198,42 @@ public class PreGameActivity extends ActionBarActivity
                 startActivityForResult(intent, ClarpApplication.ADD_CARD);
             }
         });
-        startGameButton = (Button) findViewById(R.id.startGameButton);
+        
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             	
             	/*
-            	 * Takes user to the game activity.
-            	 * 
+            	 * THis is where we actually add all the cards to the game!
             	 */
             	
-            	// set isStarted to TRUE, so that we skip PreGame from now on.
-            	game.startGame();
             	
-            	Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
-                intent.putExtra("game_id", game.getObjectId());
-                startActivity(intent);
+            	game.startGame();
+            	game.saveInBackground(new SaveCallback() {
+            		
+            		@Override
+            		public void done(ParseException e)
+            		{
+            			/*
+            			 * Don't progres into GameActivity until Parse is fully synced
+            			 */
+            			
+            			Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
+                        intent.putExtra("game_id", game.getObjectId());
+                        startActivity(intent);
+            		}
+            	});
+            	
+            	
             }
         });
         
-        refreshButton = (Button) findViewById(R.id.refreshButton);
+        
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	refreshCounts();
+            	
+            	syncGame();
             }
         });
         
@@ -215,10 +245,10 @@ public class PreGameActivity extends ActionBarActivity
     public void onResume(){
     	super.onResume();
     	
-    	//show or hide the Start Game button
+    	
     	if(game != null)
     	{
-    		refreshCounts();
+    		syncGame();
     	}
     	
     	
@@ -245,28 +275,98 @@ public class PreGameActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
     
+    private void syncGame()
+    {
+    	gameLoaded = false;
+    	
+    	if (game.isDataAvailable())
+    	{
+    		game.fetchInBackground(new GetCallback<ClarpGame>() {
+                
+
+    			@Override
+    			public void done(ClarpGame fetchedGame, ParseException e) {
+    				
+    				if (e == null)
+    				{
+    					Log.d(ClarpApplication.TAG, "Game fetched");
+    					
+    					// do I even need to do this? I assume this is already taken care of...
+    					game = fetchedGame;
+    					
+    					gameName = game.getGameName();
+    					players = game.getJSONArray("players");
+    			        suspects = game.getJSONArray("suspects");
+    			        weapons = game.getJSONArray("weapons");
+    			        locations = game.getJSONArray("locations");
+    			        
+    			        refreshCounts();
+    				}
+    				else
+    				{
+    					e.printStackTrace();
+    					Log.d(ClarpApplication.TAG, "Error fetching game");
+    				}
+    			}	
+            });
+    	}
+    	else
+    	{
+    		refreshCounts();
+    	}
+    }
+    
     private void refreshCounts()
     {
     	if(game == null)
     	{
+    		// this should NEVER happen
     		Log.d(ClarpApplication.TAG, "Attempted to refresh with null game!");
     		return;
     	}
-    	playerCountView.setText("Players: " + players.length() + "/" + minPlayers);
+    	
+    	/*
+    	 * Determine if we need to wtch new data. I feel like I should do this BEFORE calling refreshcounts...
+    	 */
+    	
+    	gameNameView.setText(gameName);
+        playerCountView.setText("Players: " + players.length() + "/" + minPlayers);
     	suspectCountView.setText("Suspects: " + suspects.length() + "/" + minSuspects);
     	weaponCountView.setText("Weapons: " + weapons.length() + "/" + minWeapons);
     	locationCountView.setText("Locations: " + locations.length() + "/" + minLocations);
+    	
+    	gameLoaded = true;
     	
     	/*
     	 * The game may be ready to start now, so we should check if it's time
     	 * to show the StartGame button
     	 */
     	updateViewVisibility();
-    	
     }
     
     private void updateViewVisibility()
     {
+    	if(!gameLoaded)
+    	{
+    		loadingBar.setVisibility(View.VISIBLE);
+    		loadTextView.setVisibility(View.VISIBLE);
+    		gameNameView.setVisibility(View.GONE);
+    		playerCountView.setVisibility(View.GONE);
+    		suspectCountView.setVisibility(View.GONE);
+    		weaponCountView.setVisibility(View.GONE);
+    		locationCountView.setVisibility(View.GONE);
+    	}
+    	else
+    	{
+    		loadingBar.setVisibility(View.GONE);
+    		loadTextView.setVisibility(View.GONE);
+    		gameNameView.setVisibility(View.VISIBLE);
+    		playerCountView.setVisibility(View.VISIBLE);
+    		suspectCountView.setVisibility(View.VISIBLE);
+    		weaponCountView.setVisibility(View.VISIBLE);
+    		locationCountView.setVisibility(View.VISIBLE);
+    	}
+    	
         if(isOwner && gameReady)
         {
             startGameButton.setVisibility(View.VISIBLE);

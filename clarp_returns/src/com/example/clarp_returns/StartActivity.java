@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,13 +32,17 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseAnalytics;
@@ -45,6 +50,7 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -57,11 +63,14 @@ public class StartActivity extends ActionBarActivity {
     //protected static final String TAG = "StartActivity";
     private ListView gameListView;
     private ArrayList<ClarpGame> gameList;
-    private ArrayAdapter<ClarpGame> arrayAdapter;
+    private GameAdapter arrayAdapter;
     private Dialog progressDialog;
     private Button newGameButton;
     private Button loginButton;
     private TextView userNameView;
+    private ProgressBar listLoadingView;
+    
+    public Boolean gamesLoaded = false;
 
 
 
@@ -77,6 +86,8 @@ public class StartActivity extends ActionBarActivity {
         userNameView = (TextView) findViewById(R.id.message);
         // this is the list of the user's active games. Each is a button to enter Game activity
         gameListView = (ListView) findViewById(R.id.games_list_view);
+        // this loading bar shows when waiting for the list of games to be queries
+        listLoadingView = (ProgressBar) findViewById(R.id.progressBar1);
         // self explanatory. Button enters New Game activity
         newGameButton = (Button) findViewById(R.id.footer);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -173,77 +184,63 @@ public class StartActivity extends ActionBarActivity {
 
         if (ClarpApplication.IS_LOGGED_IN)
         {
-            refreshGameList(user);
+            refreshGames(user);
         }
     }
-
-    // call this whenever gameListView needs to be updated
-    public void refreshGameList(ParseUser user) {
-
-        // This function ASSUMES that user is not null.
+    
+    public void refreshGames(ParseUser user) {
+    	
+    	// This function ASSUMES that user is not null.
 
         // every time the user resumes the activity, refresh the game List
-        if(gameList != null){
+    	gamesLoaded = false;
+        updateViewVisibility();
+        
+    	if(gameList != null){
             gameList.clear();
         }
-        gameList = new ArrayList<ClarpGame>();
-        arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
+    	
+    	gameList = new ArrayList<ClarpGame>();
+        arrayAdapter = new GameAdapter(getApplicationContext(), gameList);
         gameListView.setAdapter(arrayAdapter);
-
-        // loop through all the user's active games and add them to the array
-
-        JSONArray gameIds = user.getJSONArray("games");
-
-        if (gameIds != null)
-        {
-            //add each game to the ListView Array
-            for (int i = 0; i < gameIds.length(); ++i)
-            {
-                String tempId = null;
-
-                try {
-                    tempId = gameIds.getString(i);
-                } catch (JSONException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-
-                // Callback requires id to be final, but the try block requires it to be initialized.
-                // so we do a non-final initialized version first (tempId),
-                // and then set a new, final variable (id)equal to it for the callback
-                // messy and inelegant but the only was I could get it to work.
-                final String id = tempId;
-
-                ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
-
-                query.getInBackground(id, new GetCallback<ClarpGame>() {
-                    @Override
-                    public void done(ClarpGame object, ParseException e) {
-                        if (e == null)
-                        {
-                            gameList.add(object);
-
-                            arrayAdapter.notifyDataSetChanged();
-
-                            //                            arrayAdapter = new ArrayAdapter<ClarpGame>(getApplicationContext(), android.R.layout.simple_list_item_1, gameList);
-                            //                            gameListView.setAdapter(arrayAdapter);
-                        }
-                        else
-                        {
-                            // something went wrong
-                        }
+        
+        String id;
+        
+        JSONObject userProfile = user.getJSONObject("profile");
+        try {
+			id = userProfile.getString("facebookId");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.d(ClarpApplication.TAG, "JSON Error, quiting now");
+			return;
+		}
+        
+        ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+        query.whereEqualTo("fbUsers", id);
+        
+        query.findInBackground(new FindCallback<ClarpGame>() {
+            public void done(List<ClarpGame> games, ParseException e) {
+                if (e == null) {
+                    Log.d(ClarpApplication.TAG, "query success (?)");
+                    for (int i = 0; i < games.size(); ++i)
+                    {
+                    	gameList.add(games.get(i));
                     }
-                });
+                    
+                    arrayAdapter.notifyDataSetChanged();
+                    gamesLoaded = true;
+                    updateViewVisibility();
+                    
+                } else {
+                	Log.d(ClarpApplication.TAG, "query failure (?)");
+                }
             }
-
-        }
-        else
-        {
-            Log.d(ClarpApplication.TAG, "User has no game whatsoever. Loser.");
-            //arrayAdapter = new ArrayAdapter<ClarpGame>(this, android.R.layout.simple_list_item_1, gameList);
-            //gameListView.setAdapter(arrayAdapter);
-        }
+        });
+        
     }
+
+    
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -428,14 +425,31 @@ public class StartActivity extends ActionBarActivity {
     {
         if(ClarpApplication.IS_LOGGED_IN)
         {
-            gameListView.setVisibility(View.VISIBLE);
-            newGameButton.setVisibility(View.VISIBLE);
+        	newGameButton.setVisibility(View.VISIBLE);
+        	
+        	if(gamesLoaded)
+            {
+            	listLoadingView.setVisibility(View.GONE);
+            	gameListView.setVisibility(View.VISIBLE);
+                
+            	
+            }
+            else
+            {
+            	listLoadingView.setVisibility(View.VISIBLE);
+            	gameListView.setVisibility(View.GONE);
+            }
+        	
+        	
         }
         else
         {
             gameListView.setVisibility(View.GONE);
             newGameButton.setVisibility(View.GONE);
+            listLoadingView.setVisibility(View.GONE);
         }
+        
+        
     }
 
     // this is just here to test the picture taking/card adding
@@ -444,6 +458,62 @@ public class StartActivity extends ActionBarActivity {
         Intent intent = new Intent(StartActivity.this, CardListActivity.class);
         startActivityForResult(intent, ClarpApplication.ADD_CARD);
 
+    }
+    
+    
+    public class GameAdapter extends ArrayAdapter<ClarpGame> {
+    	
+    	private final Context context;
+    	private final ArrayList<ClarpGame> games;
+    	
+    	public GameAdapter(Context context, ArrayList<ClarpGame> games) {
+    		super(context, R.layout.game_item, games);
+    	    this.context = context;
+    	    this.games = games;
+    	  }
+    	
+    	private class ViewHolder {
+    		TextView leftView;
+    		TextView rightView;
+    		}
+    	
+    	@Override
+    	public View getView(int position, View convertView, ViewGroup parent) {
+    		
+    		ViewHolder holder = null;
+    		
+    		if (convertView == null)
+    		{
+    			
+    			LayoutInflater vi = (LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE);
+    			convertView = vi.inflate(R.layout.game_item, null);
+    			
+    			holder = new ViewHolder();
+        		holder.leftView = (TextView) convertView.findViewById(R.id.gameName);
+        		holder.rightView = (TextView) convertView.findViewById(R.id.playerTurn);
+        		convertView.setTag(holder);
+        		
+        		
+    		}
+    		else
+    		{
+    			holder = (ViewHolder) convertView.getTag();
+    		}
+    		
+    		
+    		
+    		
+    		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	    
+    	    
+    	    
+    	    holder.leftView.setText(games.get(position).getGameName());
+    	    holder.rightView.setText("Derk's turn");
+    	    
+    	    
+
+    	    return convertView;
+    	  }
     }
 
 }

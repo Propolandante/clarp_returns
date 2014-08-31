@@ -182,6 +182,7 @@ public class PreGameActivity extends ActionBarActivity
             	 */
             	
             	Intent intent = new Intent(PreGameActivity.this, NewClarpCardActivity.class);
+                intent.putExtra("game_id", game.getObjectId());
                 startActivityForResult(intent, ClarpApplication.ADD_CARD);
             }
         });
@@ -317,9 +318,9 @@ public class PreGameActivity extends ActionBarActivity
     	
     	gameNameView.setText(gameName);
         playerCountView.setText("Players: " + players.length() + "/" + minPlayers);
-    	suspectCountView.setText("Suspects: " + suspects.length() + "/" + minSuspects);
-    	weaponCountView.setText("Weapons: " + weapons.length() + "/" + minWeapons);
-    	locationCountView.setText("Locations: " + locations.length() + "/" + minLocations);
+    	suspectCountView.setText("Suspects: " + game.getInt("numSuspects") + "/" + minSuspects);
+    	weaponCountView.setText("Weapons: " + game.getInt("numWeapons") + "/" + minWeapons);
+    	locationCountView.setText("Locations: " + game.getInt("numLocations") + "/" + minLocations);
     	
     	gameLoaded = true;
     	

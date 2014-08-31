@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +18,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.GetCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 
@@ -43,9 +46,26 @@ public class NewClarpCardFragment extends Fragment {
     private TextView cardName;
     private Spinner cardType;
     private ParseImageView cardPreview;
+    
+    ClarpGame game;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	
+    	ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+        query.getInBackground(((NewClarpCardActivity) getActivity()).getGameId(), new GetCallback<ClarpGame>() {
+            @Override
+            public void done(ClarpGame object, ParseException e) {
+                if (e == null)
+                {
+                    game = object;
+                }
+                else
+                {
+                    Log.d(ClarpApplication.TAG, "Something went wrong when querying the ClarpGame in NCCF");
+                }
+            }
+        });	
         super.onCreate(savedInstanceState);
     }
 
@@ -97,6 +117,10 @@ public class NewClarpCardFragment extends Fragment {
                 // card submission process
                 //card.setCardType(cardType.getSelectedItem().toString());
                 card.setCardType("suspect");
+                
+                // Add the gameId so we know to query it in Game Activity
+                
+                card.setCardGame(((NewClarpCardActivity) getActivity()).getGameId());
 
                 // If the user added a photo, that data will be
                 // added in the CameraFragment
@@ -108,6 +132,24 @@ public class NewClarpCardFragment extends Fragment {
                     public void done(ParseException e) {
                         if (e == null) 
                         {
+                        	
+                        	String type = card.getCardType();
+                        	
+                        	if (type.equals("suspect"))
+                        	{
+                        		game.increment("numSuspects");
+                        	}
+                        	else if (type.equals("weapon"))
+                        	{
+                        		game.increment("numWeapons");
+                        	}
+                        	else if (type.equals("location"))
+                        	{
+                        		game.increment("numLocations");
+                        	}
+                        	
+                        	game.saveInBackground();
+                        	
                         	Intent resultIntent = new Intent();
                         	resultIntent.putExtra("cardId", card.getObjectId());
                         	

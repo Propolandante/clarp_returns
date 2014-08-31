@@ -48,6 +48,10 @@ public class ClarpGame extends ParseObject {
         put("solution", new JSONArray());
 
         put("turns", new JSONArray());
+        
+        put("numSuspects", 0);
+        put("numWeapons", 0);
+        put("numLocations", 0);
 
         // I need to be sure this object has an objectId before addPlayer is called.
         // Usually we're supposed to use saveInBackground, so there's probably a better way than this
@@ -174,7 +178,7 @@ public class ClarpGame extends ParseObject {
 
         Log.d(ClarpApplication.TAG, "card created");
 
-        suspect.initialize(Integer.toString(0), player.getString("prefix") + " " + player.getString("name"));
+        suspect.initialize(Integer.toString(0), player.getString("prefix") + " " + player.getString("name"), getObjectId());
 
 
         // ObjectId isn't created until the object is saved
@@ -190,6 +194,8 @@ public class ClarpGame extends ParseObject {
                 newSuspects.put(suspect.getObjectId());
                 // push newly updated suspects
                 put("suspects", newSuspects);
+                
+                increment("numSuspects");
 
                 //now we need to save the game so that the new suspect array is reflected in the cloud
                 saveInBackground(new SaveCallback() {

@@ -16,10 +16,11 @@ public class ClarpCard extends ParseObject {
 
     }
 
-    public void initialize(String type, String name) {
+    public void initialize(String type, String name, String id) {
 
         setCardType(type);
         setCardName(name);
+        setCardGame(id);
     }
 
     public void setCardType(String type) {
@@ -56,5 +57,15 @@ public class ClarpCard extends ParseObject {
 
     public void setPhotoFile(ParseFile file){
         put("photo", file);
+    }
+    
+    public String getCardGame()
+    {
+    	return getString("gameId");
+    }
+    
+    public void setCardGame(String id)
+    {
+    	put("gameId", id);
     }
 }

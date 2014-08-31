@@ -35,7 +35,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 
-public class GameActivity extends ActionBarActivity implements OnItemClickListener{
+public class GameActivity extends ActionBarActivity{
 	
 	private static final int TYPE_SUGGEST = 0;
     private static final int TYPE_ACCUSE = 1;
@@ -65,6 +65,8 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 	Card murderer = null;
 	Card murderWeapon = null;
 	Card crimeScene = null;
+	
+
 	
 	ClarpGame game = null;
 	
@@ -267,7 +269,8 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		}
 	}
     
-    
+    //clickSuggest is called when the Suggest button is pressed in GameActivity.  It creates a popup window that
+	//contains 3 clickable imageviews and initalizes them to the first of each type of card found in the deck.
     public void clickSuggest(View v) {
 		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		popupView = inflater.inflate(R.layout.popup_suggest,null);
@@ -292,14 +295,19 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		ImageView scenePic = (ImageView) popupView.findViewById(R.id.imageSceneSelect);
 		scenePic.setImageResource(queuedScene.pic);
 		
-		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight());
+		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight(),true);
 		pw.setAnimationStyle(android.R.style.Animation_Dialog);
 		pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
+		pw.setOutsideTouchable(true);
+		pw.setBackgroundDrawable(getResources().getDrawable(android.R.color.white));
+		pw.setFocusable(true);
 		
 		//TODO When all the parse pic stuff is in, we will need to set default pics.
 		
 	}
     
+    //Bassically the same as clickSuggest, but a different layout is inflated.  Maybe later I can have each click divert
+    //to the same method.
     public void clickAccuse(View v) {
 		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		popupView = inflater.inflate(R.layout.popup_accuse,null);
@@ -310,6 +318,8 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		
 	}
     
+    
+    //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectSuspect(View v) {
     	selectType = CardTypes.SUSPECT;
@@ -321,7 +331,8 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
 		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, suspectList);
 		listCards.setAdapter(adapter);
-		listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		listCards.setClickable(true);
+		listCards.setOnItemClickListener(new OnItemClickListener() {
 
 			 @Override
 			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
@@ -333,6 +344,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		});
 	}
     
+  //Called when the Weapon image is clicked in a Suggest or Accuse popup.  Will populate the listview with Weapon cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectWeapon(View v) {
     	//TODO current work
@@ -342,7 +354,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 			if (c.type == CardTypes.WEAPON)
 				weaponList.add(c);
 		}
-    	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
+		final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
 		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, weaponList);
 		listCards.setAdapter(adapter);
 		listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -357,6 +369,8 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
 		});
 	}
     
+    
+  //Called when the Scene image is clicked in a Suggest or accuse popup.  Will populate the listview with Scene cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectScene(View v) {
     	//TODO current work
@@ -369,7 +383,7 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
 		final CardAdapter adapter = new CardAdapter(GameActivity.this, R.layout.select_item, sceneList);
 		listCards.setAdapter(adapter);
-		listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		listCards.setOnItemClickListener(new OnItemClickListener() {
 
 			 @Override
 			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
@@ -421,13 +435,6 @@ public class GameActivity extends ActionBarActivity implements OnItemClickListen
     	pw.dismiss();
     }
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		// TODO Auto-generated method stub
-		
-		
-	}
 
 
 }

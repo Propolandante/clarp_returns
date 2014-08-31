@@ -3,6 +3,7 @@ package com.example.clarp_returns;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,10 +17,13 @@ import android.view.WindowManager;
 public class NewClarpCardActivity extends Activity {
 
     private ClarpCard card;
+    private String gameId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         card = new ClarpCard();
+        Intent mainIntent = getIntent();
+        gameId = mainIntent.getStringExtra("game_id");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
@@ -40,6 +44,10 @@ public class NewClarpCardActivity extends Activity {
 
     public ClarpCard getCurrentClarpCard() {
         return card;
+    }
+    
+    public String getGameId() {
+        return gameId;
     }
 
 }

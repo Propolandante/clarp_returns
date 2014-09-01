@@ -53,10 +53,12 @@ public class GameActivity extends ActionBarActivity{
 	View popupView;
 	PopupWindow pw;
 	ListPopupWindow lpw;
-	MyAdapter adapter;
+	MyAdapter pageAdapter;
 	HistoryFragment historyFragment;
 	int page = 0;
 	Player selectedPlayer;
+	
+	GameStates gameState = GameStates.IN_PROGRESS;
 	
 	Card queuedSuspect = null;
 	Card queuedWeapon = null;
@@ -163,8 +165,8 @@ public class GameActivity extends ActionBarActivity{
     	
     	viewPager = (ViewPager) findViewById(R.id.pager);
 		FragmentManager fragmentManager = getSupportFragmentManager();
-		adapter = new MyAdapter(fragmentManager);
-        viewPager.setAdapter(adapter);
+		pageAdapter = new MyAdapter(fragmentManager);
+        viewPager.setAdapter(pageAdapter);
     	
     	
     }
@@ -251,7 +253,7 @@ public class GameActivity extends ActionBarActivity{
 		 */
 		
 		int player = 0;
-		for (int i = 0; i < cards.size()-1; ++i){
+		for (int i = 0; i < cards.size(); ++i){
 			if (murderer == null && cards.get(i).type == CardTypes.SUSPECT){
 				murderer = cards.get(i);
 				continue;
@@ -272,8 +274,25 @@ public class GameActivity extends ActionBarActivity{
     //clickSuggest is called when the Suggest button is pressed in GameActivity.  It creates a popup window that
 	//contains 3 clickable imageviews and initalizes them to the first of each type of card found in the deck.
     public void clickSuggest(View v) {
-		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		popupView = inflater.inflate(R.layout.popup_suggest,null);
+		createPopup(true);
+		
+	}
+    
+    //Bassically the same as clickSuggest, but a different layout is inflated.  Maybe later I can have each click divert
+    //to the same method.
+    public void clickAccuse(View v) {
+		createPopup(false);
+	}
+    
+    
+    private void createPopup(boolean isSuggest){
+    	LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+    	
+    	if (isSuggest)
+    		popupView = inflater.inflate(R.layout.popup_suggest,null);
+    	else
+    		popupView = inflater.inflate(R.layout.popup_accuse,null);
+		
 		popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 		
 		
@@ -301,22 +320,7 @@ public class GameActivity extends ActionBarActivity{
 		pw.setOutsideTouchable(true);
 		pw.setBackgroundDrawable(getResources().getDrawable(android.R.color.white));
 		pw.setFocusable(true);
-		
-		//TODO When all the parse pic stuff is in, we will need to set default pics.
-		
-	}
-    
-    //Bassically the same as clickSuggest, but a different layout is inflated.  Maybe later I can have each click divert
-    //to the same method.
-    public void clickAccuse(View v) {
-		LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		popupView = inflater.inflate(R.layout.popup_accuse,null);
-		popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight());
-		pw.setAnimationStyle(android.R.style.Animation_Dialog);
-		pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
-		
-	}
+    }
     
     
     //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.
@@ -396,8 +400,17 @@ public class GameActivity extends ActionBarActivity{
 	}
     
     public void clickSuggestSubmit(View v) {
-    	historyFragment = adapter.getHistoryFragment();
-    	TurnHistoryItem temp = new TurnHistoryItem(TYPE_SUGGEST);
+    	submit(TYPE_SUGGEST);
+    }
+    
+    public void clickSuggestAccuse(View v) {
+    	submit(TYPE_ACCUSE);
+    }
+    
+    
+    private void submit(int type){
+    	historyFragment = pageAdapter.getHistoryFragment();
+    	TurnHistoryItem temp = new TurnHistoryItem(type);
     	temp.person = queuedSuspect.pic;
     	temp.weapon = queuedWeapon.pic;
     	temp.location = queuedScene.pic;
@@ -407,19 +420,25 @@ public class GameActivity extends ActionBarActivity{
     	temp.result = disprover + " proved " + players.get(0).name + " wrong";
     	
     	historyFragment.add(temp);
+    	
+    	pw.dismiss();
+    	
+    	if (type == TYPE_ACCUSE){
+    		if (queuedSuspect.equals(murderer) && queuedWeapon.equals(murderWeapon) 
+    				&& queuedScene.equals(crimeScene)){
+    			gameState = GameStates.WON;
+    		}else{
+    			gameState = GameStates.LOST;
+    		}
+    	}
+    		
+    		
     	queuedSuspect = null;
     	queuedWeapon = null;
     	queuedScene = null;
-    	pw.dismiss();
     }
     
-    public void clickSuggestAccuse(View v) {
-    	historyFragment = adapter.getHistoryFragment();
-    	TurnHistoryItem temp = new TurnHistoryItem(TYPE_ACCUSE);
-    	historyFragment.add(temp);
-    	
-    	pw.dismiss();
-    }
+    
     
     public String refuteSuggestion(){
     	for (Player p : players.subList(1, players.size())){
@@ -433,6 +452,11 @@ public class GameActivity extends ActionBarActivity{
     
     public void clickCancel(View v){
     	pw.dismiss();
+    }
+    
+    
+    public enum GameStates{
+    	IN_PROGRESS,WON,LOST;
     }
 
 

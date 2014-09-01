@@ -45,7 +45,7 @@ public class NewClarpCardActivity extends Activity {
     public ClarpCard getCurrentClarpCard() {
         return card;
     }
-    
+
     public String getGameId() {
         return gameId;
     }

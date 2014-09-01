@@ -32,12 +32,14 @@ public class CameraFragment extends Fragment {
     private SurfaceView surfaceView;
     private ParseFile photoFile;
     private ImageButton photoButton;
+    private boolean isButtonPressed;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_camera, parent, false);
 
+        isButtonPressed = false;
         photoButton = (ImageButton) v.findViewById(R.id.camera_photo_button);
 
         if (camera == null) {
@@ -56,6 +58,7 @@ public class CameraFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
+                isButtonPressed = true;
                 if (camera == null) {
                     return;
                 }
@@ -159,8 +162,12 @@ public class CameraFragment extends Fragment {
      * until we reach that Fragment.
      */
     private void addPhotoToCardAndReturn(ParseFile photoFile) {
-        ((NewClarpCardActivity) getActivity()).getCurrentClarpCard().setPhotoFile(
-                photoFile);
+        if(photoFile != null) {
+            ((NewClarpCardActivity) getActivity()).getCurrentClarpCard().setPhotoFile(
+                    photoFile);
+        } else {
+            Log.d(ClarpApplication.TAG, "PhotoFile is null");
+        }
         FragmentManager fm = getActivity().getFragmentManager();
         fm.popBackStack("NewClarpCardFragment",
                 FragmentManager.POP_BACK_STACK_INCLUSIVE);

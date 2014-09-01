@@ -25,13 +25,13 @@ public class ClarpGame extends ParseObject {
     }
 
     public void initialize() throws ParseException {
-    	
-    	//Boolean to indicate if the game is started yet
-    	put("isStarted", false);
+
+        //Boolean to indicate if the game is started yet
+        put("isStarted", false);
 
         //array of JSONObjects with relevant player information.
         put("players", new JSONArray());
-        
+
         // this array is a little redundant, but makes querying the user's current ClarpGames MUCH easier
         put("fbUsers", new JSONArray());
 
@@ -48,7 +48,7 @@ public class ClarpGame extends ParseObject {
         put("solution", new JSONArray());
 
         put("turns", new JSONArray());
-        
+
         put("numSuspects", 0);
         put("numWeapons", 0);
         put("numLocations", 0);
@@ -66,37 +66,37 @@ public class ClarpGame extends ParseObject {
     public void setGameName(String name) {
         put("gameName", name);
     }
-    
+
     public String getOwner() {
         return getString("owner");
     }
     public void setOwner(ParseUser user) {
         put("owner", user.getObjectId());
     }
-    
+
     public Boolean ifStarted()
     {
-    	return getBoolean("isStarted");
+        return getBoolean("isStarted");
     }
-    
+
     public void startGame()
     {
-    	put("isStarted", true);
+        put("isStarted", true);
     }
-    
+
     public void addFbPlayer(ParseUser user) throws JSONException
     {
-    	JSONObject userFbInfo = user.getJSONObject("profile");
-    	
-    	//can't change the existing JSONArray on Parse, we need to overwrite it:
+        JSONObject userFbInfo = user.getJSONObject("profile");
+
+        //can't change the existing JSONArray on Parse, we need to overwrite it:
         // grab the existing players
         JSONArray newFbUsers = getJSONArray("fbUsers");
         //append player to existing players
         newFbUsers.put(userFbInfo.getString("facebookId"));
         // push newly updated players
         put("fbUsers", newFbUsers);
-        
-        
+
+
     }
 
     public void addPlayer( ParseUser user ) throws JSONException
@@ -164,7 +164,7 @@ public class ClarpGame extends ParseObject {
                 Log.d(ClarpApplication.TAG, "user info saved to server");
             }
         });
-        
+
         addFbPlayer(user);
 
 
@@ -178,7 +178,7 @@ public class ClarpGame extends ParseObject {
 
         Log.d(ClarpApplication.TAG, "card created");
 
-        suspect.initialize(Integer.toString(0), player.getString("prefix") + " " + player.getString("name"), getObjectId());
+        suspect.initialize(ClarpCard.CardType.SUSPECT, player.getString("prefix") + " " + player.getString("name"), getObjectId());
 
 
         // ObjectId isn't created until the object is saved
@@ -194,7 +194,7 @@ public class ClarpGame extends ParseObject {
                 newSuspects.put(suspect.getObjectId());
                 // push newly updated suspects
                 put("suspects", newSuspects);
-                
+
                 increment("numSuspects");
 
                 //now we need to save the game so that the new suspect array is reflected in the cloud
@@ -216,10 +216,10 @@ public class ClarpGame extends ParseObject {
     }
 
     @Override
-	public String toString()
-	{
-		return getGameName();
-		
-	}
+    public String toString()
+    {
+        return getGameName();
+
+    }
 }
 

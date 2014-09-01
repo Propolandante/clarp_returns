@@ -46,7 +46,7 @@ public class CardQueryAdapter extends ParseQueryAdapter<ClarpCard>{
         nameTextView.setText(card.getCardName());
 
         TextView typeTextView = (TextView) v.findViewById(R.id.cardType);
-        typeTextView.setText(card.getCardType());
+        typeTextView.setText(card.getCardType().toString());
 
         return v;
     }

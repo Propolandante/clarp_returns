@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -46,13 +47,13 @@ public class NewClarpCardFragment extends Fragment {
     private TextView cardName;
     private Spinner cardType;
     private ParseImageView cardPreview;
-    
+
     ClarpGame game;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	
-    	ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+
+        ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
         query.getInBackground(((NewClarpCardActivity) getActivity()).getGameId(), new GetCallback<ClarpGame>() {
             @Override
             public void done(ClarpGame object, ParseException e) {
@@ -65,7 +66,7 @@ public class NewClarpCardFragment extends Fragment {
                     Log.d(ClarpApplication.TAG, "Something went wrong when querying the ClarpGame in NCCF");
                 }
             }
-        });	
+        });
         super.onCreate(savedInstanceState);
     }
 
@@ -80,11 +81,11 @@ public class NewClarpCardFragment extends Fragment {
         // but alas
         // it did nothing of the sort
 
-        //        cardType = ((Spinner) v.findViewById(R.id.type_spinner));
-        //        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter
-        //                .createFromResource(getActivity(), R.array.type_array,
-        //                        android.R.layout.simple_spinner_dropdown_item);
-        //        cardType.setAdapter(spinnerAdapter);
+        cardType = ((Spinner) v.findViewById(R.id.type_spinner));
+        ArrayAdapter<ClarpCard.CardType> spinnerAdapter = new ArrayAdapter<ClarpCard.CardType>
+        (getActivity(), android.R.layout.simple_spinner_dropdown_item,
+                ClarpCard.CardType.values());
+        cardType.setAdapter(spinnerAdapter);
 
         photoButton = ((ImageButton) v.findViewById(R.id.photo_button));
         photoButton.setOnClickListener(new View.OnClickListener() {
@@ -116,10 +117,13 @@ public class NewClarpCardFragment extends Fragment {
                 // this may become obsolete as we refine the
                 // card submission process
                 //card.setCardType(cardType.getSelectedItem().toString());
-                card.setCardType("suspect");
-                
+                //card.setCardType( ClarpCard.CardType.valueOf(( (ClarpCard.CardType) cardType.getSelectedItem()).name() ));
+                String selectedString = cardType.getSelectedItem().toString();
+                Log.d(ClarpApplication.TAG, "Type of selected cardType is " + selectedString);
+                card.setCardType(ClarpCard.CardType.fromString(selectedString));
+
                 // Add the gameId so we know to query it in Game Activity
-                
+
                 card.setCardGame(((NewClarpCardActivity) getActivity()).getGameId());
 
                 // If the user added a photo, that data will be
@@ -130,33 +134,48 @@ public class NewClarpCardFragment extends Fragment {
 
                     @Override
                     public void done(ParseException e) {
-                        if (e == null) 
+                        if (e == null)
                         {
-                        	
-                        	String type = card.getCardType();
-                        	
-                        	if (type.equals("suspect"))
-                        	{
-                        		game.increment("numSuspects");
-                        	}
-                        	else if (type.equals("weapon"))
-                        	{
-                        		game.increment("numWeapons");
-                        	}
-                        	else if (type.equals("location"))
-                        	{
-                        		game.increment("numLocations");
-                        	}
-                        	
-                        	game.saveInBackground();
-                        	
-                        	Intent resultIntent = new Intent();
-                        	resultIntent.putExtra("cardId", card.getObjectId());
-                        	
+
+                            ClarpCard.CardType type = card.getCardType();
+
+                            switch(type) {
+                                case SUSPECT:
+                                    game.increment("numSuspects");
+                                    break;
+                                case WEAPON:
+                                    game.increment("numWeapon");
+                                    break;
+                                case LOCATION:
+                                    game.increment("numLocations");
+                                    break;
+                                default:
+                                    Log.d(ClarpApplication.TAG, "Card is not of a valid type, ERROR ERROR ERROR!");
+                                    break;
+                            }
+
+                            //                            if (type.equals("suspect"))
+                            //                            {
+                            //                                game.increment("numSuspects");
+                            //                            }
+                            //                            else if (type.equals("weapon"))
+                            //                            {
+                            //                                game.increment("numWeapons");
+                            //                            }
+                            //                            else if (type.equals("location"))
+                            //                            {
+                            //                                game.increment("numLocations");
+                            //                            }
+
+                            game.saveInBackground();
+
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("cardId", card.getObjectId());
+
                             getActivity().setResult(Activity.RESULT_OK, resultIntent);
                             getActivity().finish();
-                        } 
-                        else 
+                        }
+                        else
                         {
                             Toast.makeText( getActivity().getApplicationContext(), "Error saving: " + e.getMessage(), Toast.LENGTH_SHORT ).show();
                         }

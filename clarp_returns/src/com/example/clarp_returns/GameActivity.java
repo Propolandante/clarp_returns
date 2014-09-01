@@ -39,6 +39,7 @@ public class GameActivity extends ActionBarActivity{
 	
 	private static final int TYPE_SUGGEST = 0;
     private static final int TYPE_ACCUSE = 1;
+    private static final int TYPE_ALERT = 2;
 	
 	ViewPager viewPager = null;
 	int num_of_players = 6;
@@ -204,6 +205,7 @@ public class GameActivity extends ActionBarActivity{
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		pageAdapter = new MyAdapter(fragmentManager);
         viewPager.setAdapter(pageAdapter);
+
     	
     	
     }
@@ -340,14 +342,16 @@ public class GameActivity extends ActionBarActivity{
     //clickSuggest is called when the Suggest button is pressed in GameActivity.  It creates a popup window that
 	//contains 3 clickable imageviews and initalizes them to the first of each type of card found in the deck.
     public void clickSuggest(View v) {
-		createPopup(true);
+    	if (gameState == GameStates.IN_PROGRESS)
+    		createPopup(true);
 		
 	}
     
     //Bassically the same as clickSuggest, but a different layout is inflated.  Maybe later I can have each click divert
     //to the same method.
     public void clickAccuse(View v) {
-		createPopup(false);
+    	if (gameState == GameStates.IN_PROGRESS)
+    		createPopup(false);
 	}
     
     
@@ -493,8 +497,14 @@ public class GameActivity extends ActionBarActivity{
     		if (queuedSuspect.equals(murderer) && queuedWeapon.equals(murderWeapon) 
     				&& queuedScene.equals(crimeScene)){
     			gameState = GameStates.WON;
+    			temp = new TurnHistoryItem(TYPE_ALERT);
+    			temp.result = players.get(0).name + " has solved the mystery!";  	
+    			historyFragment.add(temp);
     		}else{
     			gameState = GameStates.LOST;
+    			temp = new TurnHistoryItem(TYPE_ALERT);
+    			temp.result = players.get(0).name + " was Dead Wrong!";  	
+    			historyFragment.add(temp);
     		}
     	}
     		
@@ -537,9 +547,11 @@ class MyAdapter extends FragmentPagerAdapter{
 	
 	public MyAdapter(FragmentManager fm) {
 		super(fm);
-		//TODO This is a temp first item
+		
 		historyItems = new ArrayList<TurnHistoryItem>();
-		//historyItems.add(new TurnHistoryItem(0));
+		TurnHistoryItem firstItem = new TurnHistoryItem(2);
+		firstItem.result = "The Game is Afoot!";  	
+    	historyItems.add(firstItem);
 	}
 	
 	@Override

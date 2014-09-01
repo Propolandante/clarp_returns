@@ -2,6 +2,7 @@ package com.example.clarp_returns;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,7 +26,13 @@ public class Player {
 		prefix = p.getString("prefix");
 		fbId = p.getString("facebookId");
 		disqualified = p.getBoolean("dq");
-		cardIds = new ArrayList<String>();
+		
+		JSONArray cardList = p.getJSONArray("turns");
+		
+		for (int i = 0; i < cardIds.size(); ++i)
+		{
+			cardIds.add((String) cardList.get(i));
+		}
 		
 	}
 	

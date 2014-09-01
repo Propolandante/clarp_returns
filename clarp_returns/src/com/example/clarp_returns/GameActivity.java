@@ -135,8 +135,10 @@ public class GameActivity extends ActionBarActivity{
 						Log.d(ClarpApplication.TAG, "Ran into an error trying to get the players");
 					}
                 	
-                	// PGA should have already distributed the facts to each player.
-                	// SO GO CODE THAT PART DEREK, GAWD.
+                	// PGA will have already distributed the facts to each player.
+                	
+                	
+                	
                 	
                     
                 }

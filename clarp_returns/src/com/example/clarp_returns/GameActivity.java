@@ -278,15 +278,6 @@ public class GameActivity extends ActionBarActivity{
 	
 	public void dealCards(){
 		
-		/*
-		 * I think we can all agree that this is a sexy, sexy string of functions.
-		 * I wouldn't change a thing.
-		 * Except for how it needs to use Parse.
-		 * Aw, we have to change it.
-		 * Fuck.
-		 * -His Derkiness
-		 */
-		
 		int player = 0;
 		for (int i = 0; i < cards.size()-1; ++i){
 			if (murderer == null && cards.get(i).type == CardTypes.SUSPECT){

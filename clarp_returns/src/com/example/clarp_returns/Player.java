@@ -56,6 +56,11 @@ public class Player {
 		return this.disqualified;
 	}
 	
+	public void disqualify() {
+		
+		this.disqualified = true;
+	}
+	
 	public Boolean isAlibi(String cardId) {
 		
 		/*
@@ -76,6 +81,11 @@ public class Player {
 	public ArrayList<String> getCardIds()
 	{
 		return cardIds;
+	}
+	
+	public void giveCard(ClarpCard c)
+	{
+		this.cardIds.add(c.getObjectId());
 	}
 	
 	

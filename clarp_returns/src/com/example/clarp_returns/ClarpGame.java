@@ -209,10 +209,18 @@ public class ClarpGame extends ParseObject {
             }
         });
 
-
-
     }
-
+    
+    public void setSolution (String s, String w, String l)
+    {
+    	JSONArray solution = new JSONArray();
+    	solution.put(s);
+    	solution.put(w);
+    	solution.put(l);
+    	
+    	put("solution", solution);
+    }
+    
     @Override
     public String toString()
     {

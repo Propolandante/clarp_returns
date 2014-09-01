@@ -80,17 +80,15 @@ public class ClarpCard extends ParseObject {
         return getParseFile("photo");
     }
 
-    public void setPhotoFile(ParseFile file){
+    public void setPhotoFile(ParseFile file) {
         put("photo", file);
     }
 
-    public String getCardGame()
-    {
+    public String getCardGame() {
         return getString("gameId");
     }
 
-    public void setCardGame(String id)
-    {
+    public void setCardGame(String id) {
         put("gameId", id);
     }
 }

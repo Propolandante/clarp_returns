@@ -54,7 +54,9 @@ public class PreGameActivity extends ActionBarActivity
     private Button addCardButton;
     private Button startGameButton;
     private Button refreshButton;
+    private Button cardsListButton;
 
+    String gameId;
     ClarpGame game = null;
     ParseUser user;
     Boolean isOwner = false;
@@ -101,6 +103,7 @@ public class PreGameActivity extends ActionBarActivity
         addCardButton = (Button) findViewById(R.id.addCardButton);
         startGameButton = (Button) findViewById(R.id.startGameButton);
         refreshButton = (Button) findViewById(R.id.refreshButton);
+        cardsListButton = (Button) findViewById(R.id.cards_list_button);
 
         updateViewVisibility();
 
@@ -110,6 +113,7 @@ public class PreGameActivity extends ActionBarActivity
 
         Intent mainIntent = getIntent();
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+        gameId = mainIntent.getStringExtra("game_id");
         query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
             @Override
             public void done(ClarpGame object, ParseException e) {
@@ -158,10 +162,6 @@ public class PreGameActivity extends ActionBarActivity
         /*
          * Initialize buttons. These do not rely on game being loaded.
          */
-
-
-
-
         addCardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,8 +192,6 @@ public class PreGameActivity extends ActionBarActivity
                 /*
                  * THis is where we actually add all the cards to the game!
                  */
-
-
                 game.startGame();
                 game.saveInBackground(new SaveCallback() {
 
@@ -209,8 +207,6 @@ public class PreGameActivity extends ActionBarActivity
                         startActivity(intent);
                     }
                 });
-
-
             }
         });
 
@@ -223,22 +219,16 @@ public class PreGameActivity extends ActionBarActivity
             }
         });
 
-
-
     }
 
     @Override
     public void onResume(){
         super.onResume();
 
-
         if(game != null)
         {
             syncGame();
         }
-
-
-
     }
 
     @Override
@@ -448,9 +438,12 @@ public class PreGameActivity extends ActionBarActivity
         }
     }
 
+    public void clickCardsList(View v) {
+        Intent intent = new Intent(PreGameActivity.this, CardListActivity.class);
+        intent.putExtra("game_id", gameId);
+        intent.putExtra("requestCode", ClarpApplication.VIEW_ALL_GAME_CARDS);
+        startActivityForResult(intent, ClarpApplication.VIEW_ALL_GAME_CARDS);
 
-
-
-
+    }
 
 }

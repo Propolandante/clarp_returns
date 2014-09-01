@@ -2,21 +2,19 @@ package com.example.clarp_returns;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.internal.widget.ListPopupWindow;
 import android.util.Log;
@@ -25,14 +23,16 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 
 public class GameActivity extends ActionBarActivity{
@@ -66,6 +66,19 @@ public class GameActivity extends ActionBarActivity{
 	Card murderWeapon = null;
 	Card crimeScene = null;
 	
+	// PARSIFIED VARIABLES
+	
+	int num_of_players2;
+	int num_of_weapons2;
+	int num_of_scenes2;
+	int total_cards2;
+	
+	ArrayList<ClarpCard> cards2 = new ArrayList<ClarpCard>();
+	Boolean gotCards = false;
+	
+
+	ArrayList<Player> players2 = new ArrayList<Player>();
+	
 
 	
 	ClarpGame game = null;
@@ -88,6 +101,8 @@ public class GameActivity extends ActionBarActivity{
         setContentView(R.layout.activity_game);
         total_cards = num_of_players + num_of_weapons + num_of_scenes;
         
+               
+        
         /*
          * First, get the ClarpGame so we know what we're working with
          */
@@ -100,6 +115,28 @@ public class GameActivity extends ActionBarActivity{
                 if (e == null)
                 {
                     game = object;
+                    // get counts
+                    num_of_players2 = game.getInt("numSuspects");
+                	num_of_weapons2 = game.getInt("numWeapons");
+                	num_of_scenes2 = game.getInt("numLocations");
+                	total_cards2 = num_of_players2 + num_of_weapons2 + num_of_scenes2;
+                	
+                	// populate cards2[]
+                	getCards(game);
+                	
+                	//populate players2[]
+                	try {
+						getPlayers(game);
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						Log.d(ClarpApplication.TAG, "Ran into an error trying to get the players");
+					}
+                	
+                	// PGA should have already distributed the facts to each player.
+                	// SO GO CODE THAT PART DEREK, GAWD.
+                	
+                    
                 }
                 else
                 {
@@ -266,6 +303,44 @@ public class GameActivity extends ActionBarActivity{
 			}
 			players.get(player++).cards.add(cards.get(i));
 			if (player == num_of_players) player = 0;
+		}
+	}
+	
+	private void getCards(ClarpGame g)
+	{
+		cards2 = new ArrayList<ClarpCard>();
+		
+		String id = g.getObjectId();
+		
+		ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
+        query.whereEqualTo("gameId", id);
+        
+        query.findInBackground(new FindCallback<ClarpCard>() {
+            public void done(List<ClarpCard> cList, ParseException e) {
+                if (e == null) {
+                    
+                    for (int i = 0; i < cList.size(); ++i)
+                    {
+                    	cards2.add(cList.get(i));
+                    	Log.d(ClarpApplication.TAG, "grabbed card " + cards2.get(i).getCardName());
+                    }
+                    
+                    gotCards = true;
+                    
+                } else {
+                	Log.d(ClarpApplication.TAG, "query failure (?)");
+                }
+            }
+        });
+	}
+	
+	private void getPlayers(ClarpGame g) throws JSONException
+	{
+		JSONArray gPlayers = g.getJSONArray("players");
+		
+		for (int i = 0; i < gPlayers.length(); ++i)
+		{
+			players2.add(new Player(gPlayers.getJSONObject(i)));
 		}
 	}
     

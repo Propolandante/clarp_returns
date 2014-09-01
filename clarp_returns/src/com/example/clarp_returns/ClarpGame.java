@@ -120,9 +120,7 @@ public class ClarpGame extends ParseObject {
         player.put("dq", false);
 
         // player's facts will be assigned when the game's solution is determined
-        player.put("suspectFacts", new JSONArray());
-        player.put("weaponFacts", new JSONArray());
-        player.put("locationFacts", new JSONArray());
+        player.put("facts", new JSONArray());
 
         //can't change the existing JSONArray on Parse, we need to overwrite it:
         // grab the existing players

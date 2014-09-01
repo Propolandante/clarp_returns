@@ -20,6 +20,8 @@ public class CardListActivity extends Activity {
     private CardQueryAdapter cardAdapter;
     private ProgressBar listLoadingView;
     private boolean cardsLoaded = false;
+    private String gameId;
+    private int requestCode;
 
 
     @Override
@@ -28,9 +30,15 @@ public class CardListActivity extends Activity {
 
         setContentView(R.layout.activity_card_list);
 
+        Intent mainIntent = getIntent();
+        Bundle extras = mainIntent.getExtras();
+        gameId = extras.getString("game_id");
+        requestCode = extras.getInt("requestCode");
+
+
         cardListView = (ListView) findViewById(R.id.card_list_view);
         listLoadingView = (ProgressBar) findViewById(R.id.progressBar1);
-        cardAdapter = new CardQueryAdapter(CardListActivity.this);
+        cardAdapter = new CardQueryAdapter(CardListActivity.this, requestCode, gameId);
         cardListView.setAdapter(cardAdapter);
         updateCardList();
     }

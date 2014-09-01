@@ -3,11 +3,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal" >
-
-    <ImageView
+    
+    <com.parse.ParseImageView
         android:id="@+id/imageCardPic"
         android:layout_width="72dp"
         android:layout_height="72dp"
+        android:background="#000000"
         android:src="@drawable/jordan" />
 
     <TextView

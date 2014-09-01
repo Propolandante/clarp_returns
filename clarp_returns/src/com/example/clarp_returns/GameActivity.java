@@ -32,6 +32,8 @@ import android.widget.PopupWindow;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 
 
@@ -42,70 +44,42 @@ public class GameActivity extends ActionBarActivity{
     private static final int TYPE_ALERT = 2;
 	
 	ViewPager viewPager = null;
-	int num_of_players = 6;
-	int num_of_weapons = 6;
-	int num_of_scenes = 6;
-	int total_cards;
 	int cur_player = 0;
-	ArrayList<Card> cards = new ArrayList<Card>();
-	ArrayList<Player> players = new ArrayList<Player>();
-	ArrayList<String> weapons = new ArrayList<String>();
-	ArrayList<String> scenes = new ArrayList<String>();
 	View popupView;
 	PopupWindow pw;
 	ListPopupWindow lpw;
 	MyAdapter pageAdapter;
 	HistoryFragment historyFragment;
 	int page = 0;
-	Player selectedPlayer;
 	
 	GameStates gameState = GameStates.IN_PROGRESS;
 	
-	Card queuedSuspect = null;
-	Card queuedWeapon = null;
-	Card queuedScene = null;
-	
-	Card murderer = null;
-	Card murderWeapon = null;
-	Card crimeScene = null;
-	
 	// PARSIFIED VARIABLES
 	
-	int num_of_players2;
-	int num_of_weapons2;
-	int num_of_scenes2;
-	int total_cards2;
+	int num_of_players;
+	int num_of_weapons;
+	int num_of_scenes;
+	int total_cards;
 	
-	ArrayList<ClarpCard> cards2 = new ArrayList<ClarpCard>();
+	ArrayList<ClarpCard> cards = new ArrayList<ClarpCard>();
 	Boolean gotCards = false;
-	
 
-	ArrayList<Player> players2 = new ArrayList<Player>();
+	ArrayList<Player> players = new ArrayList<Player>();
 	
-
+	ClarpCard queuedSuspect = null;
+	ClarpCard queuedWeapon = null;
+	ClarpCard queuedScene = null;
+	
+	ClarpCard.CardType selectType = ClarpCard.CardType.SUSPECT;
 	
 	ClarpGame game = null;
 	
-	/*
-	 * This enum is currently in its own class... 
-	 * can it be moved to ClarpApplication to make it a global enum that doesn't need its own file and class?
-	 * Just a thought
-	 * -Derky
-	 */
-	CardTypes selectType = CardTypes.SUSPECT;
 	
 	
-
-	
-	
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        total_cards = num_of_players + num_of_weapons + num_of_scenes;
-        
-               
-        
         /*
          * First, get the ClarpGame so we know what we're working with
          */
@@ -118,30 +92,23 @@ public class GameActivity extends ActionBarActivity{
                 if (e == null)
                 {
                     game = object;
-                    // get counts
-                    num_of_players2 = game.getInt("numSuspects");
-                	num_of_weapons2 = game.getInt("numWeapons");
-                	num_of_scenes2 = game.getInt("numLocations");
-                	total_cards2 = num_of_players2 + num_of_weapons2 + num_of_scenes2;
+                    // get counts. idk if we will use these, but Joe might know
+                    num_of_players = game.getInt("numSuspects");
+                	num_of_weapons = game.getInt("numWeapons");
+                	num_of_scenes = game.getInt("numLocations");
+                	total_cards = num_of_players + num_of_weapons + num_of_scenes;
                 	
-                	// populate cards2[]
+                	/*
+                	 * These two functions run in the background.
+                	 * We should show a loading bar while they process
+                	 * So the user can't attempt to play before the info is here
+                	 */
                 	getCards(game);
                 	
-                	//populate players2[]
-                	try {
-						getPlayers(game);
-					} catch (JSONException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						Log.d(ClarpApplication.TAG, "Ran into an error trying to get the players");
-					}
+                	getPlayers(game);
                 	
                 	// PGA will have already distributed the facts to each player.
                 	
-                	
-                	
-                	
-                    
                 }
                 else
                 {
@@ -150,58 +117,11 @@ public class GameActivity extends ActionBarActivity{
             }
         });
         
-        /*
-         * Our current framework distinguishes between "player" and suspect".
-         * Players are the ones taking turns, suspects are cards
-         * Every player is a suspect, but often there will be more suspects than player.
-         * I suspect (heh) that this is meant to be suspects and not players
-         * Regardless, this is all placeholder code. Once we implement PreGameActivity this will all be done
-         * And with real user-generated cards!
-         * -DerkDerkDerk
-         */
-        
-        players.add(new Player("Joe"));
-        players.add(new Player("Derek"));
-        players.add(new Player("Brittany"));
-        players.add(new Player("Joe2"));
-        players.add(new Player("Jordan"));
-        players.add(new Player("Golde"));
-        selectedPlayer = players.get(0);
-        
-        weapons.add("poison");
-        weapons.add("car battery");
-        weapons.add("spoon");
-        weapons.add("broken dvd");
-        weapons.add("plastic bag");
-        weapons.add("screwdriver");
-        
-        scenes.add("garage");
-        scenes.add("coffee shop");
-        scenes.add("park");
-        scenes.add("pool");
-        scenes.add("Jeffs House");
-        scenes.add("overpass");
-        buildDeck();
-        dealCards();
-        
-        
-        
-		
-        /*if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-            .add(R.id.container, new PlaceholderFragment()).commit();
-        }*/
     }
     
     @Override
     public void onResume(){
     	super.onResume();
-    	
-    	/*
-    	 * I know what some of these words mean!
-    	 * The Snapchat-style swiping is really cool
-    	 * -Dennis
-    	 */
     	
     	viewPager = (ViewPager) findViewById(R.id.pager);
 		FragmentManager fragmentManager = getSupportFragmentManager();
@@ -232,81 +152,17 @@ public class GameActivity extends ActionBarActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-//    public static class PlaceholderFragment extends Fragment {
-//
-//        public PlaceholderFragment() {
-//        }
-//
-//        @Override
-//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                Bundle savedInstanceState) {
-//            View rootView = inflater.inflate(R.layout.fragment_game, container,
-//                    false);
-//            return rootView;
-//        }
-//    }
     
-    private void buildDeck(){
-		/*
-    	 * This will be all Parse-ified
-    	 * Once this activity has started, all of the ObjectIds of the cards created in PreGameActivity 
-    	 * will already have been stored in their appropriate suspects[] weapons[] and locations[] arrays
-    	 * Though, maybe we should take Joe's approach and just store them all in one array called cards[]
-    	 * We will need to be able to just list them separately at times (like when making selections),
-    	 * but a simple if statement within a for loop can be used to add them to the ListView's Array
-    	 * Either way, this function will really only need to shuffle the existing deck, since it will already be built
-    	 * In that case, the shuffling can probably be done in dealCards(), with this function deleted entirely
-    	 * -djdonahu
-    	 */
-		for(int i = 0; i < num_of_players; ++i){
-			Resources res = getResources();
-			String picName = players.get(i).name.toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(players.get(i).name, resID, CardTypes.SUSPECT));
-		}
-		for(int i = 0; i < num_of_weapons; ++i){
-			Resources res = getResources();
-			String picName = weapons.get(i).toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(weapons.get(i),resID,CardTypes.WEAPON));
-		}
-		for(int i = 0; i < num_of_scenes; ++i){
-			Resources res = getResources();
-			String picName = scenes.get(i).toLowerCase().replaceAll(" ", "_");
-			int resID = res.getIdentifier(picName, "drawable", getPackageName());
-			cards.add(new Card(scenes.get(i),resID,CardTypes.LOCATION));
-		}
-		Collections.shuffle(cards);
-	}
-	
-	public void dealCards(){
-		
-		int player = 0;
-		for (int i = 0; i < cards.size(); ++i){
-			if (murderer == null && cards.get(i).type == CardTypes.SUSPECT){
-				murderer = cards.get(i);
-				continue;
-			}
-			if (murderWeapon == null && cards.get(i).type == CardTypes.WEAPON){
-				murderWeapon = cards.get(i);
-				continue;
-			}
-			if (crimeScene == null && cards.get(i).type == CardTypes.LOCATION){
-				crimeScene = cards.get(i);
-				continue;
-			}
-			players.get(player++).cards.add(cards.get(i));
-			if (player == num_of_players) player = 0;
-		}
-	}
 	
 	private void getCards(ClarpGame g)
 	{
-		cards2 = new ArrayList<ClarpCard>();
 		
+		/*
+		 * Since the cards hold the game ID and not the other way around,
+		 * we need to go find all the cards and add them to a local array
+		 */
+		
+		cards = new ArrayList<ClarpCard>();
 		String id = g.getObjectId();
 		
 		ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
@@ -318,10 +174,15 @@ public class GameActivity extends ActionBarActivity{
                     
                     for (int i = 0; i < cList.size(); ++i)
                     {
-                    	cards2.add(cList.get(i));
-                    	Log.d(ClarpApplication.TAG, "grabbed card " + cards2.get(i).getCardName());
+                    	cards.add(cList.get(i));
+                    	Log.d(ClarpApplication.TAG, "grabbed card " + cards.get(i).getCardName());
                     }
                     
+                    // shuffle it, so the first 3 cards aren't the solution...
+                    
+                    Collections.shuffle(cards);
+                    
+                    // use this to update views and hide the loading bar (once we implement that)
                     gotCards = true;
                     
                 } else {
@@ -331,13 +192,29 @@ public class GameActivity extends ActionBarActivity{
         });
 	}
 	
-	private void getPlayers(ClarpGame g) throws JSONException
+	private void getPlayers(ClarpGame g)
 	{
+		
+		/*
+		 * The players array in ClarpGame is not very accessible
+		 * and we can't use getters and setters with it.
+		 * To remedy this, we're copying the players to our local array
+		 * where we can better access the data.
+		 */
+		
 		JSONArray gPlayers = g.getJSONArray("players");
+		
 		
 		for (int i = 0; i < gPlayers.length(); ++i)
 		{
-			players2.add(new Player(gPlayers.getJSONObject(i)));
+			try {
+				players.add(new Player(gPlayers.getJSONObject(i)));
+				Log.d(ClarpApplication.TAG, "Added player " + players.get(i).getFullName());
+			} catch (JSONException e) {
+				Log.d(ClarpApplication.TAG, "Failed to add player");
+				e.printStackTrace();
+			}
+			
 		}
 	}
     
@@ -367,24 +244,48 @@ public class GameActivity extends ActionBarActivity{
 		
 		popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 		
+		/*
+		 * Grab the first card of each type so we can put something as the default suggestion.
+		 * Maybe we should use placeholder images instead? it seems weird to preload a suggestion...
+		 */
 		
-		for (Card c : cards){
-			if (queuedSuspect == null && c.type == CardTypes.SUSPECT)
+		for (ClarpCard c : cards){
+			if (queuedSuspect == null && c.getCardType() == ClarpCard.CardType.SUSPECT)
 				queuedSuspect = c;
-			if (queuedWeapon == null && c.type == CardTypes.WEAPON)
+			if (queuedWeapon == null && c.getCardType() == ClarpCard.CardType.WEAPON)
 				queuedWeapon = c;
-			if (queuedScene == null && c.type == CardTypes.LOCATION)
+			if (queuedScene == null && c.getCardType() == ClarpCard.CardType.LOCATION)
 				queuedScene = c;
 			if (queuedSuspect != null && queuedWeapon != null && queuedScene != null)
 				break;
 		}
 		
-		ImageView suspectPic = (ImageView) popupView.findViewById(R.id.imageSuspectSelect);
-		suspectPic.setImageResource(queuedSuspect.pic);
-		ImageView weaponPic = (ImageView) popupView.findViewById(R.id.imageWeaponSelect);
-		weaponPic.setImageResource(queuedWeapon.pic);
-		ImageView scenePic = (ImageView) popupView.findViewById(R.id.imageSceneSelect);
-		scenePic.setImageResource(queuedScene.pic);
+		ParseFile suspectImageFile = queuedSuspect.getPhotoFile();
+		ParseFile weaponImageFile = queuedWeapon.getPhotoFile();
+		ParseFile locationImageFile = queuedScene.getPhotoFile();
+		
+		ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+		ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+		ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+		
+		if (suspectImageFile != null) {
+			suspectPic.setParseFile(suspectImageFile);
+			suspectPic.loadInBackground();
+			Log.d(ClarpApplication.TAG, "We don't have any suspects...?");
+        }
+		
+		if (weaponImageFile != null) {
+			weaponPic.setParseFile(weaponImageFile);
+			weaponPic.loadInBackground();
+			Log.d(ClarpApplication.TAG, "We don't have any weapons...?");
+        }
+		
+		if (locationImageFile != null) {
+			scenePic.setParseFile(locationImageFile);
+			scenePic.loadInBackground();
+			Log.d(ClarpApplication.TAG, "We don't have any locations...?");
+        }
+		
 		
 		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight(),true);
 		pw.setAnimationStyle(android.R.style.Animation_Dialog);
@@ -398,10 +299,10 @@ public class GameActivity extends ActionBarActivity{
     //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectSuspect(View v) {
-    	selectType = CardTypes.SUSPECT;
-    	ArrayList<Card> suspectList = new ArrayList<Card>();
-		for (Card c : cards){
-			if (c.type == CardTypes.SUSPECT)
+    	selectType = ClarpCard.CardType.SUSPECT;
+    	ArrayList<ClarpCard> suspectList = new ArrayList<ClarpCard>();
+		for (ClarpCard c : cards){
+			if (c.getCardType() == selectType)
 				suspectList.add(c);
 		}
     	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
@@ -413,9 +314,13 @@ public class GameActivity extends ActionBarActivity{
 			 @Override
 			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
-				 queuedSuspect = (Card) listCards.getItemAtPosition(position);
-				 ImageView suspectPic = (ImageView) popupView.findViewById(R.id.imageSuspectSelect);
-				 suspectPic.setImageResource(queuedSuspect.pic);
+				 queuedSuspect = (ClarpCard) listCards.getItemAtPosition(position);
+				 ParseFile suspectImageFile = queuedSuspect.getPhotoFile();
+				 ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+				 if (suspectImageFile != null) {
+						suspectPic.setParseFile(suspectImageFile);
+						suspectPic.loadInBackground();
+			        }
 			 }
 		});
 	}
@@ -424,10 +329,10 @@ public class GameActivity extends ActionBarActivity{
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectWeapon(View v) {
     	//TODO current work
-    	selectType = CardTypes.WEAPON;
-    	ArrayList<Card> weaponList = new ArrayList<Card>();
-		for (Card c : cards){
-			if (c.type == CardTypes.WEAPON)
+    	selectType = ClarpCard.CardType.WEAPON;
+    	ArrayList<ClarpCard> weaponList = new ArrayList<ClarpCard>();
+		for (ClarpCard c : cards){
+			if (c.getCardType() == selectType)
 				weaponList.add(c);
 		}
 		final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
@@ -438,9 +343,13 @@ public class GameActivity extends ActionBarActivity{
 			 @Override
 			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
-				 queuedWeapon = (Card) listCards.getItemAtPosition(position);
-				 ImageView weaponPic = (ImageView) popupView.findViewById(R.id.imageWeaponSelect);
-				 weaponPic.setImageResource(queuedWeapon.pic);
+				 queuedWeapon = (ClarpCard) listCards.getItemAtPosition(position);
+				 ParseFile weaponImageFile = queuedWeapon.getPhotoFile();
+				 ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+				 if (weaponImageFile != null) {
+						weaponPic.setParseFile(weaponImageFile);
+						weaponPic.loadInBackground();
+				 }
 			 }
 		});
 	}
@@ -450,10 +359,10 @@ public class GameActivity extends ActionBarActivity{
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectScene(View v) {
     	//TODO current work
-    	selectType = CardTypes.LOCATION;
-    	ArrayList<Card> sceneList = new ArrayList<Card>();
-		for (Card c : cards){
-			if (c.type == CardTypes.LOCATION)
+    	selectType = ClarpCard.CardType.LOCATION;
+    	ArrayList<ClarpCard> sceneList = new ArrayList<ClarpCard>();
+		for (ClarpCard c : cards){
+			if (c.getCardType() == selectType)
 				sceneList.add(c);
 		}
     	final ListView listCards = (ListView) popupView.findViewById(R.id.listCards);
@@ -464,48 +373,53 @@ public class GameActivity extends ActionBarActivity{
 			 @Override
 			 public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
-				 queuedScene = (Card) listCards.getItemAtPosition(position);
-				 ImageView scenePic = (ImageView) popupView.findViewById(R.id.imageSceneSelect);
-				 scenePic.setImageResource(queuedScene.pic);
+				 queuedScene = (ClarpCard) listCards.getItemAtPosition(position);
+				 ParseFile sceneImageFile = queuedScene.getPhotoFile();
+				 ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+				 if (sceneImageFile != null) {
+					 scenePic.setParseFile(sceneImageFile);
+					 scenePic.loadInBackground();
+				 }
 			 }
 		});
 	}
     
-    public void clickSuggestSubmit(View v) {
+    public void clickSuggestSubmit(View v) throws JSONException {
     	submit(TYPE_SUGGEST);
     }
     
-    public void clickSuggestAccuse(View v) {
+    public void clickSuggestAccuse(View v) throws JSONException {
     	submit(TYPE_ACCUSE);
     }
     
     
-    private void submit(int type){
+    private void submit(int type) throws JSONException{
     	historyFragment = pageAdapter.getHistoryFragment();
-    	TurnHistoryItem temp = new TurnHistoryItem(type);
-    	temp.person = queuedSuspect.pic;
-    	temp.weapon = queuedWeapon.pic;
-    	temp.location = queuedScene.pic;
+    	TurnHistoryItem temp = new TurnHistoryItem(type, queuedSuspect, queuedWeapon, queuedScene);
     	
     	String disprover = refuteSuggestion();
     	
-    	temp.result = disprover + " proved " + players.get(0).name + " wrong";
+    	temp.setResult(disprover);
     	
     	historyFragment.add(temp);
     	
     	pw.dismiss();
     	
     	if (type == TYPE_ACCUSE){
-    		if (queuedSuspect.equals(murderer) && queuedWeapon.equals(murderWeapon) 
-    				&& queuedScene.equals(crimeScene)){
+    		// if the accusation matches the solution...
+    		if (queuedSuspect.getObjectId().equals(game.getJSONArray("solution").get(0)) 
+    				&& queuedWeapon.getObjectId().equals(game.getJSONArray("solution").get(1)) 
+    				&& queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2))){
+    			// the player has won!
     			gameState = GameStates.WON;
     			temp = new TurnHistoryItem(TYPE_ALERT);
-    			temp.result = players.get(0).name + " has solved the mystery!";  	
+    			temp.result = players.get(0).getFullName()+ " has solved the mystery!";  	
     			historyFragment.add(temp);
     		}else{
+    			// the player has lost! they need to be disqualified...
     			gameState = GameStates.LOST;
     			temp = new TurnHistoryItem(TYPE_ALERT);
-    			temp.result = players.get(0).name + " was Dead Wrong!";  	
+    			temp.result = players.get(0).getFullName() + " was Dead Wrong!";  	
     			historyFragment.add(temp);
     		}
     	}
@@ -519,12 +433,17 @@ public class GameActivity extends ActionBarActivity{
     
     
     public String refuteSuggestion(){
-    	for (Player p : players.subList(1, players.size())){
-    		for (Card c : p.cards){
-    			if (c.equals(queuedSuspect) || c.equals(queuedWeapon) || c.equals(queuedScene))
-    				return p.name;
-    		}
+    	
+    	if (players.size() > 1)
+    	{
+    		for (Player p : players.subList(1, players.size())){
+        		for (String id : p.getCardIds()){
+        			if (id.equals(queuedSuspect.getObjectId()) || id.equals(queuedWeapon.getObjectId()) || id.equals(queuedScene.getObjectId()))
+        				return p.getFullName();
+        		}
+        	}
     	}
+    	
     	return "No one";
     }
     

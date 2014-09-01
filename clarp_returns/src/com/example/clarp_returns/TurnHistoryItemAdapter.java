@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.parse.ParseFile;
+import com.parse.ParseImageView;
 
 public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 		implements OnClickListener{
@@ -63,12 +65,29 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
     		holder = (ViewHolder)convertView.getTag();
     	}
         if (type != TYPE_ALERT){
-	        ImageView suspectPic = (ImageView) convertView.findViewById(R.id.imageSuspect);
-	        suspectPic.setImageResource(items.get(position).person);
-	        ImageView weaponPic = (ImageView) convertView.findViewById(R.id.imageWeapon);
-	        weaponPic.setImageResource(items.get(position).weapon);
-	        ImageView scenePic = (ImageView) convertView.findViewById(R.id.imageLocation);
-	        scenePic.setImageResource(items.get(position).location);
+	        ParseImageView suspectPic = (ParseImageView) convertView.findViewById(R.id.imageSuspect);
+	        ParseImageView weaponPic = (ParseImageView) convertView.findViewById(R.id.imageWeapon);
+	        ParseImageView scenePic = (ParseImageView) convertView.findViewById(R.id.imageLocation);
+	        
+	        ParseFile suspectImageFile = items.get(position).getSuspect().getPhotoFile();
+			ParseFile weaponImageFile = items.get(position).getWeapon().getPhotoFile();
+			ParseFile locationImageFile = items.get(position).getLocation().getPhotoFile();
+			
+			if (suspectImageFile != null) {
+				suspectPic.setParseFile(suspectImageFile);
+				suspectPic.loadInBackground();
+	        }
+			
+			if (weaponImageFile != null) {
+				weaponPic.setParseFile(weaponImageFile);
+				weaponPic.loadInBackground();
+	        }
+			
+			if (locationImageFile != null) {
+				scenePic.setParseFile(locationImageFile);
+				scenePic.loadInBackground();
+	        }
+			
 	        TextView result = (TextView) convertView.findViewById(R.id.textResult);
 	        result.setText(items.get(position).result);
         }else{

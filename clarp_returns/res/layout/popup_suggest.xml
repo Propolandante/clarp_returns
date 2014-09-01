@@ -22,13 +22,14 @@
  		android:paddingBottom="10dp"
         android:orientation="horizontal"
         android:weightSum="11" >
-
-        <ImageView
+        
+        <com.parse.ParseImageView
             android:id="@+id/imageSuspectSelect"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="3"
             android:onClick="clickSelectSuspect"
+            android:background="#000000"
             android:src="@drawable/joe" />
         
         <TextView
@@ -39,12 +40,13 @@
             android:text=" with"
             android:textSize="20sp" />
 
-        <ImageView
+        <com.parse.ParseImageView 
             android:id="@+id/imageWeaponSelect"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="4"
              android:onClick="clickSelectWeapon"
+            android:background="#000000"
             android:src="@drawable/joe" />
 
         <TextView
@@ -55,12 +57,13 @@
             android:text="in"
             android:textSize="20sp" />
         
-        <ImageView
+        <com.parse.ParseImageView 
             android:id="@+id/imageSceneSelect"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="4"
              android:onClick="clickSelectScene"
+            android:background="#000000"
             android:src="@drawable/joe" />
     </LinearLayout>
 

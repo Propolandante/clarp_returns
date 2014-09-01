@@ -6,13 +6,15 @@
     <TextView 
         android:id="@+id/cardName"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
     
     <TextView 
         android:id="@+id/cardType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below= "@+id/cardName" />
+        android:layout_below= "@+id/cardName"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <com.parse.ParseImageView 
         android:id="@+id/cardImage"

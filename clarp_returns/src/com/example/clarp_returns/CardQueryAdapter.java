@@ -12,15 +12,20 @@ import com.parse.ParseQueryAdapter;
 
 public class CardQueryAdapter extends ParseQueryAdapter<ClarpCard>{
 
-    public CardQueryAdapter(Context context) {
+    public CardQueryAdapter(Context context, final int requestCode, final String gameId) {
 
         super(context, new ParseQueryAdapter.QueryFactory<ClarpCard>() {
             @Override
             public ParseQuery create() {
                 ParseQuery query = new ParseQuery("ClarpCard");
+                if(requestCode == ClarpApplication.VIEW_ALL_GAME_CARDS) {
+                    query.whereEqualTo("gameId", gameId);
+                }
                 return query;
             }
         });
+
+
     }
 
     // Customize the layout by overriding getItemView
@@ -41,13 +46,12 @@ public class CardQueryAdapter extends ParseQueryAdapter<ClarpCard>{
             cardImage.loadInBackground();
         }
 
-        // add the name and type texts
-
+        // add the name and type text
         TextView nameTextView = (TextView) v.findViewById(R.id.cardName);
         nameTextView.setText(card.getCardName());
 
         TextView typeTextView = (TextView) v.findViewById(R.id.cardType);
-        typeTextView.setText(card.getCardType());
+        typeTextView.setText(card.getCardType().toString());
 
         return v;
     }

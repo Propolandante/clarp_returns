@@ -25,13 +25,13 @@ public class ClarpGame extends ParseObject {
     }
 
     public void initialize() throws ParseException {
-    	
-    	//Boolean to indicate if the game is started yet
-    	put("isStarted", false);
+
+        //Boolean to indicate if the game is started yet
+        put("isStarted", false);
 
         //array of JSONObjects with relevant player information.
         put("players", new JSONArray());
-        
+
         // this array is a little redundant, but makes querying the user's current ClarpGames MUCH easier
         put("fbUsers", new JSONArray());
 
@@ -49,6 +49,10 @@ public class ClarpGame extends ParseObject {
 
         put("turns", new JSONArray());
 
+        put("numSuspects", 0);
+        put("numWeapons", 0);
+        put("numLocations", 0);
+
         // I need to be sure this object has an objectId before addPlayer is called.
         // Usually we're supposed to use saveInBackground, so there's probably a better way than this
         // but if it works and doesn't slow everything down.... fuck it!
@@ -62,37 +66,37 @@ public class ClarpGame extends ParseObject {
     public void setGameName(String name) {
         put("gameName", name);
     }
-    
+
     public String getOwner() {
         return getString("owner");
     }
     public void setOwner(ParseUser user) {
         put("owner", user.getObjectId());
     }
-    
+
     public Boolean ifStarted()
     {
-    	return getBoolean("isStarted");
+        return getBoolean("isStarted");
     }
-    
+
     public void startGame()
     {
-    	put("isStarted", true);
+        put("isStarted", true);
     }
-    
+
     public void addFbPlayer(ParseUser user) throws JSONException
     {
-    	JSONObject userFbInfo = user.getJSONObject("profile");
-    	
-    	//can't change the existing JSONArray on Parse, we need to overwrite it:
+        JSONObject userFbInfo = user.getJSONObject("profile");
+
+        //can't change the existing JSONArray on Parse, we need to overwrite it:
         // grab the existing players
         JSONArray newFbUsers = getJSONArray("fbUsers");
         //append player to existing players
         newFbUsers.put(userFbInfo.getString("facebookId"));
         // push newly updated players
         put("fbUsers", newFbUsers);
-        
-        
+
+
     }
 
     public void addPlayer( ParseUser user ) throws JSONException
@@ -116,9 +120,7 @@ public class ClarpGame extends ParseObject {
         player.put("dq", false);
 
         // player's facts will be assigned when the game's solution is determined
-        player.put("suspectFacts", new JSONArray());
-        player.put("weaponFacts", new JSONArray());
-        player.put("locationFacts", new JSONArray());
+        player.put("facts", new JSONArray());
 
         //can't change the existing JSONArray on Parse, we need to overwrite it:
         // grab the existing players
@@ -160,7 +162,7 @@ public class ClarpGame extends ParseObject {
                 Log.d(ClarpApplication.TAG, "user info saved to server");
             }
         });
-        
+
         addFbPlayer(user);
 
 
@@ -174,7 +176,7 @@ public class ClarpGame extends ParseObject {
 
         Log.d(ClarpApplication.TAG, "card created");
 
-        suspect.initialize(Integer.toString(0), player.getString("prefix") + " " + player.getString("name"));
+        suspect.initialize(ClarpCard.CardType.SUSPECT, player.getString("prefix") + " " + player.getString("name"), getObjectId());
 
 
         // ObjectId isn't created until the object is saved
@@ -191,6 +193,8 @@ public class ClarpGame extends ParseObject {
                 // push newly updated suspects
                 put("suspects", newSuspects);
 
+                increment("numSuspects");
+
                 //now we need to save the game so that the new suspect array is reflected in the cloud
                 saveInBackground(new SaveCallback() {
                     @Override
@@ -205,15 +209,23 @@ public class ClarpGame extends ParseObject {
             }
         });
 
-
+    }
+    
+    public void setSolution (String s, String w, String l)
+    {
+    	JSONArray solution = new JSONArray();
+    	solution.put(s);
+    	solution.put(w);
+    	solution.put(l);
+    	
+    	put("solution", solution);
+    }
+    
+    @Override
+    public String toString()
+    {
+        return getGameName();
 
     }
-
-    @Override
-	public String toString()
-	{
-		return getGameName();
-		
-	}
 }
 

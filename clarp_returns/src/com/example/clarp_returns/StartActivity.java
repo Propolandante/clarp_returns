@@ -11,7 +11,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,8 +31,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,14 +40,12 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -69,7 +64,7 @@ public class StartActivity extends ActionBarActivity {
     private Button loginButton;
     private TextView userNameView;
     private ProgressBar listLoadingView;
-    
+
     public Boolean gamesLoaded = false;
 
 
@@ -187,60 +182,61 @@ public class StartActivity extends ActionBarActivity {
             refreshGames(user);
         }
     }
-    
+
     public void refreshGames(ParseUser user) {
-    	
-    	// This function ASSUMES that user is not null.
+
+        // This function ASSUMES that user is not null.
 
         // every time the user resumes the activity, refresh the game List
-    	gamesLoaded = false;
+        gamesLoaded = false;
         updateViewVisibility();
-        
-    	if(gameList != null){
+
+        if(gameList != null){
             gameList.clear();
         }
-    	
-    	gameList = new ArrayList<ClarpGame>();
+
+        gameList = new ArrayList<ClarpGame>();
         arrayAdapter = new GameAdapter(getApplicationContext(), gameList);
         gameListView.setAdapter(arrayAdapter);
-        
+
         String id;
-        
+
         JSONObject userProfile = user.getJSONObject("profile");
         try {
-			id = userProfile.getString("facebookId");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.d(ClarpApplication.TAG, "JSON Error, quiting now");
-			return;
-		}
-        
+            id = userProfile.getString("facebookId");
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Log.d(ClarpApplication.TAG, "JSON Error, quiting now");
+            return;
+        }
+
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
         query.whereEqualTo("fbUsers", id);
-        
+
         query.findInBackground(new FindCallback<ClarpGame>() {
+            @Override
             public void done(List<ClarpGame> games, ParseException e) {
                 if (e == null) {
                     Log.d(ClarpApplication.TAG, "query success (?)");
                     for (int i = 0; i < games.size(); ++i)
                     {
-                    	gameList.add(games.get(i));
+                        gameList.add(games.get(i));
                     }
-                    
+
                     arrayAdapter.notifyDataSetChanged();
                     gamesLoaded = true;
                     updateViewVisibility();
-                    
+
                 } else {
-                	Log.d(ClarpApplication.TAG, "query failure (?)");
+                    Log.d(ClarpApplication.TAG, "query failure (?)");
                 }
             }
         });
-        
+
     }
 
-    
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -288,8 +284,6 @@ public class StartActivity extends ActionBarActivity {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if(requestCode == ClarpApplication.NEW_GAME) {
             //refreshGameList(currentUser);
-        } else if(requestCode == ClarpApplication.ADD_CARD) {
-            //do nothing...
         } else {
             ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
         }
@@ -425,22 +419,22 @@ public class StartActivity extends ActionBarActivity {
     {
         if(ClarpApplication.IS_LOGGED_IN)
         {
-        	newGameButton.setVisibility(View.VISIBLE);
-        	
-        	if(gamesLoaded)
+            newGameButton.setVisibility(View.VISIBLE);
+
+            if(gamesLoaded)
             {
-            	listLoadingView.setVisibility(View.GONE);
-            	gameListView.setVisibility(View.VISIBLE);
-                
-            	
+                listLoadingView.setVisibility(View.GONE);
+                gameListView.setVisibility(View.VISIBLE);
+
+
             }
             else
             {
-            	listLoadingView.setVisibility(View.VISIBLE);
-            	gameListView.setVisibility(View.GONE);
+                listLoadingView.setVisibility(View.VISIBLE);
+                gameListView.setVisibility(View.GONE);
             }
-        	
-        	
+
+
         }
         else
         {
@@ -448,72 +442,72 @@ public class StartActivity extends ActionBarActivity {
             newGameButton.setVisibility(View.GONE);
             listLoadingView.setVisibility(View.GONE);
         }
-        
-        
+
+
     }
 
     // this is just here to test the picture taking/card adding
     // system, without having cards linked to games
-    public void clickCardsList(View v) {
-        Intent intent = new Intent(StartActivity.this, CardListActivity.class);
-        startActivityForResult(intent, ClarpApplication.ADD_CARD);
+    //    public void clickCardsList(View v) {
+    //        Intent intent = new Intent(StartActivity.this, CardListActivity.class);
+    //        startActivityForResult(intent, ClarpApplication.ADD_CARD);
+    //
+    //    }
 
-    }
-    
-    
+
     public class GameAdapter extends ArrayAdapter<ClarpGame> {
-    	
-    	private final Context context;
-    	private final ArrayList<ClarpGame> games;
-    	
-    	public GameAdapter(Context context, ArrayList<ClarpGame> games) {
-    		super(context, R.layout.game_item, games);
-    	    this.context = context;
-    	    this.games = games;
-    	  }
-    	
-    	private class ViewHolder {
-    		TextView leftView;
-    		TextView rightView;
-    		}
-    	
-    	@Override
-    	public View getView(int position, View convertView, ViewGroup parent) {
-    		
-    		ViewHolder holder = null;
-    		
-    		if (convertView == null)
-    		{
-    			
-    			LayoutInflater vi = (LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE);
-    			convertView = vi.inflate(R.layout.game_item, null);
-    			
-    			holder = new ViewHolder();
-        		holder.leftView = (TextView) convertView.findViewById(R.id.gameName);
-        		holder.rightView = (TextView) convertView.findViewById(R.id.playerTurn);
-        		convertView.setTag(holder);
-        		
-        		
-    		}
-    		else
-    		{
-    			holder = (ViewHolder) convertView.getTag();
-    		}
-    		
-    		
-    		
-    		
-    		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	    
-    	    
-    	    
-    	    holder.leftView.setText(games.get(position).getGameName());
-    	    holder.rightView.setText("Derk's turn");
-    	    
-    	    
 
-    	    return convertView;
-    	  }
+        private final Context context;
+        private final ArrayList<ClarpGame> games;
+
+        public GameAdapter(Context context, ArrayList<ClarpGame> games) {
+            super(context, R.layout.game_item, games);
+            this.context = context;
+            this.games = games;
+        }
+
+        private class ViewHolder {
+            TextView leftView;
+            TextView rightView;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            ViewHolder holder = null;
+
+            if (convertView == null)
+            {
+
+                LayoutInflater vi = (LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.game_item, null);
+
+                holder = new ViewHolder();
+                holder.leftView = (TextView) convertView.findViewById(R.id.gameName);
+                holder.rightView = (TextView) convertView.findViewById(R.id.playerTurn);
+                convertView.setTag(holder);
+
+
+            }
+            else
+            {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+
+
+
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+
+
+            holder.leftView.setText(games.get(position).getGameName());
+            holder.rightView.setText("Derk's turn");
+
+
+
+            return convertView;
+        }
     }
 
 }

@@ -50,13 +50,6 @@
     <string name="save_button_text">Save</string>
     <string name="cancel_button_text">Cancel</string>
 
-    <string-array name="type_array">
-        <item>2</item>
-        <item>1</item>
-        <item>0</item>
-        <item></item>
-    </string-array>
-
     <string name="title_activity_new_clarp_card">NewClarpCardActivity</string>
     <string name="title_activity_new_clarp_card_fragment">NewClarpCardFragment</string>
     <string name="title_activity_pre_game">Pre Game Activity</string>

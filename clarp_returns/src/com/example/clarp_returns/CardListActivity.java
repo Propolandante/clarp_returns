@@ -1,15 +1,14 @@
 package com.example.clarp_returns;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 
 public class CardListActivity extends Activity {
@@ -18,8 +17,11 @@ public class CardListActivity extends Activity {
     static final int NEW_CARD = 0;
 
     private ListView cardListView;
-    private List<ClarpCard> cardList;
     private CardQueryAdapter cardAdapter;
+    private ProgressBar listLoadingView;
+    private boolean cardsLoaded = false;
+    private String gameId;
+    private int requestCode;
 
 
     @Override
@@ -28,15 +30,17 @@ public class CardListActivity extends Activity {
 
         setContentView(R.layout.activity_card_list);
 
+        Intent mainIntent = getIntent();
+        Bundle extras = mainIntent.getExtras();
+        gameId = extras.getString("game_id");
+        requestCode = extras.getInt("requestCode");
+
+
         cardListView = (ListView) findViewById(R.id.card_list_view);
-
-        cardList = new ArrayList<ClarpCard>();
-
-        cardAdapter = new CardQueryAdapter(CardListActivity.this);
-        cardListView.setAdapter(cardAdapter); // this apparently causes a NPE
-        //cardAdapter.loadObjects();
+        listLoadingView = (ProgressBar) findViewById(R.id.progressBar1);
+        cardAdapter = new CardQueryAdapter(CardListActivity.this, requestCode, gameId);
+        cardListView.setAdapter(cardAdapter);
         updateCardList();
-
     }
 
 
@@ -74,8 +78,13 @@ public class CardListActivity extends Activity {
     }
 
     private void updateCardList() {
+        updateViewVisibility();
+        cardsLoaded = false;
         cardAdapter.loadObjects();
         Log.v(ClarpApplication.TAG, "Card objects loaded");
+        cardListView.setAdapter(cardAdapter);
+        cardsLoaded = true;
+        updateViewVisibility();
     }
 
     private void newClarpCard() {
@@ -91,6 +100,22 @@ public class CardListActivity extends Activity {
             updateCardList();
             Log.v(ClarpApplication.TAG, "Returned from NewCard");
             Log.v(ClarpApplication.TAG, "Card List updated");
+        }
+    }
+
+    private void updateViewVisibility()
+    {
+        if(cardsLoaded)
+        {
+            listLoadingView.setVisibility(View.GONE);
+            cardListView.setVisibility(View.VISIBLE);
+
+
+        }
+        else
+        {
+            listLoadingView.setVisibility(View.VISIBLE);
+            cardListView.setVisibility(View.GONE);
         }
     }
 }

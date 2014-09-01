@@ -144,7 +144,7 @@ public class NewClarpCardFragment extends Fragment {
                                     game.increment("numSuspects");
                                     break;
                                 case WEAPON:
-                                    game.increment("numWeapon");
+                                    game.increment("numWeapons");
                                     break;
                                 case LOCATION:
                                     game.increment("numLocations");

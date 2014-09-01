@@ -16,7 +16,8 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 	
 	private static final int TYPE_SUGGEST = 0;
     private static final int TYPE_ACCUSE = 1;
-    private static final int TYPE_MAX_COUNT = 2;
+    private static final int TYPE_ALERT = 2;
+    private static final int TYPE_MAX_COUNT = 3;
     
     
 	private ArrayList<TurnHistoryItem> items;
@@ -51,20 +52,29 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
         		case TYPE_ACCUSE:
         			convertView = vi.inflate(R.layout.dark_turn_item, null);
         			break;
+        		case TYPE_ALERT:
+        			convertView = vi.inflate(R.layout.alert_item, null);
+        			break;
+        			
         	}
             convertView.setTag(holder);
             
     	}else{
     		holder = (ViewHolder)convertView.getTag();
     	}
-        ImageView suspectPic = (ImageView) convertView.findViewById(R.id.imageSuspect);
-        suspectPic.setImageResource(items.get(position).person);
-        ImageView weaponPic = (ImageView) convertView.findViewById(R.id.imageWeapon);
-        weaponPic.setImageResource(items.get(position).weapon);
-        ImageView scenePic = (ImageView) convertView.findViewById(R.id.imageLocation);
-        scenePic.setImageResource(items.get(position).location);
-        TextView result = (TextView) convertView.findViewById(R.id.textResult);
-        result.setText(items.get(position).result);
+        if (type != TYPE_ALERT){
+	        ImageView suspectPic = (ImageView) convertView.findViewById(R.id.imageSuspect);
+	        suspectPic.setImageResource(items.get(position).person);
+	        ImageView weaponPic = (ImageView) convertView.findViewById(R.id.imageWeapon);
+	        weaponPic.setImageResource(items.get(position).weapon);
+	        ImageView scenePic = (ImageView) convertView.findViewById(R.id.imageLocation);
+	        scenePic.setImageResource(items.get(position).location);
+	        TextView result = (TextView) convertView.findViewById(R.id.textResult);
+	        result.setText(items.get(position).result);
+        }else{
+        	TextView alert = (TextView) convertView.findViewById(R.id.textAlert);
+        	alert.setText(items.get(position).result);
+        }
            
         //final TurnHistoryItem item = items.get(position);
         

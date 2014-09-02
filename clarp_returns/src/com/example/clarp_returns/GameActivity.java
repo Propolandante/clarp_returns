@@ -112,7 +112,7 @@ public class GameActivity extends ActionBarActivity{
                 }
                 else
                 {
-                    Log.d(ClarpApplication.TAG, "Something went wrong when querying the ClarpGame in GA");
+                    Log.d(ClarpApplication.GA, "Something went wrong when querying the ClarpGame in GA");
                 }
             }
         });
@@ -175,7 +175,7 @@ public class GameActivity extends ActionBarActivity{
                     for (int i = 0; i < cList.size(); ++i)
                     {
                     	cards.add(cList.get(i));
-                    	Log.d(ClarpApplication.TAG, "grabbed card " + cards.get(i).getCardName());
+                    	Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
                     }
                     
                     // shuffle it, so the first 3 cards aren't the solution...
@@ -186,7 +186,7 @@ public class GameActivity extends ActionBarActivity{
                     gotCards = true;
                     
                 } else {
-                	Log.d(ClarpApplication.TAG, "query failure (?)");
+                	Log.d(ClarpApplication.GA, "query failure (?)");
                 }
             }
         });
@@ -209,9 +209,9 @@ public class GameActivity extends ActionBarActivity{
 		{
 			try {
 				players.add(new Player(gPlayers.getJSONObject(i)));
-				Log.d(ClarpApplication.TAG, "Added player " + players.get(i).getFullName());
+				Log.d(ClarpApplication.GA, "Added player " + players.get(i).getFullName());
 			} catch (JSONException e) {
-				Log.d(ClarpApplication.TAG, "Failed to add player");
+				Log.d(ClarpApplication.GA, "Failed to add player");
 				e.printStackTrace();
 			}
 			
@@ -260,6 +260,10 @@ public class GameActivity extends ActionBarActivity{
 				break;
 		}
 		
+		/*
+		 * this will return null if the game doesn't have sufficient pictures
+		 */
+		
 		ParseFile suspectImageFile = queuedSuspect.getPhotoFile();
 		ParseFile weaponImageFile = queuedWeapon.getPhotoFile();
 		ParseFile locationImageFile = queuedScene.getPhotoFile();
@@ -271,19 +275,19 @@ public class GameActivity extends ActionBarActivity{
 		if (suspectImageFile != null) {
 			suspectPic.setParseFile(suspectImageFile);
 			suspectPic.loadInBackground();
-			Log.d(ClarpApplication.TAG, "We don't have any suspects...?");
+			Log.d(ClarpApplication.GA, "no suspect image");
         }
 		
 		if (weaponImageFile != null) {
 			weaponPic.setParseFile(weaponImageFile);
 			weaponPic.loadInBackground();
-			Log.d(ClarpApplication.TAG, "We don't have any weapons...?");
+			Log.d(ClarpApplication.GA, "no weapon image");
         }
 		
 		if (locationImageFile != null) {
 			scenePic.setParseFile(locationImageFile);
 			scenePic.loadInBackground();
-			Log.d(ClarpApplication.TAG, "We don't have any locations...?");
+			Log.d(ClarpApplication.GA, "no location image");
         }
 		
 		

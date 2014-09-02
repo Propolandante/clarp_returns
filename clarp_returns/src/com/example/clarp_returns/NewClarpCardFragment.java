@@ -63,7 +63,7 @@ public class NewClarpCardFragment extends Fragment {
                 }
                 else
                 {
-                    Log.d(ClarpApplication.TAG, "Something went wrong when querying the ClarpGame in NCCF");
+                    Log.d(ClarpApplication.CF, "Something went wrong when querying the ClarpGame in NCCF");
                 }
             }
         });
@@ -119,7 +119,7 @@ public class NewClarpCardFragment extends Fragment {
                 //card.setCardType(cardType.getSelectedItem().toString());
                 //card.setCardType( ClarpCard.CardType.valueOf(( (ClarpCard.CardType) cardType.getSelectedItem()).name() ));
                 String selectedString = cardType.getSelectedItem().toString();
-                Log.d(ClarpApplication.TAG, "Type of selected cardType is " + selectedString);
+                Log.d(ClarpApplication.CF, "Type of selected cardType is " + selectedString);
                 card.setCardType(ClarpCard.CardType.fromString(selectedString));
 
                 // Add the gameId so we know to query it in Game Activity
@@ -136,7 +136,9 @@ public class NewClarpCardFragment extends Fragment {
                     public void done(ParseException e) {
                         if (e == null)
                         {
-
+                        	
+                        	Log.d(ClarpApplication.CF, "Created new card: " + card.getObjectId());
+                        	
                             ClarpCard.CardType type = card.getCardType();
 
                             switch(type) {
@@ -167,13 +169,23 @@ public class NewClarpCardFragment extends Fragment {
                             //                                game.increment("numLocations");
                             //                            }
 
-                            game.saveInBackground();
+                            game.saveInBackground(new SaveCallback() {
 
-                            Intent resultIntent = new Intent();
-                            resultIntent.putExtra("cardId", card.getObjectId());
+								@Override
+								public void done(ParseException e) {
+									Log.d(ClarpApplication.CF, "Updated cardcount saved to parse");
+									
+									Intent resultIntent = new Intent();
+		                            resultIntent.putExtra("cardId", card.getObjectId());
 
-                            getActivity().setResult(Activity.RESULT_OK, resultIntent);
-                            getActivity().finish();
+		                            getActivity().setResult(Activity.RESULT_OK, resultIntent);
+		                            getActivity().finish();
+									
+								}
+                            	
+                            });
+
+                            
                         }
                         else
                         {

@@ -27,6 +27,7 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.GetCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
@@ -59,6 +60,7 @@ public class InviteActivity extends ActionBarActivity
     ParseUser user;
     String userName;
     ClarpGame game;
+    String gameId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,8 @@ public class InviteActivity extends ActionBarActivity
 
         friendListView = (ListView) findViewById(R.id.friend_list_view);
         inviteButton = (Button) findViewById(R.id.inviteButton);
+
+        Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser.get("profile") != null) {
@@ -88,8 +92,9 @@ public class InviteActivity extends ActionBarActivity
          */
 
         Intent mainIntent = getIntent();
+        gameId = mainIntent.getStringExtra("game_id");
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
-        query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
+        query.getInBackground(gameId, new GetCallback<ClarpGame>() {
             @Override
             public void done(ClarpGame object, ParseException e) {
                 if (e == null)
@@ -124,7 +129,8 @@ public class InviteActivity extends ActionBarActivity
                                     try{
                                         data.put("action", "com.example.clarp_returns.INVITE");
                                         data.put("title", "ARE YOU READY TO CLARP???");
-                                        data.put("alert", userName + "has invited you to a game of Clarp!");
+                                        data.put("alert", userName + " has invited you to a game of Clarp!");
+                                        data.put("gameId", gameId);
                                     } catch (JSONException e) {
                                         Log.d(ClarpApplication.TAG, "Error putting JSON data");
                                         Log.e("Error", "Error Message: " + e.getMessage());
@@ -135,10 +141,10 @@ public class InviteActivity extends ActionBarActivity
                                     // Send push notification to query
                                     ParsePush push = new ParsePush();
                                     push.setQuery(pushQuery); // Set our Installation query
-                                    //push.setMessage("ARE YOU READY TO CLARP???");
+                                    push.setMessage("ARE YOU READY TO CLARP???");
                                     push.setData(data);
 
-                                    PushService.setDefaultPushCallback(InviteActivity.this, PreGameActivity.class);
+                                    PushService.setDefaultPushCallback(InviteActivity.this, CardListActivity.class);
                                     push.sendInBackground(new SendCallback() {
 
                                         @Override

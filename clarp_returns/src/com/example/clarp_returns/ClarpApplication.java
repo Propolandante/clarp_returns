@@ -13,6 +13,9 @@ public class ClarpApplication extends Application {
 
     // Tag used when logging all messages with the same tag (e.g. for demoing purposes)
     static final String TAG = "Clarp";
+    static final String PGA = "Clarp_PGA";
+    static final String GA = "Clarp_GA";
+    static final String CF = "Clarp_CF";
 
     /* Will probably need some game constants here */
 

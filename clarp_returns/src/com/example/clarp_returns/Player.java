@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class Player {
 	public String name;
 	public ArrayList<Card> cards;
@@ -27,11 +29,14 @@ public class Player {
 		fbId = p.getString("facebookId");
 		disqualified = p.getBoolean("dq");
 		
-		JSONArray cardList = p.getJSONArray("turns");
+		cardIds = new ArrayList<String>();
 		
-		for (int i = 0; i < cardIds.size(); ++i)
+		JSONArray cardList = p.getJSONArray("facts");
+		
+		for (int i = 0; i < cardList.length(); ++i)
 		{
 			cardIds.add((String) cardList.get(i));
+			Log.d(ClarpApplication.TAG, "Added card id: " + cardList.get(i));
 		}
 		
 	}

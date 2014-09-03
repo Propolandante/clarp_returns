@@ -136,6 +136,7 @@ public class InviteActivity extends ActionBarActivity
                                     ParsePush push = new ParsePush();
                                     push.setQuery(pushQuery); // Set our Installation query
                                     //push.setMessage("ARE YOU READY TO CLARP???");
+                                    push.setData(data);
 
                                     PushService.setDefaultPushCallback(InviteActivity.this, PreGameActivity.class);
                                     push.sendInBackground(new SendCallback() {

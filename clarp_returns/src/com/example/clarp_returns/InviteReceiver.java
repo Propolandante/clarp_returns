@@ -1,10 +1,11 @@
 package com.example.clarp_returns;
 
-import java.util.Iterator;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,32 +17,44 @@ public class InviteReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
+            String header;
+            String message;
+            String gameId;
             String action = intent.getAction();
-            //String channel = intent.getExtras().getString("com.parse.Channel");
             JSONObject data = new JSONObject(intent.getExtras().getString("com.parse.Data"));
 
-            Log.d(TAG, "got action " + action + " with:");
-            Iterator itr = data.keys();
-            while (itr.hasNext()) {
-                String key = (String) itr.next();
-                Log.d(TAG, "..." + key + " => " + data.getString(key));
-            }
-
-
-            Intent pushIntent = new Intent();
-            pushIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            if(data.has("gameId")) {
-                pushIntent.setClass(context, PreGameActivity.class);
-                pushIntent.putExtra("game_id", data.getString("gameId"));
-                context.startActivity(pushIntent);
+            if(data.has("header") && data.has("message") && data.has("gameId") ) {
+                header = data.getString("header");
+                message = data.getString("message");
+                gameId = data.getString("gameId");
+                generateNotification(context, header, message, gameId);
             } else {
-                pushIntent.setClass(context, StartActivity.class);
-                context.startActivity(pushIntent);
-                Log.d(TAG, "Error: JSONObject contains no gameId");
+                Log.d(TAG, "JSON data doesn't have all keys");
             }
 
         } catch (JSONException e) {
             Log.d(TAG, "JSONException: " + e.getMessage());
         }
+    }
+
+    public static void generateNotification(Context context, String header, String message, String gameId) {
+        long when = System.currentTimeMillis();
+        Intent notificationIntent = new Intent(context, PreGameActivity.class);
+        // prevent intent from starting activity immediately
+        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification notification = new Notification(R.drawable.spoon, message, when);
+
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notification.setLatestEventInfo(context, header, message, intent);
+        // sets vibrate, sound, lights to default alert settings
+        notification.defaults = Notification.DEFAULT_ALL;
+
+        notification.flags =
+                Notification.FLAG_AUTO_CANCEL | // dismiss upon user click
+                Notification.FLAG_SHOW_LIGHTS;
+
+        notificationManager.notify(0, notification);
     }
 }

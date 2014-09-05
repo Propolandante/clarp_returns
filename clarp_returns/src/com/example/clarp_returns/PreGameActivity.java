@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
+import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -72,12 +73,12 @@ public class PreGameActivity extends ActionBarActivity
 
     String gameName;
     JSONArray players;
-    
+
     ArrayList<ClarpCard> cards;
     String murdererId = null;
     String murderWeaponId = null;
     String crimeSceneId = null;
-    
+
 
     int minPlayers = 1;
     int minSuspects = 1;
@@ -122,6 +123,7 @@ public class PreGameActivity extends ActionBarActivity
          */
 
         Intent mainIntent = getIntent();
+        ParseAnalytics.trackAppOpened(mainIntent);
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
         gameId = mainIntent.getStringExtra("game_id");
         query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
@@ -195,12 +197,12 @@ public class PreGameActivity extends ActionBarActivity
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	
-            	/*
-            	 * WE NEED TO BE SURE THAT WE HAVE THE LATEST GAME FROM THE SERVER FIRST
-            	 */
-            	
-            	ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+
+                /*
+                 * WE NEED TO BE SURE THAT WE HAVE THE LATEST GAME FROM THE SERVER FIRST
+                 */
+
+                ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
                 query.getInBackground(game.getObjectId(), new GetCallback<ClarpGame>() {
                     @Override
                     public void done(ClarpGame object, ParseException e) {
@@ -208,154 +210,155 @@ public class PreGameActivity extends ActionBarActivity
                         {
                             game = object;
 
-                            
+
 
                             gameName = game.getGameName();
                             players = game.getJSONArray("players");
-                            
+
                             /*
                              * This is where we actually add all the cards to the game!
                              */
-                        	
-                        	cards = new ArrayList<ClarpCard>();
-                        	
-                        	ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
+
+                            cards = new ArrayList<ClarpCard>();
+
+                            ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
                             query.whereEqualTo("gameId", gameId);
-                            
+
                             query.findInBackground(new FindCallback<ClarpCard>() {
+                                @Override
                                 public void done(List<ClarpCard> cList, ParseException e) {
                                     if (e == null) {
-                                        
-                                    	
-                                    	// add the queried cards to the local ArrayList
+
+
+                                        // add the queried cards to the local ArrayList
                                         for (int i = 0; i < cList.size(); ++i)
                                         {
-                                        	cards.add(cList.get(i));
-                                        	Log.d(ClarpApplication.PGA, "added card " + cards.get(i).getCardName());
+                                            cards.add(cList.get(i));
+                                            Log.d(ClarpApplication.PGA, "added card " + cards.get(i).getCardName());
                                         }
-                                        
+
                                         // Shuffle the cards so they can be distributed
                                         Collections.shuffle(cards);
                                         Log.d(ClarpApplication.PGA, "shuffled cards");
-                                        
-                                        
-                                        
+
+
+
                                         int player = 0; // this should be a random player, so player 1 doesn't always get most cards
-                                		for (int i = 0; i < cards.size(); ++i){
-                                			
-                                			/*
-                                			 * Take the first card of each type, and set it aside
-                                			 * These cards will be the solution that the players attempt to guess
-                                			 * They will be added to the game's solution[] array when we are
-                                			 * done dealing the rest of the cards
-                                			 */
-                                			
-                                			if (murdererId == null && cards.get(i).getCardType() == ClarpCard.CardType.SUSPECT){
-                                				murdererId = cards.get(i).getObjectId();
-                                				Log.d(ClarpApplication.PGA, "Murderer: " + cards.get(i).getCardName());
-                                				continue;
-                                			}
-                                			if (murderWeaponId == null && cards.get(i).getCardType() == ClarpCard.CardType.WEAPON){
-                                				murderWeaponId = cards.get(i).getObjectId();
-                                				Log.d(ClarpApplication.PGA, "Murder Weapon: " + cards.get(i).getCardName());
-                                				continue;
-                                			}
-                                			if (crimeSceneId == null && cards.get(i).getCardType() == ClarpCard.CardType.LOCATION){
-                                				crimeSceneId = cards.get(i).getObjectId();
-                                				Log.d(ClarpApplication.PGA, "Crime Scene: " + cards.get(i).getCardName());
-                                				continue;
-                                			}
-                                			
-                                			/*
-                                			 * Any cards not part of the solution should be given to a player as a clue.
-                                			 * Here's why this is harder than it should be:
-                                			 * 
-                                			 * I'm trying to add a String to the player's turns[] JSONArray.
-                                			 * Which is part of a JSONObject,
-                                			 * which is inside of another JSONArray
-                                			 * which is inside of our ClarpGame
-                                			 * 
-                                			 * we already have JSONArray players, which is a copy of the ClarpGame's array
-                                			 * (We just NEED to make sure it's the most recent version before this happens)
-                                			 * 
-                                			 * I need to change the correct element of the correct element of players
-                                			 * each time we go through this for loop
-                                			 * and then at the end, game.put("players", players) to overwrite it
-                                			 */
-                                			
-                                			try {
-            									((JSONObject) players.get(player)).getJSONArray("facts").put(cards.get(i).getObjectId());
-            								} catch (JSONException e1) {
-            									Log.d(ClarpApplication.PGA, "Messed up tying to add a card's id to facts[]");
-            									Log.d(ClarpApplication.PGA, "player index: " + player);
-            									Log.d(ClarpApplication.PGA, "card name: " + cards.get(i).getCardName() + " and id: " + cards.get(i).getObjectId());
-            									
-            									e1.printStackTrace();
-            								}
-                                			
-            								
-                                			
-            								//cycle through the player list so each player is dealt a card one at a time
-                                			player++;
-                                			if (player == players.length()) 
-                                			{
-                                				player = 0;
-                                			}
-                                			
-                                			
-                                		}
-                                		
-                                		// The player who was next to be dealt a card (if there were any cards left) will go first
-                            			try {
-											game.put("whoseTurn", ((JSONObject) players.get(player)).getString("facebookId"));
-										} catch (JSONException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
-											Log.d(ClarpApplication.PGA, "Error trying to set whoseTurn");
-										}
-                                		
-                                		// update ClarpGame to reflect the distributed clues
-                                		game.put("players", players);
-                                		
-                                		if (murdererId == null || murderWeaponId == null || crimeSceneId== null)
-                                		{
-                                			// This should absolutely never happen.
-                                			Log.d(ClarpApplication.PGA, "A murderer, murder weapon, or crime scene has not been selected!");
-                                			return;
-                                		}
-                                		game.setSolution(murdererId, murderWeaponId, crimeSceneId);
-                                    	
+                                        for (int i = 0; i < cards.size(); ++i){
+
+                                            /*
+                                             * Take the first card of each type, and set it aside
+                                             * These cards will be the solution that the players attempt to guess
+                                             * They will be added to the game's solution[] array when we are
+                                             * done dealing the rest of the cards
+                                             */
+
+                                            if ((murdererId == null) && (cards.get(i).getCardType() == ClarpCard.CardType.SUSPECT)){
+                                                murdererId = cards.get(i).getObjectId();
+                                                Log.d(ClarpApplication.PGA, "Murderer: " + cards.get(i).getCardName());
+                                                continue;
+                                            }
+                                            if ((murderWeaponId == null) && (cards.get(i).getCardType() == ClarpCard.CardType.WEAPON)){
+                                                murderWeaponId = cards.get(i).getObjectId();
+                                                Log.d(ClarpApplication.PGA, "Murder Weapon: " + cards.get(i).getCardName());
+                                                continue;
+                                            }
+                                            if ((crimeSceneId == null) && (cards.get(i).getCardType() == ClarpCard.CardType.LOCATION)){
+                                                crimeSceneId = cards.get(i).getObjectId();
+                                                Log.d(ClarpApplication.PGA, "Crime Scene: " + cards.get(i).getCardName());
+                                                continue;
+                                            }
+
+                                            /*
+                                             * Any cards not part of the solution should be given to a player as a clue.
+                                             * Here's why this is harder than it should be:
+                                             * 
+                                             * I'm trying to add a String to the player's turns[] JSONArray.
+                                             * Which is part of a JSONObject,
+                                             * which is inside of another JSONArray
+                                             * which is inside of our ClarpGame
+                                             * 
+                                             * we already have JSONArray players, which is a copy of the ClarpGame's array
+                                             * (We just NEED to make sure it's the most recent version before this happens)
+                                             * 
+                                             * I need to change the correct element of the correct element of players
+                                             * each time we go through this for loop
+                                             * and then at the end, game.put("players", players) to overwrite it
+                                             */
+
+                                            try {
+                                                ((JSONObject) players.get(player)).getJSONArray("facts").put(cards.get(i).getObjectId());
+                                            } catch (JSONException e1) {
+                                                Log.d(ClarpApplication.PGA, "Messed up tying to add a card's id to facts[]");
+                                                Log.d(ClarpApplication.PGA, "player index: " + player);
+                                                Log.d(ClarpApplication.PGA, "card name: " + cards.get(i).getCardName() + " and id: " + cards.get(i).getObjectId());
+
+                                                e1.printStackTrace();
+                                            }
+
+
+
+                                            //cycle through the player list so each player is dealt a card one at a time
+                                            player++;
+                                            if (player == players.length())
+                                            {
+                                                player = 0;
+                                            }
+
+
+                                        }
+
+                                        // The player who was next to be dealt a card (if there were any cards left) will go first
+                                        try {
+                                            game.put("whoseTurn", ((JSONObject) players.get(player)).getString("facebookId"));
+                                        } catch (JSONException e1) {
+                                            // TODO Auto-generated catch block
+                                            e1.printStackTrace();
+                                            Log.d(ClarpApplication.PGA, "Error trying to set whoseTurn");
+                                        }
+
+                                        // update ClarpGame to reflect the distributed clues
+                                        game.put("players", players);
+
+                                        if ((murdererId == null) || (murderWeaponId == null) || (crimeSceneId== null))
+                                        {
+                                            // This should absolutely never happen.
+                                            Log.d(ClarpApplication.PGA, "A murderer, murder weapon, or crime scene has not been selected!");
+                                            return;
+                                        }
+                                        game.setSolution(murdererId, murderWeaponId, crimeSceneId);
+
                                         game.startGame();
                                         game.saveInBackground(new SaveCallback() {
 
                                             @Override
                                             public void done(ParseException e)
                                             {
-                                            	if (e == null)
-                                            	{
-                                            		/*
+                                                if (e == null)
+                                                {
+                                                    /*
                                                      * Don't progres into GameActivity until Parse is fully synced
                                                      */
                                                     Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
                                                     intent.putExtra("game_id", game.getObjectId());
                                                     startActivity(intent);
-                                            	}
-                                            	else
-                                            	{
-                                            		Log.d(ClarpApplication.PGA, "Messed up tying to save game :(");
-                                            		e.printStackTrace();
-                                            	}
-                                                
+                                                }
+                                                else
+                                                {
+                                                    Log.d(ClarpApplication.PGA, "Messed up tying to save game :(");
+                                                    e.printStackTrace();
+                                                }
+
                                             }
                                         });
-                                        
+
                                     } else {
-                                    	Log.d(ClarpApplication.PGA, "query failure (?)");
+                                        Log.d(ClarpApplication.PGA, "query failure (?)");
                                     }
                                 }
                             });
-                            
-                            
+
+
                         }
                         else
                         {
@@ -363,10 +366,10 @@ public class PreGameActivity extends ActionBarActivity
                         }
                     }
                 });
-            	
-                
-            	
-            	
+
+
+
+
             }
         });
 
@@ -473,26 +476,26 @@ public class PreGameActivity extends ActionBarActivity
          * The game may be ready to start now, so we should check if it's time
          * to show the StartGame button
          */
-        
+
         if(!gameReady)
         {
-        	/*
-        	 * Check to see if we meet the minimum requirements
-        	 */
-        	
-        	Log.d(ClarpApplication.PGA, "Players: " + players.length() + "/" + minPlayers);
-        	Log.d(ClarpApplication.PGA, "Suspects: " + game.getInt("numSuspects") + "/" + minSuspects);
-        	Log.d(ClarpApplication.PGA, "Weapons: " + game.getInt("numWeapons") + "/" + minWeapons);
-        	Log.d(ClarpApplication.PGA, "Locations: " + game.getInt("numLocations") + "/" + minLocations);
-        	
-        	
-        	if(players.length() >= minPlayers && game.getInt("numSuspects") >= minSuspects && game.getInt("numWeapons") >= minWeapons && game.getInt("numLocations") >= minLocations)
-        	{
-        		gameReady = true;
-        	}
-        	
+            /*
+             * Check to see if we meet the minimum requirements
+             */
+
+            Log.d(ClarpApplication.PGA, "Players: " + players.length() + "/" + minPlayers);
+            Log.d(ClarpApplication.PGA, "Suspects: " + game.getInt("numSuspects") + "/" + minSuspects);
+            Log.d(ClarpApplication.PGA, "Weapons: " + game.getInt("numWeapons") + "/" + minWeapons);
+            Log.d(ClarpApplication.PGA, "Locations: " + game.getInt("numLocations") + "/" + minLocations);
+
+
+            if((players.length() >= minPlayers) && (game.getInt("numSuspects") >= minSuspects) && (game.getInt("numWeapons") >= minWeapons) && (game.getInt("numLocations") >= minLocations))
+            {
+                gameReady = true;
+            }
+
         }
-        
+
         updateViewVisibility();
     }
 
@@ -538,11 +541,11 @@ public class PreGameActivity extends ActionBarActivity
             case (ClarpApplication.ADD_CARD) : {
                 if (resultCode == Activity.RESULT_OK)
                 {
-                	
-                	Log.d(ClarpApplication.PGA, "Returning to PGA from card creation");
-                	
-                	// this is unnecessary, it's already being called in onResume()
-                	//syncGame();
+
+                    Log.d(ClarpApplication.PGA, "Returning to PGA from card creation");
+
+                    // this is unnecessary, it's already being called in onResume()
+                    //syncGame();
                 }
 
             }

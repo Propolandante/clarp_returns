@@ -34,7 +34,6 @@ import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.PushService;
 import com.parse.SendCallback;
 
 public class InviteActivity extends ActionBarActivity
@@ -128,8 +127,8 @@ public class InviteActivity extends ActionBarActivity
                                     JSONObject data = new JSONObject();
                                     try{
                                         data.put("action", "com.example.clarp_returns.INVITE");
-                                        data.put("title", "ARE YOU READY TO CLARP???");
-                                        data.put("alert", userName + " has invited you to a game of Clarp!");
+                                        data.put("header", "ARE YOU READY TO CLARP???");
+                                        data.put("message", userName + " has invited you to a game of Clarp!");
                                         data.put("gameId", gameId);
                                     } catch (JSONException e) {
                                         Log.d(ClarpApplication.TAG, "Error putting JSON data");
@@ -141,10 +140,8 @@ public class InviteActivity extends ActionBarActivity
                                     // Send push notification to query
                                     ParsePush push = new ParsePush();
                                     push.setQuery(pushQuery); // Set our Installation query
-                                    push.setMessage("ARE YOU READY TO CLARP???");
                                     push.setData(data);
 
-                                    PushService.setDefaultPushCallback(InviteActivity.this, CardListActivity.class);
                                     push.sendInBackground(new SendCallback() {
 
                                         @Override

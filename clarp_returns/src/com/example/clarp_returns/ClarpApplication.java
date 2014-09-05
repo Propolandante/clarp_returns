@@ -42,6 +42,8 @@ public class ClarpApplication extends Application {
         // Set your Facebook App Id in strings.xml
         ParseFacebookUtils.initialize(getString(R.string.app_id));
 
+        PushService.setDefaultPushCallback(this, PreGameActivity.class);
+
         //Log.v(TAG, "Application Class works...?");
     }
 

@@ -58,7 +58,7 @@ public class Player {
 		return fullName;
 	}
 	
-	public String fbId() {
+	public String getFbId() {
 		
 		return this.fbId;
 	}

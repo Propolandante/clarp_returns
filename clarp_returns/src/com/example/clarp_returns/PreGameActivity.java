@@ -301,7 +301,18 @@ public class PreGameActivity extends ActionBarActivity
                                 			{
                                 				player = 0;
                                 			}
+                                			
+                                			
                                 		}
+                                		
+                                		// The player who was next to be dealt a card (if there were any cards left) will go first
+                            			try {
+											game.put("whoseTurn", ((JSONObject) players.get(player)).getString("facebookId"));
+										} catch (JSONException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+											Log.d(ClarpApplication.PGA, "Error trying to set whoseTurn");
+										}
                                 		
                                 		// update ClarpGame to reflect the distributed clues
                                 		game.put("players", players);

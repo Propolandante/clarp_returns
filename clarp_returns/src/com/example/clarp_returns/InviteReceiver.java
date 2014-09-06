@@ -45,10 +45,11 @@ public class InviteReceiver extends BroadcastReceiver{
         long when = System.currentTimeMillis();
         Intent notificationIntent = new Intent(context, PreGameActivity.class);
         notificationIntent.putExtra("game_id", gameId);
+        Log.d(ClarpApplication.TAG, "Sending intent from notification with gameId " + gameId);
         // provides check for whether PGA was opened via notification or not
         notificationIntent.putExtra("notification", ClarpApplication.NOTIFICATION);
         // prevent intent from starting activity immediately
-        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = new Notification(R.drawable.spoon, message, when);

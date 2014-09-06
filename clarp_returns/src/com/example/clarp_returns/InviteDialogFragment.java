@@ -10,6 +10,8 @@ import android.util.Log;
 import com.parse.ParseUser;
 
 public class InviteDialogFragment extends DialogFragment{
+
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
@@ -28,7 +30,10 @@ public class InviteDialogFragment extends DialogFragment{
                 Log.d(ClarpApplication.TAG, "User " + userId + " accepted invitation to game " + gameId);
                 //ClarpGame.addPlayer(user);
                 // return a code and add player in PGA
-
+                String value = "accept";
+                PreGameActivity callingActivity = (PreGameActivity) getActivity();
+                callingActivity.onUserSelectValue(value);
+                dialog.dismiss();
             }
         })
         .setNegativeButton(R.string.decline, new DialogInterface.OnClickListener() {
@@ -36,10 +41,15 @@ public class InviteDialogFragment extends DialogFragment{
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
                 Log.d(ClarpApplication.TAG, "User " + userId + " declined invitation to game " + gameId);
+                String value = "decline";
+                PreGameActivity callingActivity = (PreGameActivity) getActivity();
+                callingActivity.onUserSelectValue(value);
+                dialog.dismiss();
             }
         });
         // Create the AlertDialog object and return it
         return builder.create();
     }
+
 
 }

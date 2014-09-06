@@ -127,12 +127,14 @@ public class PreGameActivity extends ActionBarActivity
         ParseAnalytics.trackAppOpened(mainIntent);
         if(mainIntent.getExtras().getString("notification") != null){
             // invite alert dialog
+
             Log.d(ClarpApplication.PGA, "PGA was opened via notification, showing dialog now");
+            Log.d(ClarpApplication.PGA, "gameId is " + gameId);
             showInviteDialog();
         }
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
 
-        query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
+        query.getInBackground(gameId, new GetCallback<ClarpGame>() {
             @Override
             public void done(ClarpGame object, ParseException e) {
                 if (e == null)
@@ -566,14 +568,39 @@ public class PreGameActivity extends ActionBarActivity
         startActivityForResult(intent, ClarpApplication.VIEW_ALL_GAME_CARDS);
     }
 
+    // to show invitation dialog
     private void showInviteDialog() {
         InviteDialogFragment inviteDialog = new InviteDialogFragment();
         Bundle args = new Bundle();
         args.putString("game_id", gameId);
+        Log.d(ClarpApplication.PGA, "GameId to be loaded is " + gameId);
         args.putString("user_id", user.getObjectId());
         inviteDialog.setArguments(args);
         inviteDialog.show(getFragmentManager(), "invite");
         Log.d(ClarpApplication.PGA, "Invite Dialog is shown");
     }
+
+    // to get positive or negative result
+    // of dialog and, if positive, add player
+    // to game
+    public void onUserSelectValue(String selectedValue) {
+        if (selectedValue == "accept") {
+            try {
+                game.addPlayer(user);
+            } catch (JSONException e) {
+                Log.d(ClarpApplication.PGA, "Error adding player to game");
+                Log.e("Error", "Error message: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            // kick user back to start activity
+            Intent intent = new Intent(PreGameActivity.this, StartActivity.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+
+    }
+
 
 }

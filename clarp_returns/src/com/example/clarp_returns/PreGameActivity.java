@@ -121,9 +121,14 @@ public class PreGameActivity extends ActionBarActivity
         /*
          * Next, get the ClarpGame so we know what we're working with
          */
-
+        user = ParseUser.getCurrentUser();
         Intent mainIntent = getIntent();
         ParseAnalytics.trackAppOpened(mainIntent);
+        if(mainIntent.getExtras().getString("notification") != null){
+            // invite alert dialog
+            Log.d(ClarpApplication.PGA, "PGA was opened via notification, showing dialog now");
+            showInviteDialog();
+        }
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
         gameId = mainIntent.getStringExtra("game_id");
         query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
@@ -144,7 +149,7 @@ public class PreGameActivity extends ActionBarActivity
                      * Next, determine if the current user is the owner of this game
                      */
 
-                    user = ParseUser.getCurrentUser();
+                    //user = ParseUser.getCurrentUser();
                     //Log.d(ClarpApplication.PGA, "User ID: " + user.getObjectId());
                     //Log.d(ClarpApplication.PGA, "Owner ID: " + game.getOwner());
                     if (user.getObjectId().equals(game.getOwner()))
@@ -558,7 +563,16 @@ public class PreGameActivity extends ActionBarActivity
         intent.putExtra("game_id", gameId);
         intent.putExtra("requestCode", ClarpApplication.VIEW_ALL_GAME_CARDS);
         startActivityForResult(intent, ClarpApplication.VIEW_ALL_GAME_CARDS);
+    }
 
+    private void showInviteDialog() {
+        InviteDialogFragment inviteDialog = new InviteDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("gameId", gameId);
+        args.putString("userId", user.getObjectId());
+        inviteDialog.setArguments(args);
+        inviteDialog.show(getFragmentManager(), "invite");
+        Log.d(ClarpApplication.PGA, "Invite Dialog is shown");
     }
 
 }

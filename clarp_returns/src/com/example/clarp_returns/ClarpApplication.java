@@ -29,6 +29,8 @@ public class ClarpApplication extends Application {
     public static final int VIEW_ALL_GAME_CARDS = 20;
     public static final int VIEW_USER_CARDS = 22;
 
+    public static final String NOTIFICATION = "opened from notification";
+
     @Override
     public void onCreate() {
         super.onCreate();

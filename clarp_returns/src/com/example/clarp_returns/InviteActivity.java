@@ -386,21 +386,4 @@ public class InviteActivity extends ActionBarActivity
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

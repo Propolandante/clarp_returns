@@ -24,8 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -40,6 +42,11 @@ public class GameActivity extends ActionBarActivity{
 	public static final int TYPE_SUGGEST = 0;
 	public static final int TYPE_ACCUSE = 1;
 	public static final int TYPE_ALERT = 2;
+	
+	ListView historyListView;
+    Button suggestButton;
+    Button accuseButton;
+    TextView whoseTurnText;
 	
 	ViewPager viewPager = null;
 	int cur_player = 0;
@@ -64,7 +71,7 @@ public class GameActivity extends ActionBarActivity{
 
 	ArrayList<Player> players = new ArrayList<Player>();
 	
-	Boolean isMyTurn = false;
+	Boolean isMyTurn = true;
 	
 	ClarpCard queuedSuspect = null;
 	ClarpCard queuedWeapon = null;
@@ -81,6 +88,26 @@ public class GameActivity extends ActionBarActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         
+        historyListView = (ListView) findViewById(R.id.listViewHistory);
+        if (historyListView == null)
+        {
+        	Log.d(ClarpApplication.GA, "could not find historyListView");
+        }
+        suggestButton = (Button) findViewById(R.id.buttonSuggest);
+        if (suggestButton == null)
+        {
+        	Log.d(ClarpApplication.GA, "could not find suggestButton");
+        }
+        accuseButton = (Button) findViewById(R.id.buttonAccuse);
+        if (accuseButton == null)
+        {
+        	Log.d(ClarpApplication.GA, "could not find accuseButton");
+        }
+        whoseTurnText = (TextView) findViewById(R.id.textViewWhoseTurn);
+        if (whoseTurnText == null)
+        {
+        	Log.d(ClarpApplication.GA, "could not find whoseTurnText");
+        }
 
         viewPager = (ViewPager) findViewById(R.id.pager);
 		FragmentManager fragmentManager = getSupportFragmentManager();
@@ -185,6 +212,7 @@ public class GameActivity extends ActionBarActivity{
         query.whereEqualTo("gameId", id);
         
         loading = true;
+        updateViews();
         
         query.findInBackground(new FindCallback<ClarpCard>() {
             public void done(List<ClarpCard> cList, ParseException e) {
@@ -734,7 +762,10 @@ public class GameActivity extends ActionBarActivity{
     	
     	Log.d(ClarpApplication.GA, "Refreshing History");
     	
+    	
+    	
     	loading = true;
+    	updateViews();
     	
     	historyFragment = pageAdapter.getHistoryFragment();
     	JSONArray clarpTurns = game.getJSONArray("turns");
@@ -762,26 +793,27 @@ public class GameActivity extends ActionBarActivity{
     	}
     	
     	loading = false;
+    	updateViews();
     	
     }
     
-    public Player refuteSuggestion(){
-    	
-    	// TODO This needs to loop through all players, excluding the current one
-    	// Right now, it's basically hardcoded to assume player #0 is the one who made the suggestion
-    	
-    	if (players.size() > 1)
-    	{
-    		for (Player p : players.subList(1, players.size())){
-        		for (String id : p.getCardIds()){
-        			if (id.equals(queuedSuspect.getObjectId()) || id.equals(queuedWeapon.getObjectId()) || id.equals(queuedScene.getObjectId()))
-        				return p;
-        		}
-        	}
-    	}
-    	
-    	return null;
-    }
+//    public Player refuteSuggestion(){
+//    	
+//    	// TODO This needs to loop through all players, excluding the current one
+//    	// Right now, it's basically hardcoded to assume player #0 is the one who made the suggestion
+//    	
+//    	if (players.size() > 1)
+//    	{
+//    		for (Player p : players.subList(1, players.size())){
+//        		for (String id : p.getCardIds()){
+//        			if (id.equals(queuedSuspect.getObjectId()) || id.equals(queuedWeapon.getObjectId()) || id.equals(queuedScene.getObjectId()))
+//        				return p;
+//        		}
+//        	}
+//    	}
+//    	
+//    	return null;
+//    }
     
     public void clickCancel(View v){
     	pw.dismiss();
@@ -803,6 +835,12 @@ public class GameActivity extends ActionBarActivity{
              * Hide Accuse Button
              * Hide WhoseTurn TextView
              */
+        	
+        	//historyListView.setVisibility(View.GONE);
+        	suggestButton.setVisibility(View.GONE);
+        	accuseButton.setVisibility(View.GONE);
+        	whoseTurnText.setVisibility(View.GONE);
+        	
         }
         else
         {
@@ -813,6 +851,8 @@ public class GameActivity extends ActionBarActivity{
              * Show ListView
              * Show WhoseTurn TextView
              */
+        	//historyListView.setVisibility(View.VISIBLE);
+        	whoseTurnText.setVisibility(View.VISIBLE);
         	
             if(isMyTurn)
             {
@@ -821,6 +861,9 @@ public class GameActivity extends ActionBarActivity{
             	 * Show Accuse Button
             	 * Set WhoseTurn TextView to say "It's your turn!"
             	 */
+            	suggestButton.setVisibility(View.VISIBLE);
+            	accuseButton.setVisibility(View.VISIBLE);
+            	whoseTurnText.setText("It's your turn!");
             }
             else
             {
@@ -829,6 +872,9 @@ public class GameActivity extends ActionBarActivity{
             	 * Hide Accuse Button
             	 * Set WhoseTurn TextView to say "It's _______'s turn."
             	 */
+            	suggestButton.setVisibility(View.GONE);
+            	accuseButton.setVisibility(View.GONE);
+            	whoseTurnText.setText("It's not your turn yet.");
             }
         }
 

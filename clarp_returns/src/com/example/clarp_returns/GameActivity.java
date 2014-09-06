@@ -60,9 +60,11 @@ public class GameActivity extends ActionBarActivity{
 	int total_cards;
 	
 	ArrayList<ClarpCard> cards = new ArrayList<ClarpCard>();
-	Boolean gotCards = false;
+	Boolean loading = true;
 
 	ArrayList<Player> players = new ArrayList<Player>();
+	
+	Boolean isMyTurn = false;
 	
 	ClarpCard queuedSuspect = null;
 	ClarpCard queuedWeapon = null;
@@ -78,6 +80,13 @@ public class GameActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        
+
+        viewPager = (ViewPager) findViewById(R.id.pager);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		pageAdapter = new MyAdapter(fragmentManager);
+        viewPager.setAdapter(pageAdapter);
+        
         /*
          * First, get the ClarpGame so we know what we're working with
          */
@@ -101,11 +110,14 @@ public class GameActivity extends ActionBarActivity{
                 	 * We should show a loading bar while they process
                 	 * So the user can't attempt to play before the info is here
                 	 */
-                	getCards(game);
-                	
                 	getPlayers(game);
                 	
-                	// PGA will have already distributed the facts to each player.
+                	getCards(game);
+                	
+                	// listView is updated once cards have been grabbed
+                	
+                	
+                	
                 	
                 }
                 else
@@ -114,10 +126,6 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
-        viewPager = (ViewPager) findViewById(R.id.pager);
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		pageAdapter = new MyAdapter(fragmentManager);
-        viewPager.setAdapter(pageAdapter);
         
     }
     
@@ -125,24 +133,19 @@ public class GameActivity extends ActionBarActivity{
     public void onResume(){
     	super.onResume();
     	
-    	
-        
-        Log.d("Clarp", "onResume() called.");
-
-    	
-    	
+        Log.d(ClarpApplication.GA, "onResume() called.");
     }
     
     @Override
     public void onPause(){
     	super.onPause();
-    	Log.d("Clarp", "onPause() called.");
+    	Log.d(ClarpApplication.GA, "onPause() called.");
     }
     
     @Override
     public void onStop(){
     	super.onStop();
-    	Log.d("Clarp", "onStop() called.");
+    	Log.d(ClarpApplication.GA, "onStop() called.");
     }
 
     @Override
@@ -181,6 +184,8 @@ public class GameActivity extends ActionBarActivity{
 		ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
         query.whereEqualTo("gameId", id);
         
+        loading = true;
+        
         query.findInBackground(new FindCallback<ClarpCard>() {
             public void done(List<ClarpCard> cList, ParseException e) {
                 if (e == null) {
@@ -196,7 +201,18 @@ public class GameActivity extends ActionBarActivity{
                     Collections.shuffle(cards);
                     
                     // use this to update views and hide the loading bar (once we implement that)
-                    gotCards = true;
+                    
+                    
+                    /*
+                     * Refresh the history
+                     * This can only be done once the cards have been grabbed
+                     */
+                    try {
+						refreshHistory();
+					} catch (JSONException e1) {
+						Log.d(ClarpApplication.GA, "JSON error in onCreate");
+						e1.printStackTrace();
+					}
                     
                 } else {
                 	Log.d(ClarpApplication.GA, "query failure (?)");
@@ -467,18 +483,16 @@ public class GameActivity extends ActionBarActivity{
     				&& queuedWeapon.getObjectId().equals(game.getJSONArray("solution").get(1)) 
     				&& queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2))){
     			// the player has won!
-    			gameState = GameStates.WON;
     			JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "The mystery is solved!");
     			game.getJSONArray("turns").put(clarpAlert);
-//    			TurnHistoryItem alert = createTurnItem(clarpAlert);
-//    			historyFragment.add(alert);
+    			gameState = GameStates.WON;
+    			game.end();
     		}else{
-    			// the player has lost! they need to be disqualified...
-    			gameState = GameStates.LOST;
+    			// the player has lost! 
+    			// TODO they need to be disqualified... keep in mind our player[] works differently than Parse's
     			JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "That accusation was dead wrong!");
     			game.getJSONArray("turns").put(clarpAlert);
-//    			TurnHistoryItem alert = createTurnItem(clarpAlert);	
-//    			historyFragment.add(alert);
+    			gameState = GameStates.DISQUALIFIED;
     		}
     	}
     	
@@ -718,6 +732,10 @@ public class GameActivity extends ActionBarActivity{
     	 * This should be called after refreshing the game info
     	 */
     	
+    	Log.d(ClarpApplication.GA, "Refreshing History");
+    	
+    	loading = true;
+    	
     	historyFragment = pageAdapter.getHistoryFragment();
     	JSONArray clarpTurns = game.getJSONArray("turns");
     	
@@ -737,6 +755,14 @@ public class GameActivity extends ActionBarActivity{
     		
     		historyFragment.add( createTurnItem( clarpTurns.getJSONObject(i) ) );
     	}
+    	
+    	if(game.getBoolean("gameOver") && gameState == GameStates.IN_PROGRESS)
+    	{
+    		gameState = GameStates.LOST;
+    	}
+    	
+    	loading = false;
+    	
     }
     
     public Player refuteSuggestion(){
@@ -762,9 +788,56 @@ public class GameActivity extends ActionBarActivity{
     }
     
     public enum GameStates{
-    	IN_PROGRESS,WON,LOST;
+    	IN_PROGRESS,WON,LOST,DISQUALIFIED;
     }
+    
+    private void updateViews()
+    {
+        if(loading)
+        {
+            /*
+             * Show loading bar
+             * Show loading text
+             * Hide ListView
+             * Hide Submit Button
+             * Hide Accuse Button
+             * Hide WhoseTurn TextView
+             */
+        }
+        else
+        {
+        	
+        	/*
+             * Hide loading bar
+             * Hide loading text
+             * Show ListView
+             * Show WhoseTurn TextView
+             */
+        	
+            if(isMyTurn)
+            {
+            	/*
+            	 * Show Submit Button
+            	 * Show Accuse Button
+            	 * Set WhoseTurn TextView to say "It's your turn!"
+            	 */
+            }
+            else
+            {
+            	/*
+            	 * Hide Submit Button
+            	 * Hide Accuse Button
+            	 * Set WhoseTurn TextView to say "It's _______'s turn."
+            	 */
+            }
+        }
+
+        
+    }
+    
 }
+
+
 
 class MyAdapter extends FragmentPagerAdapter{
 	ArrayList<TurnHistoryItem> historyItems;

@@ -36,7 +36,7 @@ public class Player {
 		for (int i = 0; i < cardList.length(); ++i)
 		{
 			cardIds.add((String) cardList.get(i));
-			Log.d(ClarpApplication.TAG, "Added card id: " + cardList.get(i));
+			Log.d(ClarpApplication.TAG, "Gave card id: " + cardList.get(i) + " to " + this.name);
 		}
 		
 	}

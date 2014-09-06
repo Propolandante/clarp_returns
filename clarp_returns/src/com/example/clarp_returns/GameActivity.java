@@ -116,6 +116,10 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
+        viewPager = (ViewPager) findViewById(R.id.pager);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		pageAdapter = new MyAdapter(fragmentManager);
+        viewPager.setAdapter(pageAdapter);
         
     }
     
@@ -123,13 +127,24 @@ public class GameActivity extends ActionBarActivity{
     public void onResume(){
     	super.onResume();
     	
-    	viewPager = (ViewPager) findViewById(R.id.pager);
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		pageAdapter = new MyAdapter(fragmentManager);
-        viewPager.setAdapter(pageAdapter);
+    	
+        
+        Log.d("Clarp", "onResume() called.");
 
     	
     	
+    }
+    
+    @Override
+    public void onPause(){
+    	super.onPause();
+    	Log.d("Clarp", "onPause() called.");
+    }
+    
+    @Override
+    public void onStop(){
+    	super.onStop();
+    	Log.d("Clarp", "onStop() called.");
     }
 
     @Override

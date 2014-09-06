@@ -123,6 +123,7 @@ public class PreGameActivity extends ActionBarActivity
          */
         user = ParseUser.getCurrentUser();
         Intent mainIntent = getIntent();
+        gameId = mainIntent.getStringExtra("game_id");
         ParseAnalytics.trackAppOpened(mainIntent);
         if(mainIntent.getExtras().getString("notification") != null){
             // invite alert dialog
@@ -130,7 +131,7 @@ public class PreGameActivity extends ActionBarActivity
             showInviteDialog();
         }
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
-        gameId = mainIntent.getStringExtra("game_id");
+
         query.getInBackground(mainIntent.getStringExtra("game_id"), new GetCallback<ClarpGame>() {
             @Override
             public void done(ClarpGame object, ParseException e) {
@@ -568,8 +569,8 @@ public class PreGameActivity extends ActionBarActivity
     private void showInviteDialog() {
         InviteDialogFragment inviteDialog = new InviteDialogFragment();
         Bundle args = new Bundle();
-        args.putString("gameId", gameId);
-        args.putString("userId", user.getObjectId());
+        args.putString("game_id", gameId);
+        args.putString("user_id", user.getObjectId());
         inviteDialog.setArguments(args);
         inviteDialog.show(getFragmentManager(), "invite");
         Log.d(ClarpApplication.PGA, "Invite Dialog is shown");

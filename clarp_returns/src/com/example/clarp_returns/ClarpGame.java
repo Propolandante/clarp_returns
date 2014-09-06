@@ -117,6 +117,7 @@ public class ClarpGame extends ParseObject {
                 // player ids are equal, stop loop and
                 // don't add new player
                 playerAlreadyAdded = true;
+                Log.d(ClarpApplication.TAG, "HEY Player is already in this game, won't add");
                 break;
             }
         }

@@ -27,6 +27,10 @@ public class InviteReceiver extends BroadcastReceiver{
                 header = data.getString("header");
                 message = data.getString("message");
                 gameId = data.getString("gameId");
+                Log.d(ClarpApplication.TAG, "Notification data received: \n"
+                        + "header: " + header
+                        + "\nmessage: " + message
+                        + "\ngameId: " + gameId);
                 generateNotification(context, header, message, gameId);
             } else {
                 Log.d(TAG, "JSON data doesn't have all keys");
@@ -40,6 +44,7 @@ public class InviteReceiver extends BroadcastReceiver{
     public static void generateNotification(Context context, String header, String message, String gameId) {
         long when = System.currentTimeMillis();
         Intent notificationIntent = new Intent(context, PreGameActivity.class);
+        notificationIntent.putExtra("game_id", gameId);
         // provides check for whether PGA was opened via notification or not
         notificationIntent.putExtra("notification", ClarpApplication.NOTIFICATION);
         // prevent intent from starting activity immediately

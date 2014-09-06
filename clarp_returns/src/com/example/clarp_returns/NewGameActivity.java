@@ -83,8 +83,8 @@ public class NewGameActivity extends ActionBarActivity {
 
 
         ParseUser user = ParseUser.getCurrentUser();
-    	
-    	Log.d(ClarpApplication.TAG, "Start clicked");
+
+        Log.d(ClarpApplication.TAG, "Start clicked");
 
         final ClarpGame game = new ClarpGame();
 
@@ -99,7 +99,7 @@ public class NewGameActivity extends ActionBarActivity {
             game.setGameName(gameName);
             Log.d(ClarpApplication.TAG, "gameName set to " + gameName);
         }
-        
+
         game.setOwner(user);
 
         //create necessary data structures
@@ -114,23 +114,25 @@ public class NewGameActivity extends ActionBarActivity {
         game.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-            	if (e == null)
-            	{
-            		Log.d(ClarpApplication.TAG, "Game saved");
-            		
-            		Intent intent = new Intent(NewGameActivity.this, InviteActivity.class);
-            		intent.putExtra("game_id", game.getObjectId());
-            		startActivity(intent);
-            	}
-            	else
-            	{
-            		Log.d(ClarpApplication.TAG, "Error saving new ClarpGame");
-            		finish();
-            	}
+                if (e == null)
+                {
+                    Log.d(ClarpApplication.TAG, "Game saved");
+
+                    Intent intent = new Intent(NewGameActivity.this, InviteActivity.class);
+                    intent.putExtra("game_id", game.getObjectId());
+                    startActivity(intent);
+                    // finishes the activity so that user cannot get back
+                    finish();
+                }
+                else
+                {
+                    Log.d(ClarpApplication.TAG, "Error saving new ClarpGame");
+                    finish();
+                }
             }
         });
 
-        
+
     }
 
 }

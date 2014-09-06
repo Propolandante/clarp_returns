@@ -104,7 +104,10 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 		
 	}
 	
-	
+	public int getLength()
+	{
+		return items.size();
+	}
 	
 	
 

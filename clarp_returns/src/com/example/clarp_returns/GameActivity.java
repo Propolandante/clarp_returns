@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
@@ -39,9 +37,9 @@ import com.parse.ParseQuery;
 
 public class GameActivity extends ActionBarActivity{
 	
-	private static final int TYPE_SUGGEST = 0;
-    private static final int TYPE_ACCUSE = 1;
-    private static final int TYPE_ALERT = 2;
+	public static final int TYPE_SUGGEST = 0;
+	public static final int TYPE_ACCUSE = 1;
+	public static final int TYPE_ALERT = 2;
 	
 	ViewPager viewPager = null;
 	int cur_player = 0;
@@ -112,7 +110,7 @@ public class GameActivity extends ActionBarActivity{
                 }
                 else
                 {
-                    Log.d(ClarpApplication.TAG, "Something went wrong when querying the ClarpGame in GA");
+                    Log.d(ClarpApplication.GA, "Something went wrong when querying the ClarpGame in GA");
                 }
             }
         });
@@ -190,7 +188,7 @@ public class GameActivity extends ActionBarActivity{
                     for (int i = 0; i < cList.size(); ++i)
                     {
                     	cards.add(cList.get(i));
-                    	Log.d(ClarpApplication.TAG, "grabbed card " + cards.get(i).getCardName());
+                    	Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
                     }
                     
                     // shuffle it, so the first 3 cards aren't the solution...
@@ -201,7 +199,7 @@ public class GameActivity extends ActionBarActivity{
                     gotCards = true;
                     
                 } else {
-                	Log.d(ClarpApplication.TAG, "query failure (?)");
+                	Log.d(ClarpApplication.GA, "query failure (?)");
                 }
             }
         });
@@ -224,9 +222,9 @@ public class GameActivity extends ActionBarActivity{
 		{
 			try {
 				players.add(new Player(gPlayers.getJSONObject(i)));
-				Log.d(ClarpApplication.TAG, "Added player " + players.get(i).getFullName());
+				Log.d(ClarpApplication.GA, "Added player " + players.get(i).getFullName());
 			} catch (JSONException e) {
-				Log.d(ClarpApplication.TAG, "Failed to add player");
+				Log.d(ClarpApplication.GA, "Failed to add player");
 				e.printStackTrace();
 			}
 			
@@ -275,6 +273,10 @@ public class GameActivity extends ActionBarActivity{
 				break;
 		}
 		
+		/*
+		 * this will return null if the game doesn't have sufficient pictures
+		 */
+		
 		ParseFile suspectImageFile = queuedSuspect.getPhotoFile();
 		ParseFile weaponImageFile = queuedWeapon.getPhotoFile();
 		ParseFile locationImageFile = queuedScene.getPhotoFile();
@@ -286,20 +288,32 @@ public class GameActivity extends ActionBarActivity{
 		if (suspectImageFile != null) {
 			suspectPic.setParseFile(suspectImageFile);
 			suspectPic.loadInBackground();
-			Log.d(ClarpApplication.TAG, "We don't have any suspects...?");
+			
         }
+		else
+		{
+			Log.d(ClarpApplication.GA, "no suspect image");
+		}
 		
 		if (weaponImageFile != null) {
 			weaponPic.setParseFile(weaponImageFile);
 			weaponPic.loadInBackground();
-			Log.d(ClarpApplication.TAG, "We don't have any weapons...?");
+			
         }
+		else
+		{
+			Log.d(ClarpApplication.GA, "no weapon image");
+		}
 		
 		if (locationImageFile != null) {
 			scenePic.setParseFile(locationImageFile);
 			scenePic.loadInBackground();
-			Log.d(ClarpApplication.TAG, "We don't have any locations...?");
+			
         }
+		else
+		{
+			Log.d(ClarpApplication.GA, "no location image");
+		}
 		
 		
 		pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight(),true);
@@ -343,7 +357,6 @@ public class GameActivity extends ActionBarActivity{
   //Called when the Weapon image is clicked in a Suggest or Accuse popup.  Will populate the listview with Weapon cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectWeapon(View v) {
-    	//TODO current work
     	selectType = ClarpCard.CardType.WEAPON;
     	ArrayList<ClarpCard> weaponList = new ArrayList<ClarpCard>();
 		for (ClarpCard c : cards){
@@ -373,7 +386,6 @@ public class GameActivity extends ActionBarActivity{
   //Called when the Scene image is clicked in a Suggest or accuse popup.  Will populate the listview with Scene cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clickSelectScene(View v) {
-    	//TODO current work
     	selectType = ClarpCard.CardType.LOCATION;
     	ArrayList<ClarpCard> sceneList = new ArrayList<ClarpCard>();
 		for (ClarpCard c : cards){
@@ -409,12 +421,41 @@ public class GameActivity extends ActionBarActivity{
     
     
     private void submit(int type) throws JSONException{
+    	
+    	/*
+    	 * Because this function can only be called if it is the current user's turn,
+    	 * and no one else can add anything to turns[] when it is not their turn,
+    	 * we can safely assume the current user's turns[] array is fully up-to-date.
+    	 * Therefore, they should create a new JSONOBject clarpTurn,
+    	 * and push it to their local ClarpGame,
+    	 * and then populate their local TurnHistory array WHILE saving the turn to the cloud
+    	 */
     	historyFragment = pageAdapter.getHistoryFragment();
-    	TurnHistoryItem temp = new TurnHistoryItem(type, queuedSuspect, queuedWeapon, queuedScene);
     	
-    	String disprover = refuteSuggestion();
+    	Player currentPlayer = null;
+    	String curPlayerId = game.getString("whoseTurn");
+    	for (Player p : players)
+    	{
+    		if (p.getFbId().equals(curPlayerId))
+    		{
+    			currentPlayer = p;
+    		}
+    	}
+    	if (currentPlayer == null)
+    	{
+    		Log.d(ClarpApplication.GA, "currentPlayer is null in submit!!!!!!!!");
+    	}
     	
-    	temp.setResult(disprover);
+    	JSONObject clarpTurn = createClarpTurn(type, currentPlayer, queuedSuspect, queuedWeapon, queuedScene);
+    	game.getJSONArray("turns").put(clarpTurn);
+    	
+    	/*
+    	 * it's OK for this one to be null
+    	 * but this will be deleted for Parsification anyways
+    	 * since the functionality has been moved to createClarpCard
+    	 */
+    	
+    	TurnHistoryItem temp = createTurnItem(clarpTurn);
     	
     	historyFragment.add(temp);
     	
@@ -427,52 +468,302 @@ public class GameActivity extends ActionBarActivity{
     				&& queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2))){
     			// the player has won!
     			gameState = GameStates.WON;
-    			temp = new TurnHistoryItem(TYPE_ALERT);
-    			temp.result = players.get(0).getFullName()+ " has solved the mystery!";  	
-    			historyFragment.add(temp);
+    			JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "The mystery is solved!");
+    			game.getJSONArray("turns").put(clarpAlert);
+//    			TurnHistoryItem alert = createTurnItem(clarpAlert);
+//    			historyFragment.add(alert);
     		}else{
     			// the player has lost! they need to be disqualified...
     			gameState = GameStates.LOST;
-    			temp = new TurnHistoryItem(TYPE_ALERT);
-    			temp.result = players.get(0).getFullName() + " was Dead Wrong!";  	
-    			historyFragment.add(temp);
+    			JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "That accusation was dead wrong!");
+    			game.getJSONArray("turns").put(clarpAlert);
+//    			TurnHistoryItem alert = createTurnItem(clarpAlert);	
+//    			historyFragment.add(alert);
     		}
     	}
-    		
-    		
+    	
+    	refreshHistory();
+    	
+    	// set whoseTurn to the next player
+    	
+    	
+    	game.saveInBackground();
+    	
     	queuedSuspect = null;
     	queuedWeapon = null;
     	queuedScene = null;
     }
     
+    private JSONObject createClarpTurn( int type, Player player, ClarpCard suspect, ClarpCard weapon, ClarpCard location) throws JSONException{
+    	
+    	if(type != TYPE_SUGGEST && type != TYPE_ACCUSE)
+    	{
+    		Log.d(ClarpApplication.GA, "INCORRECT USE OF createClarpCard!");
+    	}
+    	
+    	JSONObject turn = new JSONObject();
+    	
+    	Player alibi = null;
+    	String alibiCardId = null;
+    	
+    	/*
+    	 * Determine if there is an alibi, and which card they are ruling out
+    	 */
+    	
+    	// loop through all the players
+		for (Player p : players){
+			// exclude the current player
+			if(!p.equals(player))
+			{
+				// check all of each player's cards
+				for (String id : p.getCardIds()){
+					// if they have the same suspect card
+					if (id.equals(queuedSuspect.getObjectId()))
+					{
+						// then they are ruling out this suspect
+						alibi = p;
+						alibiCardId = queuedSuspect.getObjectId();
+				    	turn.put("alibiFbId", alibi.getFbId());
+				    	turn.put("alibiCardId", alibiCardId);
+					}
+					// if they have the same weapon card
+					else if (id.equals(queuedWeapon.getObjectId()))
+					{
+						// then they are ruling out this weapon
+						alibi = p;
+						alibiCardId = queuedWeapon.getObjectId();
+				    	turn.put("alibiFbId", alibi.getFbId());
+				    	turn.put("alibiCardId", alibiCardId);
+					}
+					// if they have the same location card
+					else if (id.equals(queuedScene.getObjectId()))
+					{
+						// then they are ruling out this location
+						alibi = p;
+						alibiCardId = queuedScene.getObjectId();
+				    	turn.put("alibiFbId", alibi.getFbId());
+				    	turn.put("alibiCardId", alibiCardId);
+						
+					}
+				}
+			}
+    	}
+		// if no alibi, then put null
+		if(alibi == null)
+		{
+	    	turn.put("alibiFbId", null);
+	    	turn.put("alibiCardId", null);
+		}
+    	
+    	
+    	turn.put("type", type);
+    	turn.put("playerFbId", player.getFbId());
+    	turn.put("suspectId", suspect.getObjectId());
+    	turn.put("weaponId", weapon.getObjectId());
+    	turn.put("locationId", location.getObjectId());
+    	turn.put("alertText", null);
+    	
+    	return turn;
+    }
     
+    private JSONObject createClarpAlert( int type, String alertText ) throws JSONException {
+    	
+    	if(type != TYPE_ALERT)
+    	{
+    		Log.d(ClarpApplication.GA, "INCORRECT USE OF createClarpAlert!");
+    	}
+    	
+    	JSONObject alert = new JSONObject();
+    	
+    	alert.put("type", type);
+    	alert.put("alertText", alertText);
+    	
+    	// idk if it's necessary to set these as null, but why not?
+    	alert.put("playerFbId", null);
+    	alert.put("suspectId", null);
+    	alert.put("weaponId", null);
+    	alert.put("locationId", null);
+    	alert.put("alibiFbId", null);
+    	alert.put("alibiCardId", null);
+    	
+		return alert;
+    	
+    }
     
-    public String refuteSuggestion(){
+    TurnHistoryItem createTurnItem( JSONObject clarpTurn) throws JSONException{
+    	
+    	TurnHistoryItem turn = null;
+    	
+    	int type = clarpTurn.getInt("type");
+    	
+    	if(type == TYPE_SUGGEST || type == TYPE_ACCUSE)
+    	{
+    		Log.d(ClarpApplication.GA, "Creating a standard turn history item");
+    		
+    		String playerFbId = clarpTurn.getString("playerFbId");
+        	String suspectId = clarpTurn.getString("suspectId");
+        	String weaponId = clarpTurn.getString("weaponId");
+        	String locationId = clarpTurn.getString("locationId");
+        	String alibiFbId = null;
+        	String alibiCardId = null;
+        	if (clarpTurn.has("alibiFbId"))
+        	{
+        		alibiFbId = clarpTurn.getString("alibiFbId");
+        	}
+        	if (clarpTurn.has("alibiCardId"))
+        	{
+        		alibiCardId = clarpTurn.getString("alibiCardId");
+        	}
+        	
+        	
+        	Player player = null;
+        	ClarpCard suspect = null;
+        	ClarpCard weapon = null;
+        	ClarpCard location = null;
+        	Player alibi = null;
+        	ClarpCard alibiCard = null;
+        	
+        	// loop through all the players to find player and alibi (if applicable)
+        	for (Player p : players){
+        		
+        		if (p.getFbId().equals(playerFbId))
+        		{
+        			player = p;
+        			continue;
+        			// alibi should NEVER be the same as player
+        		}
+        		
+        		if (p.getFbId().equals(alibiFbId))
+        		{
+        			alibi = p;
+        		}
+        		
+        	}
+        	// make sure we found the player
+        	if (player == null)
+        	{
+        		Log.d(ClarpApplication.GA, "player is null in createTurnItem!!!!!!!");
+        	}
+        	// loop through all the cards to find the suspect, weapon, and location
+        	for (ClarpCard c : cards)
+        	{
+        		if (c.getObjectId().equals(suspectId))
+        		{
+        			suspect = c;
+        			continue;
+        		}
+        		if (c.getObjectId().equals(weaponId))
+        		{
+        			weapon = c;
+        			continue;
+        		}
+        		if (c.getObjectId().equals(locationId))
+        		{
+        			location = c;
+        		}
+        		if (c.getObjectId().equals(alibiCardId))
+    			{
+    				alibiCard = c;
+    			}
+        		
+        		// we can stop looping once we've found all three cards
+    			// if there is an alibi card, it will have been found already
+        		if (suspect != null && weapon != null && location != null)
+        		{
+        			break;
+        		}
+        	}
+        	// make sure we found the player
+        	if (suspect == null)
+        	{
+        		Log.d(ClarpApplication.GA, "suspect is null in createTurnItem!!!!!!!");
+        	}
+        	// make sure we found the player
+        	if (weapon == null)
+        	{
+        		Log.d(ClarpApplication.GA, "weapon is null in createTurnItem!!!!!!!");
+        	}
+        	// make sure we found the player
+        	if (location == null)
+        	{
+        		Log.d(ClarpApplication.GA, "location is null in createTurnItem!!!!!!!");
+        	}
+        	
+        	turn = new TurnHistoryItem(type, player, suspect, weapon, location, alibi, alibiCard, null);
+        	
+    	}
+    	else if(type == TYPE_ALERT)
+    	{
+    		Log.d(ClarpApplication.GA, "Creating an alert turn history item");
+    		String alertText = clarpTurn.getString("alertText");
+    		
+    		turn = new TurnHistoryItem(type, null, null, null, null, null, null, alertText);
+    	}
+    	
+    	if (turn == null)
+    	{
+    		Log.d(ClarpApplication.GA, "Something went terribly wrong creating a turn history item");
+    	}
+    	
+    	return turn;
+    }
+    
+    public void refreshHistory() throws JSONException{
+    	/*
+    	 * PRECONDITIONS: ClarpGame is fully downloaded
+    	 * 
+    	 * We're going to compare the current ListView's array with the ClarpGame's turns array
+    	 * Then, we'll add any missing items.
+    	 * 
+    	 * This should be called after refreshing the game info
+    	 */
+    	
+    	historyFragment = pageAdapter.getHistoryFragment();
+    	JSONArray clarpTurns = game.getJSONArray("turns");
+    	
+    	int numHistory = historyFragment.getHistorySize();
+    	int numClarp = clarpTurns.length();
+    	
+    	Log.d(ClarpApplication.GA, "History: " + numHistory + ", Clarp: " + numClarp);
+    	
+    	// loop through any clarpTur items that do not yet exist in historyFragment
+    	for (int i = numHistory; i < numClarp; ++i)
+    	{
+    		/*
+    		 * numHistory is the first index of clarpGame to add,
+    		 * and numClarp - 1 is the final index of ClarpGame to add
+    		 * i is our index
+    		 */
+    		
+    		historyFragment.add( createTurnItem( clarpTurns.getJSONObject(i) ) );
+    	}
+    }
+    
+    public Player refuteSuggestion(){
+    	
+    	// TODO This needs to loop through all players, excluding the current one
+    	// Right now, it's basically hardcoded to assume player #0 is the one who made the suggestion
     	
     	if (players.size() > 1)
     	{
     		for (Player p : players.subList(1, players.size())){
         		for (String id : p.getCardIds()){
         			if (id.equals(queuedSuspect.getObjectId()) || id.equals(queuedWeapon.getObjectId()) || id.equals(queuedScene.getObjectId()))
-        				return p.getFullName();
+        				return p;
         		}
         	}
     	}
     	
-    	return "No one";
+    	return null;
     }
     
     public void clickCancel(View v){
     	pw.dismiss();
     }
     
-    
     public enum GameStates{
     	IN_PROGRESS,WON,LOST;
     }
-
-
-
 }
 
 class MyAdapter extends FragmentPagerAdapter{
@@ -485,9 +776,9 @@ class MyAdapter extends FragmentPagerAdapter{
 		super(fm);
 		
 		historyItems = new ArrayList<TurnHistoryItem>();
-		TurnHistoryItem firstItem = new TurnHistoryItem(2);
-		firstItem.result = "The Game is Afoot!";  	
-    	historyItems.add(firstItem);
+//		TurnHistoryItem firstItem = new TurnHistoryItem(2);
+//		firstItem.result = "The Game is Afoot!";  	
+//    	historyItems.add(firstItem);
 	}
 	
 	@Override

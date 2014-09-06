@@ -37,7 +37,11 @@ public class HistoryFragment extends Fragment {
 	public void add(TurnHistoryItem newItem){
 		adapter.add(newItem);
 		scrollMyListViewToBottom();
-		
+	}
+	
+	public int getHistorySize()
+	{
+		return adapter.getCount();
 	}
 	
 	public TurnHistoryItemAdapter getAdapter(){

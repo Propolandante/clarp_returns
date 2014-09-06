@@ -13,6 +13,9 @@ public class ClarpApplication extends Application {
 
     // Tag used when logging all messages with the same tag (e.g. for demoing purposes)
     static final String TAG = "Clarp";
+    static final String PGA = "Clarp_PGA";
+    static final String GA = "Clarp_GA";
+    static final String CF = "Clarp_CF";
 
     /* Will probably need some game constants here */
 
@@ -26,6 +29,8 @@ public class ClarpApplication extends Application {
     public static final int VIEW_ALL_GAME_CARDS = 20;
     public static final int VIEW_USER_CARDS = 22;
 
+    public static final String NOTIFICATION = "opened from notification";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -38,6 +43,8 @@ public class ClarpApplication extends Application {
 
         // Set your Facebook App Id in strings.xml
         ParseFacebookUtils.initialize(getString(R.string.app_id));
+
+        PushService.setDefaultPushCallback(this, PreGameActivity.class);
 
         //Log.v(TAG, "Application Class works...?");
     }

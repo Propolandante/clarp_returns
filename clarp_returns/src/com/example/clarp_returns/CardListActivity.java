@@ -31,14 +31,19 @@ public class CardListActivity extends Activity {
         setContentView(R.layout.activity_card_list);
 
         Intent mainIntent = getIntent();
+
         Bundle extras = mainIntent.getExtras();
-        gameId = extras.getString("game_id");
-        requestCode = extras.getInt("requestCode");
+        if(extras != null) {
+            gameId = extras.getString("game_id");
+            requestCode = extras.getInt("requestCode");
+            cardAdapter = new CardQueryAdapter(CardListActivity.this, requestCode, gameId);
+        }
+
 
 
         cardListView = (ListView) findViewById(R.id.card_list_view);
         listLoadingView = (ProgressBar) findViewById(R.id.progressBar1);
-        cardAdapter = new CardQueryAdapter(CardListActivity.this, requestCode, gameId);
+
         cardListView.setAdapter(cardAdapter);
         updateCardList();
     }

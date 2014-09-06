@@ -52,6 +52,8 @@ public class ClarpGame extends ParseObject {
         put("numSuspects", 0);
         put("numWeapons", 0);
         put("numLocations", 0);
+        
+        put("gameOver", false);
 
         // I need to be sure this object has an objectId before addPlayer is called.
         // Usually we're supposed to use saveInBackground, so there's probably a better way than this
@@ -231,6 +233,11 @@ public class ClarpGame extends ParseObject {
         solution.put(l);
 
         put("solution", solution);
+    }
+    
+    public void end()
+    {
+    	put("gameOver", false);
     }
 
     @Override

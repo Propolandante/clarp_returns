@@ -123,8 +123,13 @@ public class ClarpGame extends ParseObject {
                 break;
             }
         }
-
+        
+        
         if(!playerAlreadyAdded) {
+        	
+        	// reset player
+        	player = new JSONObject();
+        	
             // First, add user to ClarpGame player list:
 
             player.put("id", user.getUsername());
@@ -151,33 +156,33 @@ public class ClarpGame extends ParseObject {
 
 
 
-            Log.d(ClarpApplication.TAG, "Attempting to add game to User");
-
-            // Next, add ClarpGame to player's game list
-            //can't change the existing JSONArray on Parse, we need to overwrite it:
-            // grab the existing players
-            JSONArray newGames;
-            if (user.get("games") != null) // if it exists
-            {
-                newGames = user.getJSONArray("games");
-                Log.d(ClarpApplication.TAG, "grabbing exitsing game list");
-            }
-            else  // otherwise create it
-            {
-                newGames = new JSONArray();
-                Log.d(ClarpApplication.TAG, "creating new game list");
-            }
-            //append player to existing players
-            newGames.put(getObjectId());
-            Log.d(ClarpApplication.TAG, "added game's objectId: " + getObjectId());
-            // push newly updated players to the server
-            user.put("games", newGames);
-            user.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d(ClarpApplication.TAG, "user info saved to server");
-                }
-            });
+//            Log.d(ClarpApplication.TAG, "Attempting to add game to User");
+//
+//            // Next, add ClarpGame to player's game list
+//            //can't change the existing JSONArray on Parse, we need to overwrite it:
+//            // grab the existing players
+//            JSONArray newGames;
+//            if (user.get("games") != null) // if it exists
+//            {
+//                newGames = user.getJSONArray("games");
+//                Log.d(ClarpApplication.TAG, "grabbing exitsing game list");
+//            }
+//            else  // otherwise create it
+//            {
+//                newGames = new JSONArray();
+//                Log.d(ClarpApplication.TAG, "creating new game list");
+//            }
+//            //append player to existing players
+//            newGames.put(getObjectId());
+//            Log.d(ClarpApplication.TAG, "added game's objectId: " + getObjectId());
+//            // push newly updated players to the server
+//            user.put("games", newGames);
+//            user.saveInBackground(new SaveCallback() {
+//                @Override
+//                public void done(ParseException e) {
+//                    Log.d(ClarpApplication.TAG, "user info saved to server");
+//                }
+//            });
 
             addFbPlayer(user);
         }

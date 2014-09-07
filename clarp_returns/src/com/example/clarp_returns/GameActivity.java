@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,10 +22,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -55,6 +59,7 @@ public class GameActivity extends ActionBarActivity{
 	ListPopupWindow lpw;
 	MyAdapter pageAdapter;
 	HistoryFragment historyFragment;
+	NotesFragment notesFragment;
 	int page = 0;
 	
 	GameStates gameState = GameStates.IN_PROGRESS;
@@ -217,11 +222,36 @@ public class GameActivity extends ActionBarActivity{
         query.findInBackground(new FindCallback<ClarpCard>() {
             public void done(List<ClarpCard> cList, ParseException e) {
                 if (e == null) {
+                    ArrayList<String> suspects = new ArrayList<String>();
+                    ArrayList<String> weapons = new ArrayList<String>();
+                    ArrayList<String> scenes = new ArrayList<String>();
                     
                     for (int i = 0; i < cList.size(); ++i)
                     {
                     	cards.add(cList.get(i));
+                    	if (cards.get(i).getCardType() == ClarpCard.CardType.SUSPECT){
+                    		suspects.add(cards.get(i).getCardName());
+                    	}else if (cards.get(i).getCardType() == ClarpCard.CardType.WEAPON){
+                    		weapons.add(cards.get(i).getCardName());
+                    	}else{
+                    		scenes.add(cards.get(i).getCardName());
+                    	}
                     	Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
+                    }
+                    
+                    // TODO putting the card names into the notes fragment
+                    notesFragment = pageAdapter.getNotesFragment();
+                    notesFragment.add(new NoteItem("Suspects",1));
+                    for(String suspect : suspects){
+                    	notesFragment.add(new NoteItem(suspect,0));
+                    }
+                    notesFragment.add(new NoteItem("Weapons",1));
+                    for(String weapon : weapons){
+                    	notesFragment.add(new NoteItem(weapon,0));
+                    }
+                    notesFragment.add(new NoteItem("Scenes",1));
+                    for(String scene : scenes){
+                    	notesFragment.add(new NoteItem(scene,0));
                     }
                     
                     // shuffle it, so the first 3 cards aren't the solution...
@@ -475,7 +505,7 @@ public class GameActivity extends ActionBarActivity{
     	 * and then populate their local TurnHistory array WHILE saving the turn to the cloud
     	 */
     	historyFragment = pageAdapter.getHistoryFragment();
-    	
+    	//TODO bookmarking example
     	Player currentPlayer = null;
     	String curPlayerId = game.getString("whoseTurn");
     	for (Player p : players)
@@ -881,20 +911,47 @@ public class GameActivity extends ActionBarActivity{
         
     }
     
+    @Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+
+	    View v = getCurrentFocus();
+	    boolean ret = super.dispatchTouchEvent(event);
+
+	    if (v instanceof EditText) {
+	        View w = getCurrentFocus();
+	        int scrcoords[] = new int[2];
+	        w.getLocationOnScreen(scrcoords);
+	        float x = event.getRawX() + w.getLeft() - scrcoords[0];
+	        float y = event.getRawY() + w.getTop() - scrcoords[1];
+
+	        
+	        if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom()) ) { 
+
+	            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+	            imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
+	        }
+	    }
+	return ret;
+	}
+	
+    
 }
 
 
 
 class MyAdapter extends FragmentPagerAdapter{
 	ArrayList<TurnHistoryItem> historyItems;
+	ArrayList<NoteItem> noteItems;
 	int pos = 0;
 	Fragment fragment = null;
 	HistoryFragment historyFragment;
+	NotesFragment notesFragment;
 	
 	public MyAdapter(FragmentManager fm) {
 		super(fm);
 		
 		historyItems = new ArrayList<TurnHistoryItem>();
+		noteItems = new ArrayList<NoteItem>();
 //		TurnHistoryItem firstItem = new TurnHistoryItem(2);
 //		firstItem.result = "The Game is Afoot!";  	
 //    	historyItems.add(firstItem);
@@ -908,7 +965,8 @@ class MyAdapter extends FragmentPagerAdapter{
 			historyFragment = (HistoryFragment) fragment;
 		}
 		if (i == 1){
-			fragment = new NotesFragment();
+			fragment = new NotesFragment(noteItems);
+			notesFragment = (NotesFragment) fragment;
 		}
 		return fragment;
 	}
@@ -920,7 +978,7 @@ class MyAdapter extends FragmentPagerAdapter{
 	
 	@Override
 	public CharSequence getPageTitle(int position){
-		String title = new String();
+		//String title = new String();
 		if(position == 0){
 			return "Turn History";
 		}else if (position == 1){
@@ -931,6 +989,10 @@ class MyAdapter extends FragmentPagerAdapter{
 	
 	public HistoryFragment getHistoryFragment(){
 		return historyFragment;
+	}
+	
+	public NotesFragment getNotesFragment(){
+		return notesFragment;
 	}
 
 }

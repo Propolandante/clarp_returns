@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:facebook="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="6dip">
 
-    <ImageView
-        android:id="@+id/friendPic"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/joe" />
+
+    
+    <com.facebook.widget.ProfilePictureView
+            android:id="@+id/selection_profile_pic"
+            android:layout_height="50dp"
+            android:layout_width="50dp"
+            facebook:preset_size="small" />
 
     <TextView
         android:id="@+id/friendName"
@@ -19,7 +22,7 @@
         android:paddingLeft="10dp"
         android:paddingTop="10dp"
         android:gravity="center"
-        android:layout_toRightOf="@+id/friendPic"
+        android:layout_toRightOf="@+id/selection_profile_pic"
         android:layout_toLeftOf="@+id/checkBox"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

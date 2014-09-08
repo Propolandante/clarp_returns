@@ -1,16 +1,14 @@
 package com.example.clarp_returns;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +16,10 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -48,7 +49,6 @@ import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 public class StartActivity extends ActionBarActivity {
 
@@ -333,14 +333,23 @@ public class StartActivity extends ActionBarActivity {
                         currentUser.put("profile", userProfile);
                         currentUser.saveInBackground(); // why? when do I use this?
 
-                        //grabProfilePic(currentUser, user.getId());
+                        grabProfilePic(currentUser, user.getId());
 
                         // Show the user info
                         updateViewsWithProfileInfo();
                     } catch (JSONException e) {
                         Log.d(ClarpApplication.TAG, "Error parsing returned user data.");
+                        Log.e("Error", "Error message is " + e.getMessage());
+                        e.printStackTrace();
+                    } catch (ClientProtocolException e) {
+                        Log.d(ClarpApplication.TAG, "Error grabbing user's profile pic");
+                        Log.e("Error", "Error message is " + e.getMessage());
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.e("Error", "Error message is " + e.getMessage());
+                        e.printStackTrace();
                     }
-                    
+
                     refreshGames(ParseUser.getCurrentUser());
 
                 } else if (response.getError() != null) {
@@ -359,41 +368,39 @@ public class StartActivity extends ActionBarActivity {
     }
 
     private void grabProfilePic( final ParseUser currentUser, String fbId ) throws ClientProtocolException, IOException {
-
-        String imageUrl = "http://graph.facebook.com/" + fbId + "/picture?type=large";
-
-        // http://stackoverflow.com/questions/11708040/how-can-i-download-image-file-from-an-url-to-bytearray
-
-        DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet request = new HttpGet(imageUrl);
-        HttpResponse response = client.execute(request);
-        HttpEntity entity = response.getEntity();
-        int imageLength = (int)(entity.getContentLength());
-        InputStream is = entity.getContent();
-
-        byte[] imageBlob = new byte[imageLength];
-        int bytesRead = 0;
-        while (bytesRead < imageLength) {
-            int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
-            if (n <= 0)
-            {
-                Log.e(ClarpApplication.TAG, "n <= 0 !!!!!!!!!!!!!!!"); // do some error handling
-            }
-            bytesRead += n;
+        URL img_value = null;
+        try {
+            img_value = new URL("https://graph.facebook.com/" + fbId + "/picture?type=large");
+        } catch (MalformedURLException e){
+            Log.e("Error", "Error message is " + e.getMessage());
+            e.printStackTrace();
         }
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Bitmap bitmap = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+            Log.i(ClarpApplication.TAG, "image retrieved from facebook");
 
-        final ParseFile file = new ParseFile("profilePic.jpg", imageBlob);
-        file.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null)
-                {
-                    currentUser.put("profilePicture", file);
-                    currentUser.saveInBackground();
-                }
+            if(bitmap != null){
+                ParseFile saveImageFile= new ParseFile("profilePicture.jpg",compressAndConvertImageToByteFrom(bitmap));
+                currentUser.put("profilePicture", saveImageFile);
             }
-        });
+            currentUser.saveInBackground();
+        } catch (IOException e) {
+            Log.e("Error", "Error message is " + e.getMessage());
+            e.printStackTrace();
+        }
     }
+
+    private  byte[] compressAndConvertImageToByteFrom(Bitmap bitmap) {
+        // 4 for 32 bit images
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        // PNG is lossless and ignores quality setting parameter (0)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, byteArrayBitmapStream);
+        byte[] data = byteArrayBitmapStream.toByteArray();
+        return data;
+    }
+
 
     private void updateViewsWithProfileInfo() {
         ParseUser currentUser = ParseUser.getCurrentUser();

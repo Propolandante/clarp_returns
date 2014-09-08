@@ -304,12 +304,10 @@ public class StartActivity extends ActionBarActivity {
                     Log.d(ClarpApplication.TAG, "User signed up and logged in through Facebook!");
                     ClarpApplication.IS_LOGGED_IN = true;
                     makeMeRequest();
-                    //showUserDetailsActivity();
                 } else {
                     Log.d(ClarpApplication.TAG, "User logged in through Facebook!");
                     ClarpApplication.IS_LOGGED_IN = true;
                     makeMeRequest();
-                    //showUserDetailsActivity();
                 }
             }
         });
@@ -349,6 +347,8 @@ public class StartActivity extends ActionBarActivity {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+                    
+                    refreshGames(ParseUser.getCurrentUser());
 
                 } else if (response.getError() != null) {
                     if ((response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_RETRY) || (response.getError().getCategory() == FacebookRequestError.Category.AUTHENTICATION_REOPEN_SESSION)) {
@@ -358,6 +358,7 @@ public class StartActivity extends ActionBarActivity {
                         Log.d(ClarpApplication.TAG, "Some other error: " + response.getError().getErrorMessage());
                     }
                 }
+                updateViewVisibility();
             }
         });
         request.executeAsync();

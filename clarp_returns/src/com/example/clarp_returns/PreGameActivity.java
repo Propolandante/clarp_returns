@@ -406,7 +406,7 @@ public class PreGameActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
 
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.game, menu);
+        getMenuInflater().inflate(R.menu.pre_game, menu);
         return true;
     }
 
@@ -416,8 +416,31 @@ public class PreGameActivity extends ActionBarActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id) {
+
+            case R.id.action_settings: {
+                break;
+            }
+
+            case R.id.action_invite: {
+                Intent intent = new Intent(PreGameActivity.this, InviteActivity.class);
+                intent.putExtra("game_id", game.getObjectId());
+                startActivity(intent);
+                // finishes the activity so that user cannot get back
+                finish();
+                break;
+            }
+
+            case R.id.action_refresh: {
+                syncGame();
+                break;
+            }
+            case R.id.action_new: {
+                Intent intent = new Intent(PreGameActivity.this, NewClarpCardActivity.class);
+                intent.putExtra("game_id", game.getObjectId());
+                startActivityForResult(intent, ClarpApplication.ADD_CARD);
+                break;
+            }
         }
         return super.onOptionsItemSelected(item);
     }

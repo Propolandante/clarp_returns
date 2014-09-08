@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" 
+    android:weightSum="20">
+    
+    <com.parse.ParseImageView
+        android:id="@+id/imageCardPic"
+        android:layout_width="0dp"
+		        android:layout_height="72dp"
+        android:background="#000000"
+        android:src="@drawable/jordan" 
+       	android:layout_weight="5"/>
+
+    <TextView
+        android:id="@+id/textCardName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Medium Text"
+        android:paddingLeft="10dp"
+        android:layout_gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium" 
+        android:layout_weight="10"/>
+
+    <TextView
+        android:id="@+id/textCardType"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Small Text"
+        android:layout_gravity="bottom"
+        android:textAppearance="?android:attr/textAppearanceSmall" 
+        android:layout_weight="5"/>
+
+</LinearLayout>

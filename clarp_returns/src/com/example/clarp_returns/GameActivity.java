@@ -506,77 +506,6 @@ public class GameActivity extends ActionBarActivity{
 
 
     private void submit(int type) throws JSONException{
-<<<<<<< HEAD
-    	
-    	/*
-    	 * Because this function can only be called if it is the current user's turn,
-    	 * and no one else can add anything to turns[] when it is not their turn,
-    	 * we can safely assume the current user's turns[] array is fully up-to-date.
-    	 * Therefore, they should create a new JSONOBject clarpTurn,
-    	 * and push it to their local ClarpGame,
-    	 * and then populate their local TurnHistory array WHILE saving the turn to the cloud
-    	 */
-    	historyFragment = pageAdapter.getHistoryFragment();
-    	//TODO bookmarking example
-    	Player currentPlayer = null;
-    	String curPlayerId = game.getString("whoseTurn");
-    	for (Player p : players)
-    	{
-    		if (p.getFbId().equals(curPlayerId))
-    		{
-    			currentPlayer = p;
-    		}
-    	}
-    	if (currentPlayer == null)
-    	{
-    		Log.d(ClarpApplication.GA, "currentPlayer is null in submit!!!!!!!!");
-    	}
-    	
-    	JSONObject clarpTurn = createClarpTurn(type, currentPlayer, queuedSuspect, queuedWeapon, queuedScene);
-    	game.getJSONArray("turns").put(clarpTurn);
-    	
-    	/*
-    	 * it's OK for this one to be null
-    	 * but this will be deleted for Parsification anyways
-    	 * since the functionality has been moved to createClarpCard
-    	 */
-    	
-    	TurnHistoryItem temp = createTurnItem(clarpTurn);
-    	
-    	historyFragment.add(temp);
-    	
-    	pw.dismiss();
-    	
-    	if (type == TYPE_ACCUSE){
-    		// if the accusation matches the solution...
-    		if (queuedSuspect.getObjectId().equals(game.getJSONArray("solution").get(0)) 
-    				&& queuedWeapon.getObjectId().equals(game.getJSONArray("solution").get(1)) 
-    				&& queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2))){
-    			// the player has won!
-    			JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "The mystery is solved!");
-    			game.getJSONArray("turns").put(clarpAlert);
-    			gameState = GameStates.WON;
-    			game.end();
-    		}else{
-    			// the player has lost! 
-    			// TODO they need to be disqualified... keep in mind our player[] works differently than Parse's
-    			JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "That accusation was dead wrong!");
-    			game.getJSONArray("turns").put(clarpAlert);
-    			gameState = GameStates.DISQUALIFIED;
-    		}
-    	}
-    	
-    	refreshHistory();
-    	
-    	// set whoseTurn to the next player
-    	
-    	
-    	game.saveInBackground();
-    	
-    	queuedSuspect = null;
-    	queuedWeapon = null;
-    	queuedScene = null;
-=======
 
         /*
          * Because this function can only be called if it is the current user's turn,
@@ -646,7 +575,6 @@ public class GameActivity extends ActionBarActivity{
         queuedSuspect = null;
         queuedWeapon = null;
         queuedScene = null;
->>>>>>> 13b1401863d614dbe823b0101913d4c05428c6c6
     }
 
     private JSONObject createClarpTurn( int type, Player player, ClarpCard suspect, ClarpCard weapon, ClarpCard location) throws JSONException{

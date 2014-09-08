@@ -503,6 +503,7 @@ public class GameActivity extends ActionBarActivity{
     	 * Therefore, they should create a new JSONOBject clarpTurn,
     	 * and push it to their local ClarpGame,
     	 * and then populate their local TurnHistory array WHILE saving the turn to the cloud
+    	 * without anything becoming out of sync
     	 */
     	historyFragment = pageAdapter.getHistoryFragment();
     	//TODO bookmarking example

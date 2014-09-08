@@ -10,6 +10,7 @@ import android.util.Log;
 
 public class Player {
 	public String name;
+	public ArrayList<Card> cards;
 	
 	private String prefix;
 	private String fbId;
@@ -18,6 +19,7 @@ public class Player {
 	
 	public Player(String name){
 		this.name = name;
+		cards = new ArrayList<Card>();
 	}
 	
 	public Player(JSONObject p) throws JSONException

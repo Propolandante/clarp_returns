@@ -49,6 +49,7 @@ import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class StartActivity extends ActionBarActivity {
 
@@ -66,6 +67,7 @@ public class StartActivity extends ActionBarActivity {
     private ProgressBar listLoadingView;
 
     public Boolean gamesLoaded = false;
+    public Boolean infoUpdated = false;
 
 
 
@@ -205,7 +207,6 @@ public class StartActivity extends ActionBarActivity {
         try {
             id = userProfile.getString("facebookId");
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             Log.d(ClarpApplication.TAG, "JSON Error, quiting now");
             return;
@@ -331,8 +332,7 @@ public class StartActivity extends ActionBarActivity {
                         // Save the user profile info in a user property
                         ParseUser currentUser = ParseUser.getCurrentUser();
                         currentUser.put("profile", userProfile);
-                        currentUser.saveInBackground(); // why? when do I use this?
-
+                        // tis function will save the User to Parse
                         grabProfilePic(currentUser, user.getId());
 
                         // Show the user info
@@ -385,7 +385,23 @@ public class StartActivity extends ActionBarActivity {
                 ParseFile saveImageFile= new ParseFile("profilePicture.jpg",compressAndConvertImageToByteFrom(bitmap));
                 currentUser.put("profilePicture", saveImageFile);
             }
-            currentUser.saveInBackground();
+            currentUser.saveInBackground(new SaveCallback() {
+
+				@Override
+				public void done(ParseException e) {
+					if (e == null)
+					{
+						infoUpdated = true;
+						updateViewVisibility();
+					}
+					else
+					{
+						Log.d(ClarpApplication.TAG,"User Profile not saved!!!");
+						e.printStackTrace();
+					}
+				}
+            	
+            });
         } catch (IOException e) {
             Log.e("Error", "Error message is " + e.getMessage());
             e.printStackTrace();
@@ -427,7 +443,15 @@ public class StartActivity extends ActionBarActivity {
     {
         if(ClarpApplication.IS_LOGGED_IN)
         {
-            newGameButton.setVisibility(View.VISIBLE);
+        	if(infoUpdated)
+        	{
+        		newGameButton.setVisibility(View.VISIBLE);
+        	}
+        	else
+        	{
+        		newGameButton.setVisibility(View.VISIBLE);
+        	}
+            
 
             if(gamesLoaded)
             {

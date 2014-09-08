@@ -562,6 +562,16 @@ public class GameActivity extends ActionBarActivity{
         {
             Log.d(ClarpApplication.GA, "currentPlayer is null in submit!!!!!!!!");
         }
+        
+        // helpful debug output
+        if(type == TYPE_SUGGEST)
+        {
+        	Log.d(ClarpApplication.GA, "My suggestion: " + queuedSuspect.getCardName() + ", " + queuedWeapon.getCardName() + ", " + queuedScene.getCardName());
+        }
+        else if(type == TYPE_ACCUSE)
+        {
+        	Log.d(ClarpApplication.GA, "My accusation: " + queuedSuspect.getCardName() + ", " + queuedWeapon.getCardName() + ", " + queuedScene.getCardName());
+        }
 
         JSONObject clarpTurn = createClarpTurn(type, currentPlayer, queuedSuspect, queuedWeapon, queuedScene);
         game.getJSONArray("turns").put(clarpTurn);
@@ -628,7 +638,7 @@ public class GameActivity extends ActionBarActivity{
         // loop through all the players
         for (Player p : players){
             // exclude the current player
-            if(!p.equals(player))
+            if(!p.equals(player) && alibi == null)
             {
                 // check all of each player's cards
                 for (String id : p.getCardIds()){
@@ -640,6 +650,8 @@ public class GameActivity extends ActionBarActivity{
                         alibiCardId = queuedSuspect.getObjectId();
                         turn.put("alibiFbId", alibi.getFbId());
                         turn.put("alibiCardId", alibiCardId);
+                        Log.d(ClarpApplication.GA, alibi.getName() + " is ruling out" + alibiCardId);
+                        break;
                     }
                     // if they have the same weapon card
                     else if (id.equals(queuedWeapon.getObjectId()))
@@ -649,6 +661,8 @@ public class GameActivity extends ActionBarActivity{
                         alibiCardId = queuedWeapon.getObjectId();
                         turn.put("alibiFbId", alibi.getFbId());
                         turn.put("alibiCardId", alibiCardId);
+                        Log.d(ClarpApplication.GA, alibi.getName() + " is ruling out" + alibiCardId);
+                        break;
                     }
                     // if they have the same location card
                     else if (id.equals(queuedScene.getObjectId()))
@@ -658,6 +672,8 @@ public class GameActivity extends ActionBarActivity{
                         alibiCardId = queuedScene.getObjectId();
                         turn.put("alibiFbId", alibi.getFbId());
                         turn.put("alibiCardId", alibiCardId);
+                        Log.d(ClarpApplication.GA, alibi.getName() + " is ruling out" + alibiCardId);
+                        break;
 
                     }
                 }
@@ -668,6 +684,7 @@ public class GameActivity extends ActionBarActivity{
         {
             turn.put("alibiFbId", null);
             turn.put("alibiCardId", null);
+            Log.d(ClarpApplication.GA, "No one is ruling out this suggestion/accusation");
         }
 
 
@@ -725,11 +742,12 @@ public class GameActivity extends ActionBarActivity{
             {
                 alibiFbId = clarpTurn.getString("alibiFbId");
             }
+            else {Log.d(ClarpApplication.GA, "No alibi");}
             if (clarpTurn.has("alibiCardId"))
             {
                 alibiCardId = clarpTurn.getString("alibiCardId");
             }
-
+            else {Log.d(ClarpApplication.GA, "No alibi card");}
 
             Player player = null;
             ClarpCard suspect = null;
@@ -744,8 +762,7 @@ public class GameActivity extends ActionBarActivity{
                 if (p.getFbId().equals(playerFbId))
                 {
                     player = p;
-                    continue;
-                    // alibi should NEVER be the same as player
+                    
                 }
 
                 if (p.getFbId().equals(alibiFbId))
@@ -759,18 +776,21 @@ public class GameActivity extends ActionBarActivity{
             {
                 Log.d(ClarpApplication.GA, "player is null in createTurnItem!!!!!!!");
             }
+            // alibi should NEVER be the same as player
+            if (player.getFbId().equals(alibiFbId))
+            {
+            	Log.d(ClarpApplication.GA, "player is equal to alibi? Major porblem here...");
+            }
             // loop through all the cards to find the suspect, weapon, and location
             for (ClarpCard c : cards)
             {
                 if (c.getObjectId().equals(suspectId))
                 {
                     suspect = c;
-                    continue;
                 }
                 if (c.getObjectId().equals(weaponId))
                 {
                     weapon = c;
-                    continue;
                 }
                 if (c.getObjectId().equals(locationId))
                 {

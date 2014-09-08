@@ -19,13 +19,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
+import com.facebook.widget.ProfilePictureView;
 import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -76,7 +76,6 @@ public class InviteActivity extends ActionBarActivity
             JSONObject userProfile = currentUser.getJSONObject("profile");
             try {
                 if (userProfile.getString("name") != null) {
-                    //Log.v(ClarpApplication.TAG, "IF");
                     userName = userProfile.getString("name");
                 }
             } catch (JSONException e) {
@@ -279,7 +278,7 @@ public class InviteActivity extends ActionBarActivity
         }
 
         private class ViewHolder {
-            ImageView image;
+            ProfilePictureView image;
             TextView text;
             CheckBox box;
         }
@@ -296,9 +295,11 @@ public class InviteActivity extends ActionBarActivity
                 convertView = vi.inflate(R.layout.friend_item, null);
 
                 holder = new ViewHolder();
-                holder.image = (ImageView) convertView.findViewById(R.id.friendPic);
+                holder.image = (ProfilePictureView) convertView.findViewById(R.id.selection_profile_pic);
+                holder.image.setCropped(true);
                 holder.text = (TextView) convertView.findViewById(R.id.friendName);
                 holder.box = (CheckBox) convertView.findViewById(R.id.checkBox);
+
                 convertView.setTag(holder);
 
                 holder.box.setOnClickListener(new View.OnClickListener() {
@@ -331,9 +332,6 @@ public class InviteActivity extends ActionBarActivity
                 holder = (ViewHolder) convertView.getTag();
             }
 
-
-
-
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 
@@ -341,6 +339,7 @@ public class InviteActivity extends ActionBarActivity
 
             // holder.image.setImageResource(something?);
             holder.text.setText(friends.get(position).getName());
+            holder.image.setProfileId(friends.get(position).getId());
             holder.box.setTag(friend);
 
 

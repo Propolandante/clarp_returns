@@ -39,6 +39,7 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 
 public class GameActivity extends ActionBarActivity{
@@ -60,6 +61,7 @@ public class GameActivity extends ActionBarActivity{
 	MyAdapter pageAdapter;
 	HistoryFragment historyFragment;
 	NotesFragment notesFragment;
+	CardHandFragment cardHandFragment;
 	int page = 0;
 	
 	GameStates gameState = GameStates.IN_PROGRESS;
@@ -118,6 +120,7 @@ public class GameActivity extends ActionBarActivity{
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		pageAdapter = new MyAdapter(fragmentManager);
         viewPager.setAdapter(pageAdapter);
+        viewPager.setCurrentItem(1);
         
         /*
          * First, get the ClarpGame so we know what we're working with
@@ -239,7 +242,7 @@ public class GameActivity extends ActionBarActivity{
                     	Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
                     }
                     
-                    // TODO putting the card names into the notes fragment
+                    // putting the card names into the notes fragment
                     notesFragment = pageAdapter.getNotesFragment();
                     notesFragment.add(new NoteItem("Suspects",1));
                     for(String suspect : suspects){
@@ -253,7 +256,36 @@ public class GameActivity extends ActionBarActivity{
                     for(String scene : scenes){
                     	notesFragment.add(new NoteItem(scene,0));
                     }
-                    
+                    Log.d("going to iterate", "yeah");
+                    cardHandFragment = pageAdapter.getCardHandFragment();
+                    ParseUser thisPlayer = ParseUser.getCurrentUser();
+                    for (Player player : players){
+                    	Log.d("iterating", player.name);
+                    	try {
+                    		Log.d("found", player.getFbId());
+                    		Log.d("found", thisPlayer.getJSONObject("profile").getString("facebookId"));
+                    		boolean check = player.getFbId().equals(thisPlayer.getJSONObject("profile").getString("facebookId"));
+                    		Log.d("check", Boolean.toString(check));
+							if (check){
+								Log.d("found", player.name);
+								for(String playerCard : player.getCardIds()){
+									Log.d("iterating", playerCard);
+									for (ClarpCard card : cards){
+										Log.d("iterating", card.getCardName());
+										if (card.getObjectId().equals(playerCard)){
+											cardHandFragment.add(card);
+											Log.d("card", card.getCardName());
+										}
+											
+									}
+								}
+							}
+							
+						} catch (JSONException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+                    }
                     // shuffle it, so the first 3 cards aren't the solution...
                     
                     Collections.shuffle(cards);
@@ -919,16 +951,18 @@ public class GameActivity extends ActionBarActivity{
 
 	    if (v instanceof EditText) {
 	        View w = getCurrentFocus();
-	        int scrcoords[] = new int[2];
-	        w.getLocationOnScreen(scrcoords);
-	        float x = event.getRawX() + w.getLeft() - scrcoords[0];
-	        float y = event.getRawY() + w.getTop() - scrcoords[1];
-
-	        
-	        if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom()) ) { 
-
-	            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-	            imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
+	        if (w != null){
+		        int scrcoords[] = new int[2];
+		        w.getLocationOnScreen(scrcoords);
+		        float x = event.getRawX() + w.getLeft() - scrcoords[0];
+		        float y = event.getRawY() + w.getTop() - scrcoords[1];
+	
+		        
+		        if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom()) ) { 
+	
+		            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		            imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
+		        }
 	        }
 	    }
 	return ret;
@@ -942,16 +976,19 @@ public class GameActivity extends ActionBarActivity{
 class MyAdapter extends FragmentPagerAdapter{
 	ArrayList<TurnHistoryItem> historyItems;
 	ArrayList<NoteItem> noteItems;
-	int pos = 0;
+	ArrayList<ClarpCard> handItems;
+	int pos = 1;
 	Fragment fragment = null;
 	HistoryFragment historyFragment;
 	NotesFragment notesFragment;
+	CardHandFragment cardHandFragment;
 	
 	public MyAdapter(FragmentManager fm) {
 		super(fm);
 		
 		historyItems = new ArrayList<TurnHistoryItem>();
 		noteItems = new ArrayList<NoteItem>();
+		handItems = new ArrayList<ClarpCard>();
 //		TurnHistoryItem firstItem = new TurnHistoryItem(2);
 //		firstItem.result = "The Game is Afoot!";  	
 //    	historyItems.add(firstItem);
@@ -961,10 +998,14 @@ class MyAdapter extends FragmentPagerAdapter{
 	public Fragment getItem(int i){
 		fragment = null;
 		if (i == 0){
+			fragment = new CardHandFragment(handItems);
+			cardHandFragment = (CardHandFragment) fragment;
+		}
+		if (i == 1){
 			fragment = new HistoryFragment(historyItems);
 			historyFragment = (HistoryFragment) fragment;
 		}
-		if (i == 1){
+		if (i == 2){
 			fragment = new NotesFragment(noteItems);
 			notesFragment = (NotesFragment) fragment;
 		}
@@ -973,18 +1014,24 @@ class MyAdapter extends FragmentPagerAdapter{
 	
 	@Override
 	public int getCount() {
-		return 2;
+		return 3;
 	}
 	
 	@Override
 	public CharSequence getPageTitle(int position){
 		//String title = new String();
 		if(position == 0){
-			return "Turn History";
+			return "Hand";
 		}else if (position == 1){
+			return "Turn History";
+		}else if (position == 2){
 			return "Notes";
 		}else
 			return null;
+	}
+	
+	public CardHandFragment getCardHandFragment(){
+		return cardHandFragment;
 	}
 	
 	public HistoryFragment getHistoryFragment(){
@@ -994,5 +1041,6 @@ class MyAdapter extends FragmentPagerAdapter{
 	public NotesFragment getNotesFragment(){
 		return notesFragment;
 	}
+	
 
 }

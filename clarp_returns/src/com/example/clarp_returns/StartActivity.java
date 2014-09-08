@@ -104,6 +104,7 @@ public class StartActivity extends ActionBarActivity {
 
             ParseInstallation installation = ParseInstallation.getCurrentInstallation();
             try {
+            	Log.d(ClarpApplication.TAG, "This installation is " + installation.getInstallationId());
                 installation.put("facebookId", currentUser.getJSONObject("profile").getString("facebookId"));
                 installation.saveInBackground();
             } catch (IllegalArgumentException e) {

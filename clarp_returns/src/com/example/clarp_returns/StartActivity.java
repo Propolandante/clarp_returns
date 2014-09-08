@@ -339,15 +339,17 @@ public class StartActivity extends ActionBarActivity {
                         updateViewsWithProfileInfo();
                     } catch (JSONException e) {
                         Log.d(ClarpApplication.TAG, "Error parsing returned user data.");
+                        Log.e("Error", "Error message is " + e.getMessage());
+                        e.printStackTrace();
                     } catch (ClientProtocolException e) {
-                        // TODO Auto-generated catch block
                         Log.d(ClarpApplication.TAG, "Error grabbing user's profile pic");
+                        Log.e("Error", "Error message is " + e.getMessage());
                         e.printStackTrace();
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
+                        Log.e("Error", "Error message is " + e.getMessage());
                         e.printStackTrace();
                     }
-                    
+
                     refreshGames(ParseUser.getCurrentUser());
 
                 } else if (response.getError() != null) {
@@ -366,62 +368,26 @@ public class StartActivity extends ActionBarActivity {
     }
 
     private void grabProfilePic( final ParseUser currentUser, String fbId ) throws ClientProtocolException, IOException {
-
-        //String imageUrl = "http://graph.facebook.com/" + fbId + "/picture?type=large";
-
-        // http://stackoverflow.com/questions/11708040/how-can-i-download-image-file-from-an-url-to-bytearray
-
-        //        DefaultHttpClient client = new DefaultHttpClient();
-        //        HttpGet request = new HttpGet(imageUrl);
-        //        HttpResponse response = client.execute(request);
-        //        HttpEntity entity = response.getEntity();
-        //        int imageLength = (int)(entity.getContentLength());
-        //        InputStream is = entity.getContent();
-        //
-        //        byte[] imageBlob = new byte[imageLength];
-        //        int bytesRead = 0;
-        //        while (bytesRead < imageLength) {
-        //            int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
-        //            if (n <= 0)
-        //            {
-        //                Log.e(ClarpApplication.TAG, "n <= 0 !!!!!!!!!!!!!!!"); // do some error handling
-        //            }
-        //            bytesRead += n;
-        //        }
-        //
-        //        final ParseFile file = new ParseFile("profilePic.jpg", imageBlob);
-        //        file.saveInBackground(new SaveCallback() {
-        //            @Override
-        //            public void done(ParseException e) {
-        //                if (e == null)
-        //                {
-        //                    currentUser.put("profilePicture", file);
-        //                    currentUser.saveInBackground();
-        //                }
-        //            }
-        //        });
-
         URL img_value = null;
         try {
             img_value = new URL("https://graph.facebook.com/" + fbId + "/picture?type=large");
         } catch (MalformedURLException e){
-            // TODO Auto-generated catch block
+            Log.e("Error", "Error message is " + e.getMessage());
             e.printStackTrace();
         }
         try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-            Bitmap dp = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+            Bitmap bitmap = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
             Log.i(ClarpApplication.TAG, "image retrieved from facebook");
-            // Save the user profile info in a user property
-            //ParseUser currentUser = ParseUser.getCurrentUser();
-            if(dp!=null){
-                ParseFile saveImageFile= new ParseFile("profilePicture.jpg",compressAndConvertImageToByteFrom(dp));
+
+            if(bitmap != null){
+                ParseFile saveImageFile= new ParseFile("profilePicture.jpg",compressAndConvertImageToByteFrom(bitmap));
                 currentUser.put("profilePicture", saveImageFile);
             }
             currentUser.saveInBackground();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            Log.e("Error", "Error message is " + e.getMessage());
             e.printStackTrace();
         }
     }

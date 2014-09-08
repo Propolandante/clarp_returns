@@ -52,7 +52,7 @@ public class ClarpGame extends ParseObject {
         put("numSuspects", 0);
         put("numWeapons", 0);
         put("numLocations", 0);
-        
+
         put("gameOver", false);
 
         // I need to be sure this object has an objectId before addPlayer is called.
@@ -123,13 +123,13 @@ public class ClarpGame extends ParseObject {
                 break;
             }
         }
-        
-        
+
+
         if(!playerAlreadyAdded) {
-        	
-        	// reset player
-        	player = new JSONObject();
-        	
+
+            // reset player
+            player = new JSONObject();
+
             // First, add user to ClarpGame player list:
 
             player.put("id", user.getUsername());
@@ -144,28 +144,28 @@ public class ClarpGame extends ParseObject {
 
             // player's facts will be assigned when the game's solution is determined
             player.put("facts", new JSONArray());
-            
+
             // Debug BEFORE for adding player
             Log.d(ClarpApplication.TAG, "Clarping the new player list now");
             Log.d(ClarpApplication.TAG, "Current list:");
             for (int i = 0; i < newPlayers.length(); ++i)
             {
-            	Log.d(ClarpApplication.TAG, (newPlayers.getJSONObject(i).getString("name")));
+                Log.d(ClarpApplication.TAG, (newPlayers.getJSONObject(i).getString("name")));
             }
             Log.d(ClarpApplication.TAG, "Player to be added: " + player.getString("name"));
-            
+
             //append player to existing players
             newPlayers.put(player);
             // push newly updated players
             put("players", newPlayers);
-            
+
             // Debug AFTER for adding player
             Log.d(ClarpApplication.TAG, "After putting:");
             for (int i = 0; i < newPlayers.length(); ++i)
             {
-            	Log.d(ClarpApplication.TAG, (newPlayers.getJSONObject(i).getString("name")));
+                Log.d(ClarpApplication.TAG, (newPlayers.getJSONObject(i).getString("name")));
             }
-            
+
             Log.d(ClarpApplication.TAG, "Adding suspect now");
             addSuspect(player);
             addFbPlayer(user);
@@ -174,8 +174,9 @@ public class ClarpGame extends ParseObject {
 
     public void addSuspect (JSONObject player) throws JSONException {
 
-
+        ParseUser currentUser = ParseUser.getCurrentUser();
         final ClarpCard suspect = new ClarpCard();
+        suspect.setPhotoFile(currentUser.getParseFile("profilePicture"));
 
         Log.d(ClarpApplication.TAG, "card created");
 
@@ -207,8 +208,6 @@ public class ClarpGame extends ParseObject {
 
                     }
                 });
-
-
             }
         });
 
@@ -223,10 +222,10 @@ public class ClarpGame extends ParseObject {
 
         put("solution", solution);
     }
-    
+
     public void end()
     {
-    	put("gameOver", false);
+        put("gameOver", false);
     }
 
     @Override

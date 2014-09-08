@@ -131,8 +131,5 @@ public class NewGameActivity extends ActionBarActivity {
                 }
             }
         });
-
-
     }
-
 }

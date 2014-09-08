@@ -61,6 +61,7 @@ public class GameActivity extends ActionBarActivity{
     MyAdapter pageAdapter;
     HistoryFragment historyFragment;
     NotesFragment notesFragment;
+    CardHandFragment cardHandFragment;
     int page = 0;
 
     GameStates gameState = GameStates.IN_PROGRESS;
@@ -1052,54 +1053,4 @@ class MyAdapter extends FragmentPagerAdapter{
 		return notesFragment;
 	}
 	
-
-    public MyAdapter(FragmentManager fm) {
-        super(fm);
-
-        historyItems = new ArrayList<TurnHistoryItem>();
-        noteItems = new ArrayList<NoteItem>();
-        //		TurnHistoryItem firstItem = new TurnHistoryItem(2);
-        //		firstItem.result = "The Game is Afoot!";
-        //    	historyItems.add(firstItem);
-    }
-
-    @Override
-    public Fragment getItem(int i){
-        fragment = null;
-        if (i == 0){
-            fragment = new HistoryFragment(historyItems);
-            historyFragment = (HistoryFragment) fragment;
-        }
-        if (i == 1){
-            fragment = new NotesFragment(noteItems);
-            notesFragment = (NotesFragment) fragment;
-        }
-        return fragment;
-    }
-
-    @Override
-    public int getCount() {
-        return 2;
-    }
-
-    @Override
-    public CharSequence getPageTitle(int position){
-        //String title = new String();
-        if(position == 0){
-            return "Turn History";
-        }else if (position == 1){
-            return "Notes";
-        } else {
-            return null;
-        }
-    }
-
-    public HistoryFragment getHistoryFragment(){
-        return historyFragment;
-    }
-
-    public NotesFragment getNotesFragment(){
-        return notesFragment;
-    }
-
 }

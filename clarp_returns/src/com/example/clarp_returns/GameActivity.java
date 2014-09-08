@@ -239,7 +239,7 @@ public class GameActivity extends ActionBarActivity{
                     	Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
                     }
                     
-                    // TODO putting the card names into the notes fragment
+                    // put the card names into the notes fragment
                     notesFragment = pageAdapter.getNotesFragment();
                     notesFragment.add(new NoteItem("Suspects",1));
                     for(String suspect : suspects){

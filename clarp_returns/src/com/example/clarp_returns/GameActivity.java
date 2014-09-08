@@ -567,7 +567,7 @@ public class GameActivity extends ActionBarActivity{
 
         refreshHistory();
 
-        // set whoseTurn to the next player
+        game.rotateTurn();
 
 
         game.saveInBackground();

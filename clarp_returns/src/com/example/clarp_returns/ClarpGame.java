@@ -234,5 +234,40 @@ public class ClarpGame extends ParseObject {
         return getGameName();
 
     }
+
+	public void rotateTurn() throws JSONException {
+		
+		String prevId = getString("whoseTurn");
+		String nextId = null;
+		JSONArray players = getJSONArray("fbUsers");
+		
+		/*
+		 * Loop through the players to find the previous player
+		 */
+		
+		int p = 0;
+		
+		for (p = 0; p < players.length(); ++p)
+		{
+			if (players.getString(p).equals(prevId))
+			{
+				Log.d(ClarpApplication.TAG, "prev index: " + p);
+				break;
+			}
+		}
+		
+		/*
+		 * now find the player after that, and make it their turn
+		 */
+		
+		p++;
+		if (p == players.length()){p=0;}
+		
+		Log.d(ClarpApplication.TAG, "next index: " + p);
+		nextId = players.getString(p);
+		
+		put("whoseTurn", nextId);
+		
+	}
 }
 

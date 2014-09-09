@@ -554,7 +554,6 @@ public class GameActivity extends ActionBarActivity{
          * and then populate their local TurnHistory array WHILE saving the turn to the cloud
          */
         historyFragment = pageAdapter.getHistoryFragment();
-        //TODO bookmarking example
         Player currentPlayer = null;
         String curPlayerId = game.getString("whoseTurn");
         for (Player p : players)

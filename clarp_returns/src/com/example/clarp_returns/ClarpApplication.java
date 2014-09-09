@@ -60,6 +60,13 @@ public class ClarpApplication extends Application {
         PREFIXES.add("Admiral");
         PREFIXES.add("Colonel");
         PREFIXES.add("Major");
+        PREFIXES.add("Professor");
+        PREFIXES.add("Doctor");
+        PREFIXES.add("Captain");
+        PREFIXES.add("Señor");
+        PREFIXES.add("Señora");
+        PREFIXES.add("Señorita");
+        
 
 
         //Log.v(TAG, "Application Class works...?");

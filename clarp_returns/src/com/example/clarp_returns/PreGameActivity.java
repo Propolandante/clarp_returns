@@ -314,7 +314,6 @@ public class PreGameActivity extends ActionBarActivity
                                         try {
                                             game.put("whoseTurn", ((JSONObject) players.get(player)).getString("facebookId"));
                                         } catch (JSONException e1) {
-                                            // TODO Auto-generated catch block
                                             e1.printStackTrace();
                                             Log.d(ClarpApplication.PGA, "Error trying to set whoseTurn");
                                         }
@@ -344,6 +343,7 @@ public class PreGameActivity extends ActionBarActivity
                                                     Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
                                                     intent.putExtra("game_id", game.getObjectId());
                                                     startActivity(intent);
+                                                    finish();
                                                 }
                                                 else
                                                 {
@@ -466,6 +466,14 @@ public class PreGameActivity extends ActionBarActivity
                     players = game.getJSONArray("players");
 
                     refreshCounts();
+                    
+                    if(game.getBoolean("isStarted"))
+                    {
+                    	Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
+                        intent.putExtra("game_id", game.getObjectId());
+                        startActivity(intent);
+                        finish();
+                    }
                 }
                 else
                 {

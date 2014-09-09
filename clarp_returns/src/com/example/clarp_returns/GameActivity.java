@@ -121,7 +121,7 @@ public class GameActivity extends ActionBarActivity{
         pageAdapter = new MyAdapter(fragmentManager);
         viewPager.setAdapter(pageAdapter);
         viewPager.setCurrentItem(1);
-        
+
         /*
          * First, get the ClarpGame so we know what we're working with
          */
@@ -197,8 +197,14 @@ public class GameActivity extends ActionBarActivity{
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id) {
+            case R.id.action_settings: {
+                break;
+            }
+            case R.id.action_refresh: {
+                refreshGame();
+                break;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -261,31 +267,31 @@ public class GameActivity extends ActionBarActivity{
                     cardHandFragment = pageAdapter.getCardHandFragment();
                     ParseUser thisPlayer = ParseUser.getCurrentUser();
                     for (Player player : players){
-                    	Log.d("iterating", player.name);
-                    	try {
-                    		Log.d("found", player.getFbId());
-                    		Log.d("found", thisPlayer.getJSONObject("profile").getString("facebookId"));
-                    		boolean check = player.getFbId().equals(thisPlayer.getJSONObject("profile").getString("facebookId"));
-                    		Log.d("check", Boolean.toString(check));
-							if (check){
-								Log.d("found", player.name);
-								for(String playerCard : player.getCardIds()){
-									Log.d("iterating", playerCard);
-									for (ClarpCard card : cards){
-										Log.d("iterating", card.getCardName());
-										if (card.getObjectId().equals(playerCard)){
-											cardHandFragment.add(card);
-											Log.d("card", card.getCardName());
-										}
-											
-									}
-								}
-							}
-							
-						} catch (JSONException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+                        Log.d("iterating", player.name);
+                        try {
+                            Log.d("found", player.getFbId());
+                            Log.d("found", thisPlayer.getJSONObject("profile").getString("facebookId"));
+                            boolean check = player.getFbId().equals(thisPlayer.getJSONObject("profile").getString("facebookId"));
+                            Log.d("check", Boolean.toString(check));
+                            if (check){
+                                Log.d("found", player.name);
+                                for(String playerCard : player.getCardIds()){
+                                    Log.d("iterating", playerCard);
+                                    for (ClarpCard card : cards){
+                                        Log.d("iterating", card.getCardName());
+                                        if (card.getObjectId().equals(playerCard)){
+                                            cardHandFragment.add(card);
+                                            Log.d("card", card.getCardName());
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        } catch (JSONException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
                     }
                     // shuffle it, so the first 3 cards aren't the solution...
 
@@ -562,15 +568,15 @@ public class GameActivity extends ActionBarActivity{
         {
             Log.d(ClarpApplication.GA, "currentPlayer is null in submit!!!!!!!!");
         }
-        
+
         // helpful debug output
         if(type == TYPE_SUGGEST)
         {
-        	Log.d(ClarpApplication.GA, "My suggestion: " + queuedSuspect.getCardName() + ", " + queuedWeapon.getCardName() + ", " + queuedScene.getCardName());
+            Log.d(ClarpApplication.GA, "My suggestion: " + queuedSuspect.getCardName() + ", " + queuedWeapon.getCardName() + ", " + queuedScene.getCardName());
         }
         else if(type == TYPE_ACCUSE)
         {
-        	Log.d(ClarpApplication.GA, "My accusation: " + queuedSuspect.getCardName() + ", " + queuedWeapon.getCardName() + ", " + queuedScene.getCardName());
+            Log.d(ClarpApplication.GA, "My accusation: " + queuedSuspect.getCardName() + ", " + queuedWeapon.getCardName() + ", " + queuedScene.getCardName());
         }
 
         JSONObject clarpTurn = createClarpTurn(type, currentPlayer, queuedSuspect, queuedWeapon, queuedScene);
@@ -638,7 +644,7 @@ public class GameActivity extends ActionBarActivity{
         // loop through all the players
         for (Player p : players){
             // exclude the current player
-            if(!p.equals(player) && alibi == null)
+            if(!p.equals(player) && (alibi == null))
             {
                 // check all of each player's cards
                 for (String id : p.getCardIds()){
@@ -762,7 +768,7 @@ public class GameActivity extends ActionBarActivity{
                 if (p.getFbId().equals(playerFbId))
                 {
                     player = p;
-                    
+
                 }
 
                 if (p.getFbId().equals(alibiFbId))
@@ -779,7 +785,7 @@ public class GameActivity extends ActionBarActivity{
             // alibi should NEVER be the same as player
             if (player.getFbId().equals(alibiFbId))
             {
-            	Log.d(ClarpApplication.GA, "player is equal to alibi? Major porblem here...");
+                Log.d(ClarpApplication.GA, "player is equal to alibi? Major porblem here...");
             }
             // loop through all the cards to find the suspect, weapon, and location
             for (ClarpCard c : cards)
@@ -890,6 +896,31 @@ public class GameActivity extends ActionBarActivity{
 
     }
 
+    public void refreshGame() {
+        ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
+        query.getInBackground(game.getObjectId(), new GetCallback<ClarpGame>() {
+            @Override
+            public void done(ClarpGame object, ParseException e) {
+                if (e == null)
+                {
+                    game = object; // get updated game
+
+                    try {
+                        refreshHistory();
+                    } catch(JSONException exception) {
+                        Log.d(ClarpApplication.GA, "Error refreshing game history");
+                        Log.e("Error", "Error message: " + exception.getMessage());
+                        exception.printStackTrace();
+                    }
+                }
+                else
+                {
+                    Log.d(ClarpApplication.PGA, "Error fetching game");
+                }
+            }
+        });
+    }
+
     //    public Player refuteSuggestion(){
     //
     //    	// TODO This needs to loop through all players, excluding the current one
@@ -980,97 +1011,98 @@ public class GameActivity extends ActionBarActivity{
         View v = getCurrentFocus();
         boolean ret = super.dispatchTouchEvent(event);
 
-	    if (v instanceof EditText) {
-	        View w = getCurrentFocus();
-	        if (w != null){
-		        int scrcoords[] = new int[2];
-		        w.getLocationOnScreen(scrcoords);
-		        float x = event.getRawX() + w.getLeft() - scrcoords[0];
-		        float y = event.getRawY() + w.getTop() - scrcoords[1];
-	
-		        
-		        if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom()) ) { 
-	
-		            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		            imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
-		        }
-	        }
-	    }
-	return ret;
-	}
-	
-    
+        if (v instanceof EditText) {
+            View w = getCurrentFocus();
+            if (w != null){
+                int scrcoords[] = new int[2];
+                w.getLocationOnScreen(scrcoords);
+                float x = (event.getRawX() + w.getLeft()) - scrcoords[0];
+                float y = (event.getRawY() + w.getTop()) - scrcoords[1];
+
+
+                if ((event.getAction() == MotionEvent.ACTION_UP) && ((x < w.getLeft()) || (x >= w.getRight()) || (y < w.getTop()) || (y > w.getBottom())) ) {
+
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
+                }
+            }
+        }
+        return ret;
+    }
+
+
 }
 
 
 
 class MyAdapter extends FragmentPagerAdapter{
-	ArrayList<TurnHistoryItem> historyItems;
-	ArrayList<NoteItem> noteItems;
-	ArrayList<ClarpCard> handItems;
-	int pos = 1;
-	Fragment fragment = null;
-	HistoryFragment historyFragment;
-	NotesFragment notesFragment;
-	CardHandFragment cardHandFragment;
-	
-	public MyAdapter(FragmentManager fm) {
-		super(fm);
-		
-		historyItems = new ArrayList<TurnHistoryItem>();
-		noteItems = new ArrayList<NoteItem>();
-		handItems = new ArrayList<ClarpCard>();
-//		TurnHistoryItem firstItem = new TurnHistoryItem(2);
-//		firstItem.result = "The Game is Afoot!";  	
-//    	historyItems.add(firstItem);
-	}
-	
-	@Override
-	public Fragment getItem(int i){
-		fragment = null;
-		if (i == 0){
-			fragment = new CardHandFragment(handItems);
-			cardHandFragment = (CardHandFragment) fragment;
-		}
-		if (i == 1){
-			fragment = new HistoryFragment(historyItems);
-			historyFragment = (HistoryFragment) fragment;
-		}
-		if (i == 2){
-			fragment = new NotesFragment(noteItems);
-			notesFragment = (NotesFragment) fragment;
-		}
-		return fragment;
-	}
-	
-	@Override
-	public int getCount() {
-		return 3;
-	}
-	
-	@Override
-	public CharSequence getPageTitle(int position){
-		//String title = new String();
-		if(position == 0){
-			return "Hand";
-		}else if (position == 1){
-			return "Turn History";
-		}else if (position == 2){
-			return "Notes";
-		}else
-			return null;
-	}
-	
-	public CardHandFragment getCardHandFragment(){
-		return cardHandFragment;
-	}
-	
-	public HistoryFragment getHistoryFragment(){
-		return historyFragment;
-	}
-	
-	public NotesFragment getNotesFragment(){
-		return notesFragment;
-	}
-	
+    ArrayList<TurnHistoryItem> historyItems;
+    ArrayList<NoteItem> noteItems;
+    ArrayList<ClarpCard> handItems;
+    int pos = 1;
+    Fragment fragment = null;
+    HistoryFragment historyFragment;
+    NotesFragment notesFragment;
+    CardHandFragment cardHandFragment;
+
+    public MyAdapter(FragmentManager fm) {
+        super(fm);
+
+        historyItems = new ArrayList<TurnHistoryItem>();
+        noteItems = new ArrayList<NoteItem>();
+        handItems = new ArrayList<ClarpCard>();
+        //		TurnHistoryItem firstItem = new TurnHistoryItem(2);
+        //		firstItem.result = "The Game is Afoot!";
+        //    	historyItems.add(firstItem);
+    }
+
+    @Override
+    public Fragment getItem(int i){
+        fragment = null;
+        if (i == 0){
+            fragment = new CardHandFragment(handItems);
+            cardHandFragment = (CardHandFragment) fragment;
+        }
+        if (i == 1){
+            fragment = new HistoryFragment(historyItems);
+            historyFragment = (HistoryFragment) fragment;
+        }
+        if (i == 2){
+            fragment = new NotesFragment(noteItems);
+            notesFragment = (NotesFragment) fragment;
+        }
+        return fragment;
+    }
+
+    @Override
+    public int getCount() {
+        return 3;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position){
+        //String title = new String();
+        if(position == 0){
+            return "Hand";
+        }else if (position == 1){
+            return "Turn History";
+        }else if (position == 2){
+            return "Notes";
+        } else {
+            return null;
+        }
+    }
+
+    public CardHandFragment getCardHandFragment(){
+        return cardHandFragment;
+    }
+
+    public HistoryFragment getHistoryFragment(){
+        return historyFragment;
+    }
+
+    public NotesFragment getNotesFragment(){
+        return notesFragment;
+    }
+
 }

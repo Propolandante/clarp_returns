@@ -52,7 +52,7 @@ public class TurnHistoryItem {
 				}
 				else
 				{
-					Log.d(ClarpApplication.TAG, "Card is null but player is not? (THI)");
+					Log.d(ClarpApplication.TAG, "(THI) Card is null but player is not? player: " + a.getFullName());
 				}
 			}
 			else

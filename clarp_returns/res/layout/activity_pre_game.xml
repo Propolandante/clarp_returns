@@ -70,37 +70,27 @@
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/addCardButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="Add" />
+
     
     <Button
         android:id="@+id/startGameButton"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:text="Start" />
-    
-    <Button
-        android:id="@+id/refreshButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="Refresh" />
+        android:layout_above="@+id/cards_list_button"
+        android:background="@drawable/button_clarp"
+        android:text="Start Game"
+        style="@style/ButtonText" />
+
     
     <Button
         android:id="@+id/cards_list_button"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/addCardButton"
-        android:layout_below="@+id/gameName"
+        android:layout_alignParentBottom="true"
         android:onClick="clickCardsList"
-        android:text="@string/cards_list" />
+        android:background="@drawable/button_clarp"
+        android:text="@string/cards_list" 
+        style="@style/ButtonText"/>
 
 </RelativeLayout>

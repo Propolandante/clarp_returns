@@ -48,9 +48,11 @@
 
         <Button
             android:id="@+id/buttonStart"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_clarp"
             android:text="Start" 
+            style="@style/ButtonText"
             android:onClick="clickStart"/>
     </LinearLayout>
 

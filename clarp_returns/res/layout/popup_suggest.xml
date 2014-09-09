@@ -82,15 +82,19 @@
             android:id="@+id/buttonSubmitSuggest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_clarp"
             android:onClick="clickSuggestSubmit"
-            android:text="@string/submitButton" />
+            android:text="@string/submitButton"
+            style="@style/ButtonText" />
 
         <Button
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_clarp"
             android:onClick="clickCancel"
-            android:text="@string/cancelButton" />
+            android:text="@string/cancelButton"
+            style="@style/ButtonText" />
 
     </LinearLayout>
 

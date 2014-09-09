@@ -24,21 +24,26 @@
 
     <ImageButton
         android:id="@+id/photo_button"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_action_photo" />
+        android:background="@drawable/button_clarp"
+        android:src="@drawable/ic_action_camera" />
 
     <Button
         android:id="@+id/save_button"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/save_button_text" />
+        android:background="@drawable/button_clarp"
+        android:text="@string/save_button_text"
+        style="@style/ButtonText" />
 
     <Button
         android:id="@+id/cancel_button"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/cancel_button_text" />
+        android:background="@drawable/button_clarp"
+        android:text="@string/cancel_button_text" 
+        style="@style/ButtonText"/>
 
     <com.parse.ParseImageView
         android:id="@+id/card_preview_image"

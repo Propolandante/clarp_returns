@@ -21,6 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:text="Invite" />
+        android:background="@drawable/button_clarp"
+        android:text="Invite" 
+        style="@style/ButtonText"/>
 
 </RelativeLayout>

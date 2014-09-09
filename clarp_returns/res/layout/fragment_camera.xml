@@ -16,6 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_weight="1"
-        android:src="@drawable/ic_action_photo" />
+        android:background="@drawable/button_clarp"
+        android:src="@drawable/ic_action_camera" />
 
 </LinearLayout>

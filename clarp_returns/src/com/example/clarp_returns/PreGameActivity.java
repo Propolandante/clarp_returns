@@ -107,9 +107,9 @@ public class PreGameActivity extends ActionBarActivity
         suspectCountView = (TextView) findViewById(R.id.suspectCount);
         weaponCountView = (TextView) findViewById(R.id.weaponCount);
         locationCountView = (TextView) findViewById(R.id.locationCount);
-        addCardButton = (Button) findViewById(R.id.addCardButton);
+        //addCardButton = (Button) findViewById(R.id.addCardButton);
         startGameButton = (Button) findViewById(R.id.startGameButton);
-        refreshButton = (Button) findViewById(R.id.refreshButton);
+        //refreshButton = (Button) findViewById(R.id.refreshButton);
         cardsListButton = (Button) findViewById(R.id.cards_list_button);
 
         updateViewVisibility();
@@ -175,28 +175,28 @@ public class PreGameActivity extends ActionBarActivity
         /*
          * Initialize buttons. These do not rely on game being loaded.
          */
-        addCardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                /*
-                 * Takes user to the card creation activity.
-                 * Currently, this does not actually add the card to any game.
-                 * We will store all the card ObjectIds in local arrays,
-                 * and only save them to Parse once the Start Game button is pushed.
-                 * 
-                 * I don't think it's vital to send any extra data with the intent.
-                 * The only thing I can think of would be to send the game name
-                 * for a more helpful UI in the NewCard activity.
-                 * Or maybe, send the current counts, so it can suggest a card type that the
-                 * game needs more of. #stretchgoal
-                 */
-
-                Intent intent = new Intent(PreGameActivity.this, NewClarpCardActivity.class);
-                intent.putExtra("game_id", game.getObjectId());
-                startActivityForResult(intent, ClarpApplication.ADD_CARD);
-            }
-        });
+        //        addCardButton.setOnClickListener(new View.OnClickListener() {
+        //            @Override
+        //            public void onClick(View v) {
+        //
+        //                /*
+        //                 * Takes user to the card creation activity.
+        //                 * Currently, this does not actually add the card to any game.
+        //                 * We will store all the card ObjectIds in local arrays,
+        //                 * and only save them to Parse once the Start Game button is pushed.
+        //                 *
+        //                 * I don't think it's vital to send any extra data with the intent.
+        //                 * The only thing I can think of would be to send the game name
+        //                 * for a more helpful UI in the NewCard activity.
+        //                 * Or maybe, send the current counts, so it can suggest a card type that the
+        //                 * game needs more of. #stretchgoal
+        //                 */
+        //
+        //                Intent intent = new Intent(PreGameActivity.this, NewClarpCardActivity.class);
+        //                intent.putExtra("game_id", game.getObjectId());
+        //                startActivityForResult(intent, ClarpApplication.ADD_CARD);
+        //            }
+        //        });
 
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -376,13 +376,13 @@ public class PreGameActivity extends ActionBarActivity
         });
 
 
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                syncGame();
-            }
-        });
+        //        refreshButton.setOnClickListener(new View.OnClickListener() {
+        //            @Override
+        //            public void onClick(View v) {
+        //
+        //                syncGame();
+        //            }
+        //        });
 
     }
 

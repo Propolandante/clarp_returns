@@ -78,7 +78,8 @@ public class GameActivity extends ActionBarActivity{
 
     ArrayList<Player> players = new ArrayList<Player>();
 
-    Boolean isMyTurn = true;
+    Boolean isMyTurn = false;
+    String myFbId;
 
     ClarpCard queuedSuspect = null;
     ClarpCard queuedWeapon = null;
@@ -139,7 +140,28 @@ public class GameActivity extends ActionBarActivity{
                     num_of_weapons = game.getInt("numWeapons");
                     num_of_scenes = game.getInt("numLocations");
                     total_cards = num_of_players + num_of_weapons + num_of_scenes;
-
+                    
+                    /*
+                     * Determine if it's my turn
+                     */
+                    
+                    try {
+						myFbId = ParseUser.getCurrentUser().getJSONObject("profile").getString("facebookId");
+					} catch (JSONException e1) {
+						e1.printStackTrace();
+						Log.d(ClarpApplication.GA, "Error grabbing the user's facebookId");
+					}
+                    
+                    if (myFbId.equals(game.getString("whoseTurn")))
+                    {
+                    	isMyTurn = true;
+                    }
+                    else
+                    {
+                    	isMyTurn = false;
+                    }
+                    
+                    
                     /*
                      * These two functions run in the background.
                      * We should show a loading bar while they process
@@ -903,6 +925,15 @@ public class GameActivity extends ActionBarActivity{
                 if (e == null)
                 {
                     game = object; // get updated game
+                    
+                    if (myFbId.equals(game.getString("whoseTurn")))
+                    {
+                    	isMyTurn = true;
+                    }
+                    else
+                    {
+                    	isMyTurn = false;
+                    }
 
                     try {
                         refreshHistory();

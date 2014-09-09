@@ -1,5 +1,8 @@
 package com.example.clarp_returns;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +37,9 @@ public class ClarpGame extends ParseObject {
 
         // this array is a little redundant, but makes querying the user's current ClarpGames MUCH easier
         put("fbUsers", new JSONArray());
+
+        // array of prefixes that have already been used for suspects
+        put("usedPrefixes", new JSONArray());
 
         //array of ObjectId strings that point to the suspect ClarpCards
         put("suspects", new JSONArray());
@@ -137,7 +143,9 @@ public class ClarpGame extends ParseObject {
             player.put("facebookId", userFbInfo.getString("facebookId"));
 
             // should be randomly assigned prefix
-            player.put("prefix", "Sir");
+            String prefix = getSuspectPrefix();
+            player.put("prefix", prefix);
+            Log.d(ClarpApplication.TAG, "Value of prefix is " + prefix);
 
             // player starts out not-disqualified
             player.put("dq", false);
@@ -235,39 +243,85 @@ public class ClarpGame extends ParseObject {
 
     }
 
-	public void rotateTurn() throws JSONException {
-		
-		String prevId = getString("whoseTurn");
-		String nextId = null;
-		JSONArray players = getJSONArray("fbUsers");
-		
-		/*
-		 * Loop through the players to find the previous player
-		 */
-		
-		int p = 0;
-		
-		for (p = 0; p < players.length(); ++p)
-		{
-			if (players.getString(p).equals(prevId))
-			{
-				Log.d(ClarpApplication.TAG, "prev index: " + p);
-				break;
-			}
-		}
-		
-		/*
-		 * now find the player after that, and make it their turn
-		 */
-		
-		p++;
-		if (p == players.length()){p=0;}
-		
-		Log.d(ClarpApplication.TAG, "next index: " + p);
-		nextId = players.getString(p);
-		
-		put("whoseTurn", nextId);
-		
-	}
+    public void rotateTurn() throws JSONException {
+
+        String prevId = getString("whoseTurn");
+        String nextId = null;
+        JSONArray players = getJSONArray("fbUsers");
+
+        /*
+         * Loop through the players to find the previous player
+         */
+
+        int p = 0;
+
+        for (p = 0; p < players.length(); ++p)
+        {
+            if (players.getString(p).equals(prevId))
+            {
+                Log.d(ClarpApplication.TAG, "prev index: " + p);
+                break;
+            }
+        }
+
+        /*
+         * now find the player after that, and make it their turn
+         */
+
+        p++;
+        if (p == players.length()){p=0;}
+
+        Log.d(ClarpApplication.TAG, "next index: " + p);
+        nextId = players.getString(p);
+
+        put("whoseTurn", nextId);
+
+    }
+
+    public String getSuspectPrefix() {
+        String prefix = null;
+
+        ArrayList<String> prefixes = new ArrayList<String>();
+
+        for(int i = 0; i < ClarpApplication.PREFIXES.size(); ++i) {
+            prefixes.add( i, ClarpApplication.PREFIXES.get(i) );
+        }
+
+        JSONArray used = getJSONArray("usedPrefixes");
+        if(used == null) {
+            Log.d(ClarpApplication.TAG, "No used prefixes yet");
+            used = new JSONArray();
+        }
+
+        Collections.shuffle(prefixes);
+
+        for(int i = 0; i < prefixes.size(); ++i) {
+            boolean skip = false;
+            prefix = prefixes.get(i);
+            for(int j = 0; j < used.length(); ++j) {
+
+                try {
+                    Log.d(ClarpApplication.TAG, "Checking for equal prefixes");
+                    if( (prefixes.get(i)) .equals( used.getString(j) )){
+                        prefix = prefixes.get(i);
+                        Log.d(ClarpApplication.TAG, "Just picked first unused prefix: " + prefix);
+                        skip = true;
+                        break;
+                    }
+                } catch (JSONException e) {
+                    Log.d(ClarpApplication.TAG, "Error getting JSON used prefix string");
+                    Log.e("Error", "Error message: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            if(!skip) {
+                Log.d(ClarpApplication.TAG, "Picked an unused prefix, returning with prefix " + prefix);
+                break;
+            }
+        }
+
+
+        return prefix;
+    }
 }
 

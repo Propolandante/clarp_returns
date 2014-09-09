@@ -90,6 +90,9 @@ public class PreGameActivity extends ActionBarActivity
     int maxWeapons = 8;
     int maxLocations = 8;
 
+    ArrayList<String> prefixes;
+
+
 
 
 
@@ -97,8 +100,6 @@ public class PreGameActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pre_game);
-
-
 
         /*
          * Initialize all the views (requires game, so must wait for game to download)
@@ -217,8 +218,6 @@ public class PreGameActivity extends ActionBarActivity
                         if (e == null)
                         {
                             game = object;
-
-
 
                             gameName = game.getGameName();
                             players = game.getJSONArray("players");

@@ -40,7 +40,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/footer"
         android:layout_centerHorizontal="true"
-        android:text="@string/FB_login" />
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="30dp"
+        android:background="@drawable/layers_button_fb_login"
+        android:text="@string/FB_login"
+        style="@style/ButtonText" />
     
     <Button
         android:id="@+id/cards_list_button"

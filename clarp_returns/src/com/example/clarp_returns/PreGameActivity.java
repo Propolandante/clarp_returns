@@ -90,11 +90,6 @@ public class PreGameActivity extends ActionBarActivity
     int maxWeapons = 8;
     int maxLocations = 8;
 
-    ArrayList<String> prefixes;
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

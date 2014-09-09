@@ -31,7 +31,7 @@ public class ClarpApplication extends Application {
     public static final int VIEW_ALL_GAME_CARDS = 20;
     public static final int VIEW_USER_CARDS = 22;
 
-    // access with ClarpApplication.PREFIXES[int num];
+    // access with ClarpApplication.PREFIXES.get(int num);
     public static ArrayList<String> PREFIXES;
 
     public static final String NOTIFICATION = "opened from notification";

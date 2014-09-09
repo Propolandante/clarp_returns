@@ -108,22 +108,21 @@ public class NewClarpCardFragment extends Fragment {
 
                 // When the user clicks "Save," upload the card to Parse
                 // Add data to the card object:
-                card.setCardName(cardName.getText().toString());
 
-                // Associate the card with the current user
-                //card.setAuthor(ParseUser.getCurrentUser());
 
                 // Add the type
-                // this may become obsolete as we refine the
-                // card submission process
-                //card.setCardType(cardType.getSelectedItem().toString());
-                //card.setCardType( ClarpCard.CardType.valueOf(( (ClarpCard.CardType) cardType.getSelectedItem()).name() ));
                 String selectedString = cardType.getSelectedItem().toString();
                 Log.d(ClarpApplication.CF, "Type of selected cardType is " + selectedString);
                 card.setCardType(ClarpCard.CardType.fromString(selectedString));
 
-                // Add the gameId so we know to query it in Game Activity
+                // must set name after type in case type is suspect
+                if(card.getCardType() == ClarpCard.CardType.SUSPECT){
+                    card.setCardName(game.getSuspectPrefix() + " " + cardName.getText().toString());
+                } else {
+                    card.setCardName(cardName.getText().toString());
+                }
 
+                // Add the gameId so we know to query it in Game Activity
                 card.setCardGame(((NewClarpCardActivity) getActivity()).getGameId());
 
                 // If the user added a photo, that data will be
@@ -136,9 +135,9 @@ public class NewClarpCardFragment extends Fragment {
                     public void done(ParseException e) {
                         if (e == null)
                         {
-                        	
-                        	Log.d(ClarpApplication.CF, "Created new card: " + card.getObjectId());
-                        	
+
+                            Log.d(ClarpApplication.CF, "Created new card: " + card.getObjectId());
+
                             ClarpCard.CardType type = card.getCardType();
 
                             switch(type) {
@@ -156,36 +155,23 @@ public class NewClarpCardFragment extends Fragment {
                                     break;
                             }
 
-                            //                            if (type.equals("suspect"))
-                            //                            {
-                            //                                game.increment("numSuspects");
-                            //                            }
-                            //                            else if (type.equals("weapon"))
-                            //                            {
-                            //                                game.increment("numWeapons");
-                            //                            }
-                            //                            else if (type.equals("location"))
-                            //                            {
-                            //                                game.increment("numLocations");
-                            //                            }
-
                             game.saveInBackground(new SaveCallback() {
 
-								@Override
-								public void done(ParseException e) {
-									Log.d(ClarpApplication.CF, "Updated cardcount saved to parse");
-									
-									Intent resultIntent = new Intent();
-		                            resultIntent.putExtra("cardId", card.getObjectId());
+                                @Override
+                                public void done(ParseException e) {
+                                    Log.d(ClarpApplication.CF, "Updated cardcount saved to parse");
 
-		                            getActivity().setResult(Activity.RESULT_OK, resultIntent);
-		                            getActivity().finish();
-									
-								}
-                            	
+                                    Intent resultIntent = new Intent();
+                                    resultIntent.putExtra("cardId", card.getObjectId());
+
+                                    getActivity().setResult(Activity.RESULT_OK, resultIntent);
+                                    getActivity().finish();
+
+                                }
+
                             });
 
-                            
+
                         }
                         else
                         {

@@ -4,28 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.clarp_returns.PreGameActivity" >
     
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
     
     <item
         android:id="@+id/action_refresh"
+        android:orderInCategory="100"
         android:icon="@drawable/ic_action_refresh"
-        android:showAsAction="ifRoom|withText"
+        app:showAsAction="always"
         android:title="@string/action_refresh"/>
     
     <item
         android:id="@+id/action_new"
+        android:orderInCategory="200"
         android:icon="@drawable/ic_action_new"
-        android:showAsAction="ifRoom|withText"
+        app:showAsAction="ifRoom"
         android:title="@string/action_new"/>
     
     <item
         android:id="@+id/action_invite"
-        android:showAsAction="ifRoom|withText"
+        android:orderInCategory="300"
+        android:icon="@drawable/ic_action_add_person"
+        app:showAsAction="ifRoom"
         android:title="@string/action_invite"/>
+    
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="400"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
     
 
 </menu>

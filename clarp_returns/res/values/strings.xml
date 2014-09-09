@@ -10,6 +10,7 @@
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_new_game">NewGameActivity</string>
     <string name="new_game">New Game</string>
+    <string name="FB_login">Log in with Facebook</string>
     <string name="game_title">Title:</string>
     <string name="game_genre">Genre:</string>
     <string name="game_description">Synopsis:</string>

@@ -87,7 +87,7 @@ public class StartActivity extends ActionBarActivity {
         listLoadingView = (ProgressBar) findViewById(R.id.progressBar1);
         // self explanatory. Button enters New Game activity
         newGameButton = (Button) findViewById(R.id.footer);
-        loginButton = (Button) findViewById(R.id.login_button);
+        loginButton = (Button) findViewById(R.id.fb_login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +104,7 @@ public class StartActivity extends ActionBarActivity {
 
             ParseInstallation installation = ParseInstallation.getCurrentInstallation();
             try {
-            	Log.d(ClarpApplication.TAG, "This installation is " + installation.getInstallationId());
+                Log.d(ClarpApplication.TAG, "This installation is " + installation.getInstallationId());
                 installation.put("facebookId", currentUser.getJSONObject("profile").getString("facebookId"));
                 installation.saveInBackground();
             } catch (IllegalArgumentException e) {
@@ -388,20 +388,20 @@ public class StartActivity extends ActionBarActivity {
             }
             currentUser.saveInBackground(new SaveCallback() {
 
-				@Override
-				public void done(ParseException e) {
-					if (e == null)
-					{
-						infoUpdated = true;
-						updateViewVisibility();
-					}
-					else
-					{
-						Log.d(ClarpApplication.TAG,"User Profile not saved!!!");
-						e.printStackTrace();
-					}
-				}
-            	
+                @Override
+                public void done(ParseException e) {
+                    if (e == null)
+                    {
+                        infoUpdated = true;
+                        updateViewVisibility();
+                    }
+                    else
+                    {
+                        Log.d(ClarpApplication.TAG,"User Profile not saved!!!");
+                        e.printStackTrace();
+                    }
+                }
+
             });
         } catch (IOException e) {
             Log.e("Error", "Error message is " + e.getMessage());
@@ -425,11 +425,9 @@ public class StartActivity extends ActionBarActivity {
             JSONObject userProfile = currentUser.getJSONObject("profile");
             try {
                 if (userProfile.getString("name") != null) {
-                    Log.v(ClarpApplication.TAG, "IF");
 
                     userNameView.setText("Hello, " + userProfile.getString("name"));
                 } else {
-                    Log.v(ClarpApplication.TAG, "ELSE");
                     userNameView.setText("No user.");
                 }
             } catch (JSONException e) {
@@ -444,15 +442,17 @@ public class StartActivity extends ActionBarActivity {
     {
         if(ClarpApplication.IS_LOGGED_IN)
         {
-        	if(infoUpdated)
-        	{
-        		newGameButton.setVisibility(View.VISIBLE);
-        	}
-        	else
-        	{
-        		newGameButton.setVisibility(View.VISIBLE);
-        	}
-            
+            loginButton.setVisibility(View.GONE);
+
+            if(infoUpdated)
+            {
+                newGameButton.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                newGameButton.setVisibility(View.VISIBLE);
+            }
+
 
             if(gamesLoaded)
             {
@@ -474,6 +474,8 @@ public class StartActivity extends ActionBarActivity {
             gameListView.setVisibility(View.GONE);
             newGameButton.setVisibility(View.GONE);
             listLoadingView.setVisibility(View.GONE);
+
+            loginButton.setVisibility(View.VISIBLE);
         }
 
 

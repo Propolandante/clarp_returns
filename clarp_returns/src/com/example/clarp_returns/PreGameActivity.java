@@ -426,8 +426,6 @@ public class PreGameActivity extends ActionBarActivity
                 Intent intent = new Intent(PreGameActivity.this, InviteActivity.class);
                 intent.putExtra("game_id", game.getObjectId());
                 startActivity(intent);
-                // finishes the activity so that user cannot get back
-                finish();
                 break;
             }
 

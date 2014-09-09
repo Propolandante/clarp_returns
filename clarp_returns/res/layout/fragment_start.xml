@@ -14,14 +14,16 @@
         android:onClick="clickNewGame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/games_list_view"
         android:layout_centerHorizontal="true"
-        android:text="New Game" />
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/button_clarp"
+        android:text="New Game"
+        style="@style/ButtonText" />
     
     <ProgressBar
         android:id="@+id/progressBar1"
         android:layout_below="@+id/message"
-        style="?android:attr/progressBarStyleLarge"
+        style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true" />
@@ -31,6 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/progressBar1"
+        android:layout_above="@+id/footer"
         android:layout_weight="10" >
     </ListView>
     
@@ -47,14 +50,7 @@
         android:background="@drawable/layers_button_fb_login"
         android:text="@string/FB_login"
         style="@style/ButtonText" />
-    
-    <Button
-        android:id="@+id/cards_list_button"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_below="@+id/fb_login_button"
-        android:text="@string/cards_list" 
-        android:onClick="clickCardsList"/>
+
 
     <TextView
         android:id="@+id/message"

@@ -8,7 +8,7 @@
     <string name="parse_app_id">tyhQ2ZPLI2zh7QTAncbsB0dPtjhUEqm4XhYu77ad</string>
     <string name="parse_client_key">BE6x59n7NymJUeBWxxIztCVkzLSnPxsSgQ2MecEE</string>
     <string name="title_activity_game">GameActivity</string>
-    <string name="title_activity_new_game">NewGameActivity</string>
+    <string name="title_activity_new_game">New Game</string>
     <string name="new_game">New Game</string>
     <string name="FB_login">Log in with Facebook</string>
     <string name="game_title">Title:</string>
@@ -46,7 +46,7 @@
     <string name="scene4">Scene 4</string>
     <string name="scene5">Scene 5</string>
     <string name="scene6">Scene 6</string>
-    <string name="title_activity_card_list">CardListActivity</string>
+    <string name="title_activity_card_list">Card List</string>
     <string name="action_new">Add a Card</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_invite">Invite Players</string>
@@ -55,10 +55,10 @@
     <string name="save_button_text">Save</string>
     <string name="cancel_button_text">Cancel</string>
 
-    <string name="title_activity_new_clarp_card">NewClarpCardActivity</string>
+    <string name="title_activity_new_clarp_card">New Card</string>
     <string name="title_activity_new_clarp_card_fragment">NewClarpCardFragment</string>
-    <string name="title_activity_pre_game">Pre Game Activity</string>
-    <string name="title_activity_invite">Invite Activity</string>
+    <string name="title_activity_pre_game">Game Setup</string>
+    <string name="title_activity_invite">Invite Friends</string>
     
     <style name="ButtonText">
        <item name="android:layout_width">fill_parent</item>

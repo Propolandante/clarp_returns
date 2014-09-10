@@ -623,12 +623,6 @@ public class GameActivity extends ActionBarActivity{
         JSONObject clarpTurn = createClarpTurn(type, currentPlayer, queuedSuspect, queuedWeapon, queuedScene);
         game.getJSONArray("turns").put(clarpTurn);
 
-        /*
-         * it's OK for this one to be null
-         * but this will be deleted for Parsification anyways
-         * since the functionality has been moved to createClarpCard
-         */
-
         TurnHistoryItem temp = createTurnItem(clarpTurn);
 
         historyFragment.add(temp);
@@ -639,18 +633,43 @@ public class GameActivity extends ActionBarActivity{
             // if the accusation matches the solution...
             if (queuedSuspect.getObjectId().equals(game.getJSONArray("solution").get(0))
                     && queuedWeapon.getObjectId().equals(game.getJSONArray("solution").get(1))
-                    && queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2))){
+                    && queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2)))
+            {
                 // the player has won!
                 JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "The mystery is solved!");
                 game.getJSONArray("turns").put(clarpAlert);
                 gameState = GameStates.WON;
                 game.end();
-            }else{
+            }
+            else
+            {
                 // the player has lost!
                 // TODO they need to be disqualified... keep in mind our player[] works differently than Parse's
                 JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "That accusation was dead wrong!");
                 game.getJSONArray("turns").put(clarpAlert);
                 gameState = GameStates.DISQUALIFIED;
+            }
+        }
+        else if (type == TYPE_SUGGEST){
+        	// if the accusation matches the solution...
+            if (queuedSuspect.getObjectId().equals(game.getJSONArray("solution").get(0))
+                    && queuedWeapon.getObjectId().equals(game.getJSONArray("solution").get(1))
+                    && queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2)))
+            {
+                // the player can win!
+            	
+            	/*
+            	 * Brings up the AccuseDialog.
+            	 * End submit() here
+            	 * Either makeWinningAccusation() or whoLikesWinningAnyways() will be called
+            	 * they will handle the rest of the function calls that we're skipping in submit()
+            	 * Don't worry, it's probably chill.
+            	 * I'm like 45% sure.
+            	 */
+            	AccuseDialogFragment accuseDialog = new AccuseDialogFragment();
+                accuseDialog.show(getFragmentManager(), "accuse");
+                Log.d(ClarpApplication.PGA, "Accuse Dialog is shown");
+                return;
             }
         }
 
@@ -664,6 +683,88 @@ public class GameActivity extends ActionBarActivity{
         queuedSuspect = null;
         queuedWeapon = null;
         queuedScene = null;
+    }
+    
+    public void makeWinningAccusation() throws JSONException
+    {
+    	/*
+    	 * requires that the user just made a correct suggestion
+    	 * therefore, queued cards are the winning ones!
+    	 */
+    	
+    	
+    	// find the current player
+    	Player currentPlayer = null;
+        String curPlayerId = game.getString("whoseTurn");
+        for (Player p : players)
+        {
+            if (p.getFbId().equals(curPlayerId))
+            {
+                currentPlayer = p;
+            }
+        }
+        if (currentPlayer == null)
+        {
+            Log.d(ClarpApplication.GA, "currentPlayer is null in makeWinningAccusation!!!!!!!!");
+        }
+    	
+        // put an alert in between the Suggestion and Accusation
+        JSONObject segueAlert = createClarpAlert(TYPE_ALERT, "With no one ruled it out, " + currentPlayer.getFullName() + " makes the accusation:" );
+        game.getJSONArray("turns").put(segueAlert);
+        
+        // create the Accusation
+    	JSONObject winningTurn = createClarpTurn(TYPE_ACCUSE, currentPlayer, queuedSuspect, queuedWeapon, queuedScene);
+    	game.getJSONArray("turns").put(winningTurn);
+    	
+    	
+//        TurnHistoryItem temp = createTurnItem(winningTurn);
+//        historyFragment.add(temp);
+        
+        // this should ALWAYS return true...
+        if (queuedSuspect.getObjectId().equals(game.getJSONArray("solution").get(0))
+                && queuedWeapon.getObjectId().equals(game.getJSONArray("solution").get(1))
+                && queuedScene.getObjectId().equals(game.getJSONArray("solution").get(2)))
+        {
+            // the player has won!
+            JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "The mystery is solved!");
+            game.getJSONArray("turns").put(clarpAlert);
+            gameState = GameStates.WON;
+            game.end();
+        }
+        else
+        {
+        	Log.d(ClarpApplication.GA, "makeWinningAccusation done GOOFED");
+        }
+        
+        refreshHistory();
+
+        game.rotateTurn();
+
+
+        game.saveInBackground();
+
+        queuedSuspect = null;
+        queuedWeapon = null;
+        queuedScene = null;
+    }
+    
+    public void whoLikesWinningAnyways() throws JSONException{
+    	
+    	/*
+    	 * Honestly, this player should just be disqualified on principle...
+    	 */
+    	
+    	refreshHistory();
+
+        game.rotateTurn();
+
+
+        game.saveInBackground();
+
+        queuedSuspect = null;
+        queuedWeapon = null;
+        queuedScene = null;
+    	
     }
 
     private JSONObject createClarpTurn( int type, Player player, ClarpCard suspect, ClarpCard weapon, ClarpCard location) throws JSONException{

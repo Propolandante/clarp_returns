@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical" 
-    android:background="@drawable/manila_composite">
+    android:background="@drawable/manila">
 
     
     <TextView

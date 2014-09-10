@@ -8,8 +8,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,6 +21,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.internal.widget.ListPopupWindow;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -384,7 +388,9 @@ public class GameActivity extends ActionBarActivity{
     }
 
 
-    private void createPopup(boolean isSuggest){
+    @SuppressWarnings("deprecation")
+	@SuppressLint("NewApi")
+	private void createPopup(boolean isSuggest){
         LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 
         if (isSuggest) {
@@ -456,9 +462,19 @@ public class GameActivity extends ActionBarActivity{
         {
             Log.d(ClarpApplication.GA, "no location image");
         }
+        
+        Display display = getWindowManager().getDefaultDisplay();
+        Point screenSize = new Point();
+        if (Build.VERSION.SDK_INT < 13){
+        	display.getSize(screenSize);
+        }else{
+        	screenSize.x = display.getWidth();
+        	screenSize.y = display.getHeight();
+        }
+        	
 
-
-        pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight(),true);
+        pw = new PopupWindow(popupView,screenSize.x-(screenSize.x / 40),screenSize.y-(screenSize.y / 50),true) {
+		};
         pw.setAnimationStyle(android.R.style.Animation_Dialog);
         pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
         pw.setOutsideTouchable(true);

@@ -4,22 +4,25 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical" 
-    android:background="@drawable/manila">
+    android:background="@drawable/manila"
+    android:weightSum="20" >
 
     
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:text="Suggest" 
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium" 
+        android:layout_weight="2"/>
     
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="0dp"
         android:padding="10dp"
  		android:paddingLeft="5dp"
  		android:paddingRight="5dp"
  		android:paddingBottom="10dp"
+ 		android:layout_weight="5"
         android:orientation="horizontal"
         android:weightSum="20" >
         
@@ -34,7 +37,7 @@
         
         <TextView
             android:id="@+id/text1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=" with "
@@ -52,7 +55,7 @@
 
         <TextView
             android:id="@+id/text2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=" in "
@@ -72,13 +75,15 @@
     <ListView
         android:id="@+id/listCards"
         android:layout_width="match_parent"
-        android:layout_height="200dp" 
+        android:layout_height="0dp" 
+        android:layout_weight="8"
         android:background="#44FFFFFF">
     </ListView>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
+        android:layout_height="0dp"
+        android:layout_weight="5" 
         android:orientation="horizontal">
 
         <Button

@@ -477,8 +477,7 @@ public class GameActivity extends ActionBarActivity{
         }
         	
 
-        pw = new PopupWindow(popupView,popupView.getMeasuredWidth(),popupView.getMeasuredHeight(),true) {
-		};
+        pw = new PopupWindow(popupView,(int)(screenSize.x*.8),(int)(screenSize.y*.75),true);
         pw.setAnimationStyle(android.R.style.Animation_Dialog);
         pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
         pw.setOutsideTouchable(true);

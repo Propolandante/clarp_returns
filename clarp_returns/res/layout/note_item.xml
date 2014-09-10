@@ -12,7 +12,13 @@
         android:layout_height="wrap_content"
         android:paddingLeft="5dp"
         android:text="TextView" 
-        android:layout_weight="8"/>
+        android:ellipsize="marquee"
+        android:scrollHorizontally="true"
+        android:lines="1"
+     	android:maxLines="1"
+     	android:inputType="text"
+        android:layout_weight="8"
+        android:background="@drawable/manila"/>
 
     <CheckBox
         android:id="@+id/checkNote"
@@ -25,10 +31,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="11"
+        android:maxLines="1"
+        android:inputType="text"
         android:maxLength="16"
         android:ems="10" >
-
-        <requestFocus />
     </EditText>
 
 </LinearLayout>

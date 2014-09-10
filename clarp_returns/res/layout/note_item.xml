@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:paddingBottom="10dp"
     android:weightSum="22" >
 
     <TextView
@@ -11,7 +12,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="5dp"
         android:text="TextView" 
-        android:layout_weight="5"/>
+        android:layout_weight="8"/>
 
     <CheckBox
         android:id="@+id/checkNote"
@@ -23,7 +24,7 @@
         android:id="@+id/editNote"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="14"
+        android:layout_weight="11"
         android:maxLength="16"
         android:ems="10" >
 

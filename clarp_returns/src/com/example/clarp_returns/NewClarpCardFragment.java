@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,9 @@ public class NewClarpCardFragment extends Fragment {
     private TextView cardName;
     private Spinner cardType;
     private ParseImageView cardPreview;
+    private ProgressBar loader;
+    
+    public Boolean saving = false;
 
     ClarpGame game;
 
@@ -114,11 +118,15 @@ public class NewClarpCardFragment extends Fragment {
                 	Toast.makeText((NewClarpCardActivity) getActivity(), "Please provide a picture for this " + cardType.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
                 	return;
                 }
-                
-                if (cardName.getText().toString().equals(""))
+                else if (cardName.getText().toString().equals(""))
                 {
                 	Toast.makeText((NewClarpCardActivity) getActivity(), "Please provide a name for this " + cardType.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
                 	return;
+                }
+                else
+                {
+                    saving = true;
+                    updateVisibility();
                 }
 
                 // When the user clicks "Save," upload the card to Parse
@@ -208,6 +216,9 @@ public class NewClarpCardFragment extends Fragment {
                 getActivity().finish();
             }
         });
+        
+        loader = (ProgressBar) v.findViewById(R.id.loading);
+        loader.setVisibility(View.GONE);
 
         // Until the user has taken a photo, hide the preview
         cardPreview = (ParseImageView) v.findViewById(R.id.card_preview_image);
@@ -231,6 +242,23 @@ public class NewClarpCardFragment extends Fragment {
         transaction.replace(R.id.fragmentContainer, cameraFragment);
         transaction.addToBackStack("NewClarpCardFragment");
         transaction.commit();
+    }
+    
+    public void updateVisibility() {
+    	if (saving)
+    	{
+    		photoButton.setVisibility(View.GONE);
+    		saveButton.setVisibility(View.GONE);
+    		cancelButton.setVisibility(View.GONE);
+    		loader.setVisibility(View.VISIBLE);
+    	}
+    	else
+    	{
+    		photoButton.setVisibility(View.VISIBLE);
+    		saveButton.setVisibility(View.VISIBLE);
+    		cancelButton.setVisibility(View.VISIBLE);
+    		loader.setVisibility(View.GONE);
+    	}
     }
 
     /*

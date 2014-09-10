@@ -28,6 +28,10 @@
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     
+    <string name="accuse_dialog_text">No one ruled out your suggestion! Would you like to formally make the accusation?</string>
+    <string name="accuse">Accuse</string>
+    <string name="pass">Pass</string>
+    
     <string name="suspect1">Col. Red</string>
     <string name="suspect2">Suspect 2</string>
     <string name="suspect3">Suspect 3</string>

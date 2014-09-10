@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#EEEEEE"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="@drawable/manila_composite">
 
     
     <TextView
@@ -21,13 +21,13 @@
  		android:paddingRight="5dp"
  		android:paddingBottom="10dp"
         android:orientation="horizontal"
-        android:weightSum="11" >
+        android:weightSum="20" >
         
         <com.parse.ParseImageView
             android:id="@+id/imageSuspectSelect"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="3"
+            android:layout_weight="5"
             android:onClick="clickSelectSuspect"
             android:background="#000000"
             android:src="@drawable/joe" />
@@ -37,14 +37,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text=" with"
+            android:text=" with "
+            android:layout_weight="2"
             android:textSize="20sp" />
 
         <com.parse.ParseImageView 
             android:id="@+id/imageWeaponSelect"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="4"
+            android:layout_weight="5"
              android:onClick="clickSelectWeapon"
             android:background="#000000"
             android:src="@drawable/joe" />
@@ -54,14 +55,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="in"
+            android:text=" in "
+            android:layout_weight="1"
             android:textSize="20sp" />
         
         <com.parse.ParseImageView 
             android:id="@+id/imageSceneSelect"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="4"
+            android:layout_weight="5"
              android:onClick="clickSelectScene"
             android:background="#000000"
             android:src="@drawable/joe" />
@@ -70,7 +72,8 @@
     <ListView
         android:id="@+id/listCards"
         android:layout_width="match_parent"
-        android:layout_height="200dp" >
+        android:layout_height="200dp" 
+        android:background="#44FFFFFF">
     </ListView>
 
     <LinearLayout

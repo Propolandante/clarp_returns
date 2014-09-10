@@ -29,7 +29,7 @@ public class CardHandAdapter extends ArrayAdapter<ClarpCard> {
         View v = convertView;
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.card_item, null);
+            v = vi.inflate(R.layout.card_hand_item, null);
         }
     	
         final ClarpCard card = cards.get(position);

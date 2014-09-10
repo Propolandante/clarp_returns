@@ -2,7 +2,10 @@ package com.example.clarp_returns;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,6 +15,7 @@ import android.widget.TextView;
 
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
+import com.parse.ParseUser;
 
 public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 		implements OnClickListener{
@@ -45,6 +49,15 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
         int type = getItemViewType(position);
+        
+        String fbId = null;
+		try {
+			fbId = ParseUser.getCurrentUser().getJSONObject("profile").getString("facebookId");
+		} catch (JSONException e) {
+			Log.d(ClarpApplication.TAG, "THIA: failed to grab player's facebook Id");
+			e.printStackTrace();
+		}
+        
         if (convertView == null) {
         	holder = new ViewHolder();
         	switch(type){
@@ -65,6 +78,18 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
     		holder = (ViewHolder)convertView.getTag();
     	}
         if (type != TYPE_ALERT){
+        	
+        	/*
+        	 * Display the title of the turn
+        	 */
+        	
+        	TextView turnTitle = (TextView) convertView.findViewById(R.id.turn_title);
+        	turnTitle.setText(items.get(position).turnTitle);
+        	
+        	/*
+        	 * Display the pictures
+        	 */
+        	
 	        ParseImageView suspectPic = (ParseImageView) convertView.findViewById(R.id.imageSuspect);
 	        ParseImageView weaponPic = (ParseImageView) convertView.findViewById(R.id.imageWeapon);
 	        ParseImageView scenePic = (ParseImageView) convertView.findViewById(R.id.imageLocation);
@@ -88,9 +113,24 @@ public class TurnHistoryItemAdapter extends ArrayAdapter<TurnHistoryItem>
 				scenePic.loadInBackground();
 	        }
 			
-	        TextView result = (TextView) convertView.findViewById(R.id.textResult);
-	        result.setText(items.get(position).result);
-        }else{
+	        
+	        /*
+	         * Determine if the user is shown the standard result or private result
+	         */
+			
+			TextView result = (TextView) convertView.findViewById(R.id.textResult);
+	        
+	        if (fbId.equals(items.get(position).getPlayerFbId()) || fbId.equals(items.get(position).getAlibiFbId()))
+	        {
+	        	result.setText(items.get(position).resultPrivate);
+	        }
+	        else
+	        {
+	        	result.setText(items.get(position).result);
+	        }
+        }
+        else
+        {
         	TextView alert = (TextView) convertView.findViewById(R.id.textAlert);
         	alert.setText(items.get(position).result);
         }

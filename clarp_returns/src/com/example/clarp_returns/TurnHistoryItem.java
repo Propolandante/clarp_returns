@@ -3,10 +3,15 @@ package com.example.clarp_returns;
 import android.util.Log;
 
 public class TurnHistoryItem {
+	
+	public String turnTitle;
+	
 	public String playerName;
 	public String result;
 	public String resultPrivate;
 	public int type;
+	public String playerFbId;
+	
 	
 	private ClarpCard suspect;
 	private ClarpCard weapon;
@@ -14,6 +19,7 @@ public class TurnHistoryItem {
 	
 	public String alibiName;
 	public String alibiCardName;
+	public String alibiFbId;
 	
 	public TurnHistoryItem(int type){
 		this.type = type;
@@ -33,11 +39,22 @@ public class TurnHistoryItem {
 		if (this.type == GameActivity.TYPE_SUGGEST || this.type == GameActivity.TYPE_ACCUSE)
 		{
 			this.playerName = p.getFullName();
+			this.playerFbId = p.getFbId();
 			this.suspect = s;
 			this.weapon = w;
 			this.location = l;
 			this.alibiName = null;
 			this.alibiCardName = null;
+			this.alibiFbId = null;
+			
+			if (this.type == GameActivity.TYPE_SUGGEST)
+			{
+				this.turnTitle = this.playerName + "'s Suggestion:";
+			}
+			else
+			{
+				this.turnTitle = this.playerName + "'s Accusation:";
+			}
 			
 			
 			if (a != null)
@@ -45,7 +62,8 @@ public class TurnHistoryItem {
 				if (c != null)
 				{
 					this.alibiName = a.getFullName();
-					this.alibiCardName = c.getCardGame();
+					this.alibiCardName = c.getCardName();
+					this.alibiFbId = a.getFbId();
 					
 					this.result = this.alibiName + " proved " + this.playerName + " wrong";
 					this.resultPrivate = this.alibiName + " ruled out " + this.alibiCardName;
@@ -95,4 +113,13 @@ public class TurnHistoryItem {
 	{
 		return this.location;
 	}
+	public String getPlayerFbId()
+	{
+		return this.playerFbId;
+	}
+	public String getAlibiFbId()
+	{
+		return this.alibiFbId;
+	}
+	
 }

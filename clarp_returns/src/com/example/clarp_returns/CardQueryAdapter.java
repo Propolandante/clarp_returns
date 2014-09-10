@@ -21,6 +21,7 @@ public class CardQueryAdapter extends ParseQueryAdapter<ClarpCard>{
                 if(requestCode == ClarpApplication.VIEW_ALL_GAME_CARDS) {
                     query.whereEqualTo("gameId", gameId);
                 }
+
                 return query;
             }
         });

@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
@@ -144,28 +145,28 @@ public class GameActivity extends ActionBarActivity{
                     num_of_weapons = game.getInt("numWeapons");
                     num_of_scenes = game.getInt("numLocations");
                     total_cards = num_of_players + num_of_weapons + num_of_scenes;
-                    
+
                     /*
                      * Determine if it's my turn
                      */
-                    
+
                     try {
-						myFbId = ParseUser.getCurrentUser().getJSONObject("profile").getString("facebookId");
-					} catch (JSONException e1) {
-						e1.printStackTrace();
-						Log.d(ClarpApplication.GA, "Error grabbing the user's facebookId");
-					}
-                    
+                        myFbId = ParseUser.getCurrentUser().getJSONObject("profile").getString("facebookId");
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                        Log.d(ClarpApplication.GA, "Error grabbing the user's facebookId");
+                    }
+
                     if (myFbId.equals(game.getString("whoseTurn")))
                     {
-                    	isMyTurn = true;
+                        isMyTurn = true;
                     }
                     else
                     {
-                    	isMyTurn = false;
+                        isMyTurn = false;
                     }
-                    
-                    
+
+
                     /*
                      * These two functions run in the background.
                      * We should show a loading bar while they process
@@ -177,8 +178,9 @@ public class GameActivity extends ActionBarActivity{
 
                     // listView is updated once cards have been grabbed
 
-
-
+                    ActionBar bar = getActionBar();
+                    bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE);
+                    bar.setTitle(game.getGameName());
 
                 }
                 else
@@ -187,6 +189,8 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
+
+
 
     }
 
@@ -941,14 +945,14 @@ public class GameActivity extends ActionBarActivity{
                 if (e == null)
                 {
                     game = object; // get updated game
-                    
+
                     if (myFbId.equals(game.getString("whoseTurn")))
                     {
-                    	isMyTurn = true;
+                        isMyTurn = true;
                     }
                     else
                     {
-                    	isMyTurn = false;
+                        isMyTurn = false;
                     }
 
                     try {

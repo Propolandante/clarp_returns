@@ -71,6 +71,7 @@ public class ClarpGame extends ParseObject {
     public String getGameName() {
         return getString("gameName");
     }
+
     public void setGameName(String name) {
         put("gameName", name);
     }
@@ -78,6 +79,7 @@ public class ClarpGame extends ParseObject {
     public String getOwner() {
         return getString("owner");
     }
+
     public void setOwner(ParseUser user) {
         put("owner", user.getObjectId());
     }

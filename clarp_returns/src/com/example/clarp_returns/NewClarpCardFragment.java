@@ -92,8 +92,7 @@ public class NewClarpCardFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager) getActivity()
-                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(cardName.getWindowToken(), 0);
                 startCamera();
             }
@@ -105,6 +104,22 @@ public class NewClarpCardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final ClarpCard card = ((NewClarpCardActivity) getActivity()).getCurrentClarpCard();
+                
+                /*
+                 * Check to see if the user has provided a picture and title for this card first!
+                 */
+                
+                if (card.getPhotoFile() == null)
+                {
+                	Toast.makeText((NewClarpCardActivity) getActivity(), "Please provide a picture for this " + cardType.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
+                	return;
+                }
+                
+                if (cardName.getText().toString().equals(""))
+                {
+                	Toast.makeText((NewClarpCardActivity) getActivity(), "Please provide a name for this " + cardType.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
+                	return;
+                }
 
                 // When the user clicks "Save," upload the card to Parse
                 // Add data to the card object:
@@ -212,8 +227,7 @@ public class NewClarpCardFragment extends Fragment {
      */
     public void startCamera() {
         Fragment cameraFragment = new CameraFragment();
-        FragmentTransaction transaction = getActivity().getFragmentManager()
-                .beginTransaction();
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, cameraFragment);
         transaction.addToBackStack("NewClarpCardFragment");
         transaction.commit();
@@ -227,9 +241,9 @@ public class NewClarpCardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ParseFile photoFile = ((NewClarpCardActivity) getActivity())
-                .getCurrentClarpCard().getPhotoFile();
-        if (photoFile != null) {
+        ParseFile photoFile = ((NewClarpCardActivity) getActivity()).getCurrentClarpCard().getPhotoFile();
+        if (photoFile != null) 
+        {
             cardPreview.setParseFile(photoFile);
             cardPreview.loadInBackground(new GetDataCallback() {
                 @Override

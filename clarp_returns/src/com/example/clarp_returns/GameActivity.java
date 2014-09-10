@@ -84,7 +84,7 @@ public class GameActivity extends ActionBarActivity{
     ArrayList<Player> players = new ArrayList<Player>();
 
     Boolean isMyTurn = false;
-    String myFbId;
+    static String myFbId;
 
     ClarpCard queuedSuspect = null;
     ClarpCard queuedWeapon = null;

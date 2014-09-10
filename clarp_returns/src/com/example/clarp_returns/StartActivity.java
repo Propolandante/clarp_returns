@@ -68,6 +68,8 @@ public class StartActivity extends ActionBarActivity {
 
     public Boolean gamesLoaded = false;
     public Boolean infoUpdated = false;
+    
+    public Boolean loadHalter;
 
 
 
@@ -75,6 +77,8 @@ public class StartActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_start);
+        
+        loadHalter = true;
 
         // Parse Analytics to track when people respond to Push Notifications
         ParseAnalytics.trackAppOpened(getIntent());
@@ -180,10 +184,12 @@ public class StartActivity extends ActionBarActivity {
             }
         });
 
-        if (ClarpApplication.IS_LOGGED_IN)
+        if (ClarpApplication.IS_LOGGED_IN && !loadHalter)
         {
             refreshGames(user);
         }
+        
+        loadHalter = false;
     }
 
     public void refreshGames(ParseUser user) {

@@ -9,17 +9,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.facebook.widget.ProfilePictureView;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseAnalytics;
@@ -59,10 +65,9 @@ public class PreGameActivity extends ActionBarActivity
     private TextView suspectCountView;
     private TextView weaponCountView;
     private TextView locationCountView;
-    private Button addCardButton;
     private Button startGameButton;
-    private Button refreshButton;
     private Button cardsListButton;
+    private ListView playersListView;
 
     String gameId;
     ClarpGame game = null;
@@ -73,6 +78,7 @@ public class PreGameActivity extends ActionBarActivity
 
     String gameName;
     JSONArray players;
+    ArrayList<Player> currentPlayers;
 
     ArrayList<ClarpCard> cards;
     String murdererId = null;
@@ -89,6 +95,8 @@ public class PreGameActivity extends ActionBarActivity
     int maxSuspects = 8;
     int maxWeapons = 8;
     int maxLocations = 8;
+
+    PlayerAdapter playersAdapter;
 
 
     @Override
@@ -107,10 +115,12 @@ public class PreGameActivity extends ActionBarActivity
         suspectCountView = (TextView) findViewById(R.id.suspectCount);
         weaponCountView = (TextView) findViewById(R.id.weaponCount);
         locationCountView = (TextView) findViewById(R.id.locationCount);
-        //addCardButton = (Button) findViewById(R.id.addCardButton);
         startGameButton = (Button) findViewById(R.id.startGameButton);
-        //refreshButton = (Button) findViewById(R.id.refreshButton);
         cardsListButton = (Button) findViewById(R.id.cards_list_button);
+
+        playersListView = (ListView) findViewById(R.id.players_list_view);
+
+
 
         updateViewVisibility();
 
@@ -128,6 +138,13 @@ public class PreGameActivity extends ActionBarActivity
             Log.d(ClarpApplication.PGA, "gameId is " + gameId);
             showInviteDialog();
         }
+        currentPlayers = new ArrayList<Player>();
+
+        playersAdapter = new PlayerAdapter(this, currentPlayers);
+
+
+        playersListView.setAdapter(playersAdapter);
+
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
 
         query.getInBackground(gameId, new GetCallback<ClarpGame>() {
@@ -139,6 +156,24 @@ public class PreGameActivity extends ActionBarActivity
 
                     gameName = game.getGameName();
                     players = game.getJSONArray("players");
+
+                    if(players != null) {
+                        for(int i = 0; i < players.length(); ++i) {
+                            try {
+                                currentPlayers.add(new Player(players.getJSONObject(i)));
+                                //                                currentPlayers.get(i).setName(players.getJSONObject(i).getString("name"));
+                                //                                currentPlayers.get(i).setPrefix(players.getJSONObject(i).getString("prefix"));
+                                //                                currentPlayers.get(i).setFbId(players.getJSONObject(i).getString("facebookId"));
+                            } catch(JSONException exception) {
+                                Log.d(ClarpApplication.PGA, "Error converting JSONArray to ArrayList");
+                                Log.e("Error", "Error message: " + exception.getMessage());
+                                exception.printStackTrace();
+                            }
+                        }
+                    }
+
+                    playersAdapter.notifyDataSetChanged();
+
 
                     Log.d(ClarpApplication.PGA, "Pregame: Game found, name is " + gameName);
 
@@ -376,13 +411,6 @@ public class PreGameActivity extends ActionBarActivity
         });
 
 
-        //        refreshButton.setOnClickListener(new View.OnClickListener() {
-        //            @Override
-        //            public void onClick(View v) {
-        //
-        //                syncGame();
-        //            }
-        //        });
 
     }
 
@@ -437,6 +465,7 @@ public class PreGameActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
+
     private void syncGame()
     {
         Log.d(ClarpApplication.PGA, "SYNC!");
@@ -465,11 +494,30 @@ public class PreGameActivity extends ActionBarActivity
                     gameName = game.getGameName();
                     players = game.getJSONArray("players");
 
+                    currentPlayers = new ArrayList<Player>();
+
+                    if(players != null) {
+                        for(int i = 0; i < players.length(); ++i) {
+                            try {
+                                currentPlayers.add(new Player(players.getJSONObject(i)));
+                                //                                currentPlayers.get(i).setName(players.getJSONObject(i).getString("name"));
+                                //                                currentPlayers.get(i).setPrefix(players.getJSONObject(i).getString("prefix"));
+                                //                                currentPlayers.get(i).setFbId(players.getJSONObject(i).getString("facebookId"));
+                            } catch(JSONException exception) {
+                                Log.d(ClarpApplication.PGA, "Error converting JSONArray to ArrayList");
+                                Log.e("Error", "Error message: " + exception.getMessage());
+                                exception.printStackTrace();
+                            }
+                        }
+                    }
+
+
                     refreshCounts();
-                    
+                    playersAdapter.notifyDataSetChanged();
+
                     if(game.getBoolean("isStarted"))
                     {
-                    	Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
+                        Intent intent = new Intent(PreGameActivity.this, GameActivity.class);
                         intent.putExtra("game_id", game.getObjectId());
                         startActivity(intent);
                         finish();
@@ -625,5 +673,61 @@ public class PreGameActivity extends ActionBarActivity
 
     }
 
+    public class PlayerAdapter extends ArrayAdapter<Player> {
+
+        /*
+         * Sources:
+         * http://www.vogella.com/tutorials/AndroidListView/article.html#adapterown_custom
+         * http://www.mysamplecode.com/2012/07/android-listview-checkbox-example.html
+         */
+
+        private final Context context;
+        private final ArrayList<Player> players;
+
+        public PlayerAdapter(Context context, ArrayList<Player> players) {
+            super(context, R.layout.player_item, players);
+            this.context = context;
+            this.players = players;
+        }
+
+        private class ViewHolder {
+            ProfilePictureView image;
+            TextView text;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            ViewHolder holder = null;
+
+            if (convertView == null)
+            {
+
+                LayoutInflater vi = (LayoutInflater)getSystemService( Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.player_item, null);
+
+                holder = new ViewHolder();
+                holder.image = (ProfilePictureView) convertView.findViewById(R.id.selection_profile_pic);
+                holder.image.setCropped(true);
+                holder.text = (TextView) convertView.findViewById(R.id.player_name);
+
+                convertView.setTag(holder);
+
+            }
+            else
+            {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            Player player = players.get(position);
+
+            holder.text.setText(players.get(position).getFullName());
+            holder.image.setProfileId(players.get(position).getFbId());
+
+            return convertView;
+        }
+    }
 
 }

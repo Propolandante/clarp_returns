@@ -17,14 +17,6 @@
         android:text="Large Text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    
     <TextView
         android:id="@+id/loadText"
         android:layout_width="wrap_content"
@@ -33,64 +25,91 @@
         android:layout_below="@+id/progressBar1"
         android:text="Loading game information"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gameName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="39dp" />
+
+    <TextView
+         android:id="@+id/playerCount"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+         android:layout_below="@+id/locationCount"
+         android:layout_marginTop="20dp"
+         android:layout_marginBottom="10dp"
+         android:text="Medium Text"
+         android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <TextView
-        android:id="@+id/playerCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/suspectCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/playerCount"
-        android:layout_centerHorizontal="true"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/weaponCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/suspectCount"
-        android:layout_centerHorizontal="true"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/locationCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/weaponCount"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-
+         android:id="@+id/suspectCount"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+         android:layout_marginTop="10dp"
+         android:layout_marginBottom="10dp"
+         android:layout_below="@+id/gameName"
+         android:text="Medium Text"
+         android:textAppearance="?android:attr/textAppearanceMedium" />
     
-    <Button
-        android:id="@+id/startGameButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/cards_list_button"
-        android:background="@drawable/button_clarp"
-        android:text="Start Game"
-        style="@style/ButtonText" />
-
+    <TextView
+         android:id="@+id/weaponCount"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+         android:layout_below="@+id/suspectCount"
+         android:layout_marginTop="10dp"
+         android:layout_marginBottom="10dp"
+         android:text="Medium Text"
+         android:textAppearance="?android:attr/textAppearanceMedium" />
     
-    <Button
-        android:id="@+id/cards_list_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:onClick="clickCardsList"
-        android:background="@drawable/button_clarp"
+    
+    
+     <TextView
+         android:id="@+id/locationCount"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+         android:layout_below="@+id/weaponCount"
+         android:layout_marginTop="10dp"
+         android:layout_marginBottom="10dp"
+         android:text="Medium Text"
+         android:textAppearance="?android:attr/textAppearanceMedium" />
+     
+     <ListView 
+         android:id="@+id/players_list_view"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/locationCount"
+         android:layout_above="@+id/startGameButton"
+         android:layout_marginBottom="10dp"
+         android:layout_marginTop="50dp"
+         />"
+        
+    
+    
+    <Button 
+        android:id="@+id/startGameButton" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:layout_centerHorizontal="true" 
+        android:layout_above="@+id/cards_list_button" 
+        android:background="@drawable/button_clarp" 
+        android:text="Start Game" style="@style/ButtonText" />
+    
+    <Button 
+        android:id="@+id/cards_list_button" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:layout_alignParentBottom="true" 
+        android:onClick="clickCardsList" 
+        android:background="@drawable/button_clarp" 
         android:text="@string/cards_list" 
-        style="@style/ButtonText"/>
+        style="@style/ButtonText" />
 
 </RelativeLayout>

@@ -19,6 +19,7 @@ public class NotesFragment extends Fragment {
 	ArrayList<NoteItem> items;
 	public NoteItemAdapter adapter;
 	ListView listView;
+	String gameId;
 	
 	public NotesFragment(ArrayList<NoteItem> items){
 		super();
@@ -34,6 +35,7 @@ public class NotesFragment extends Fragment {
 		listView.setItemsCanFocus(true);
 		adapter = new NoteItemAdapter(getActivity(), android.R.layout.simple_list_item_1,items);
 		listView.setAdapter(adapter);
+		adapter.setGameId(gameId);
 		return rootView;
 	}
 	
@@ -55,8 +57,8 @@ public class NotesFragment extends Fragment {
 		return items;
 	}
 	
-	public void passGameId(String gameId){
-		adapter.setGameId(gameId);
+	public void setGameId(String gameId){
+		this.gameId = gameId;
 	}
 	
 }

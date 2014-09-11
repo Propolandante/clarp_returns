@@ -28,6 +28,8 @@ public class NoteItemAdapter extends ArrayAdapter<NoteItem> {
 	private LayoutInflater vi;
 	private String gameId;
 	
+	boolean changeCheck = false;
+	
 	public NoteItemAdapter(Context context,	int textViewResourceId, ArrayList<NoteItem> items) {
 		super(context, textViewResourceId, items);
 		vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -99,18 +101,23 @@ public class NoteItemAdapter extends ArrayAdapter<NoteItem> {
 				
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					NoteItem item = items.get(position);
-					item.isChecked = !items.get(position).isChecked;
-					Log.d("Saved to", gameId);
-					SharedPreferences saveFile = getContext().getSharedPreferences(gameId,0);
-			        SharedPreferences.Editor editor = saveFile.edit();
-			        editor.putBoolean(item.name, item.isChecked);
-			        Log.d(item.name, Boolean.toString(item.isChecked));
-			        editor.apply();
+					if (changeCheck){
+						NoteItem item = items.get(position);
+						item.isChecked = !items.get(position).isChecked;
+						Log.d("Saved to", gameId);
+						SharedPreferences saveFile = getContext().getSharedPreferences(gameId,0);
+				        SharedPreferences.Editor editor = saveFile.edit();
+				        editor.putBoolean(item.name, item.isChecked);
+				        Log.d(item.name, Boolean.toString(item.isChecked));
+				        editor.apply();
+					}
 				}
 			});
 	        
+	        Log.d("Var contains", Boolean.toString(items.get(position).isChecked));
+	        changeCheck = false;
 	        checkNote.setChecked(items.get(position).isChecked );
+	        changeCheck = true;
 	        	
         }else{
         	TextView header = (TextView) convertView.findViewById(R.id.textAlert);

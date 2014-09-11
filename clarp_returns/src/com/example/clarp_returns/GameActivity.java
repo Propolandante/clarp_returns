@@ -131,7 +131,6 @@ public class GameActivity extends ActionBarActivity{
         pageAdapter = new MyAdapter(fragmentManager);
         viewPager.setAdapter(pageAdapter);
         viewPager.setCurrentItem(1);
-        
 
         /*
          * First, get the ClarpGame so we know what we're working with
@@ -145,6 +144,7 @@ public class GameActivity extends ActionBarActivity{
                 if (e == null)
                 {
                     game = object;
+                    id = game.getObjectId();
                     // get counts. idk if we will use these, but Joe might know
                     num_of_players = game.getInt("numSuspects");
                     num_of_weapons = game.getInt("numWeapons");
@@ -178,7 +178,6 @@ public class GameActivity extends ActionBarActivity{
                      * So the user can't attempt to play before the info is here
                      */
                     getPlayers(game);
-
                     getCards(game);
 
                     // listView is updated once cards have been grabbed
@@ -254,7 +253,8 @@ public class GameActivity extends ActionBarActivity{
 
         cards = new ArrayList<ClarpCard>();
         id = g.getObjectId();
-
+        notesFragment = pageAdapter.getNotesFragment();
+        notesFragment.setGameId(id);
         ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
         query.whereEqualTo("gameId", id);
         loading = true;
@@ -287,8 +287,10 @@ public class GameActivity extends ActionBarActivity{
 
                     
                     // put the card names into the notes fragment
-                    notesFragment = pageAdapter.getNotesFragment();
-                    notesFragment.passGameId(id);
+                    
+                    Log.d("id", id);
+                    Log.d("notes exists",Boolean.toString(notesFragment != null));
+                    
                     notesFragment.add(new NoteItem("Suspects",1));
                     for(String suspect : suspects){
                     	NoteItem newNote = new NoteItem(suspect,0);
@@ -1266,6 +1268,7 @@ class MyAdapter extends FragmentPagerAdapter{
     HistoryFragment historyFragment;
     NotesFragment notesFragment;
     CardHandFragment cardHandFragment;
+    String gameId;
 
     public MyAdapter(FragmentManager fm) {
         super(fm);
@@ -1327,8 +1330,9 @@ class MyAdapter extends FragmentPagerAdapter{
         return notesFragment;
     }
     
-    public void passGameId(String gameId){
-    	notesFragment.passGameId(gameId);
+    
+    public void setGameId(String gameId){
+    	this.gameId = gameId;
     }
 
 }

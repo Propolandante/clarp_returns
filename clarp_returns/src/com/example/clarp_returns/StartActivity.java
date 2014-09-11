@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -543,7 +544,52 @@ public class StartActivity extends ActionBarActivity {
 
 
             holder.leftView.setText(games.get(position).getGameName());
-            holder.rightView.setText("Derk's turn");
+            
+            /*
+             * Get whose turn it is
+             */
+            
+            String turnName = null;
+            String turnId = games.get(position).getString("whoseTurn");
+            if (turnId == null)
+            {
+            	Log.d(ClarpApplication.TAG, "SA: " + games.get(position).getGameName() + " whoseTurn is empty");
+            	turnId = "";
+            }
+            JSONArray players = games.get(position).getJSONArray("players");
+            
+            for (int i = 0; i < players.length(); ++i)
+            {
+            	String id = null;
+            	
+            	try {
+					id = ((JSONObject)players.get(i)).getString("facebookId");
+				} catch (JSONException e) {
+					Log.d(ClarpApplication.TAG, "SA: couldn't get game's player's facebookId");
+					e.printStackTrace();
+				}
+            	
+            	if (turnId.equals(id))
+            	{
+            		try {
+						turnName = ((JSONObject)players.get(i)).getString("prefix") + " " + ((JSONObject)players.get(i)).getString("name");
+					} catch (JSONException e) {
+						Log.d(ClarpApplication.TAG, "SA: couldn't get game's player's prefix and name");
+						e.printStackTrace();
+					}
+            	}
+            }
+            
+            if (turnName != null)
+            {
+            	holder.rightView.setText(turnName + "'s turn");
+            }
+            else
+            {
+            	holder.rightView.setText("TURN ERROR");
+            }
+            
+            
 
 
 

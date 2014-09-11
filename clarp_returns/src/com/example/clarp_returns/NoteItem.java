@@ -2,7 +2,7 @@ package com.example.clarp_returns;
 
 public class NoteItem {
 	String name;
-	Boolean isChecked;
+	boolean isChecked;
 	String notes;
 	int type;
 	

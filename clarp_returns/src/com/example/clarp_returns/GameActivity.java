@@ -3,6 +3,7 @@ package com.example.clarp_returns;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +55,7 @@ public class GameActivity extends ActionBarActivity{
     public static final int TYPE_SUGGEST = 0;
     public static final int TYPE_ACCUSE = 1;
     public static final int TYPE_ALERT = 2;
+    
 
     ListView historyListView;
     Button suggestButton;
@@ -95,7 +98,7 @@ public class GameActivity extends ActionBarActivity{
 
     ClarpGame game = null;
 
-
+    String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +131,7 @@ public class GameActivity extends ActionBarActivity{
         pageAdapter = new MyAdapter(fragmentManager);
         viewPager.setAdapter(pageAdapter);
         viewPager.setCurrentItem(1);
+        
 
         /*
          * First, get the ClarpGame so we know what we're working with
@@ -249,11 +253,10 @@ public class GameActivity extends ActionBarActivity{
          */
 
         cards = new ArrayList<ClarpCard>();
-        String id = g.getObjectId();
+        id = g.getObjectId();
 
         ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
         query.whereEqualTo("gameId", id);
-
         loading = true;
         updateViews();
 
@@ -278,20 +281,39 @@ public class GameActivity extends ActionBarActivity{
                         Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
                     }
 
+                    //creates or opens save file TODO
+                    SharedPreferences saveFile = getSharedPreferences(id, 0);
+                    Log.d("open save", id);
+
+                    
                     // put the card names into the notes fragment
                     notesFragment = pageAdapter.getNotesFragment();
+                    notesFragment.passGameId(id);
                     notesFragment.add(new NoteItem("Suspects",1));
                     for(String suspect : suspects){
-                        notesFragment.add(new NoteItem(suspect,0));
+                    	NoteItem newNote = new NoteItem(suspect,0);
+                    	newNote.isChecked = saveFile.getBoolean(suspect, false);
+                    	newNote.notes = saveFile.getString(Integer.toString(notesFragment.getItems().size()), "");
+                        notesFragment.add(newNote);
+                        Log.d(Integer.toString(notesFragment.getItems().size()), saveFile.getString(Integer.toString(notesFragment.getItems().size()), ""));
+                        
                     }
                     notesFragment.add(new NoteItem("Weapons",1));
                     for(String weapon : weapons){
-                        notesFragment.add(new NoteItem(weapon,0));
+                    	NoteItem newNote = new NoteItem(weapon,0);
+                    	newNote.isChecked = saveFile.getBoolean(weapon, false);
+                    	newNote.notes = saveFile.getString(Integer.toString(notesFragment.getItems().size()), "");
+                        notesFragment.add(newNote);
                     }
                     notesFragment.add(new NoteItem("Scenes",1));
                     for(String scene : scenes){
-                        notesFragment.add(new NoteItem(scene,0));
+                    	NoteItem newNote = new NoteItem(scene,0);
+                    	newNote.isChecked = saveFile.getBoolean(scene, false);
+                    	newNote.notes = saveFile.getString(Integer.toString(notesFragment.getItems().size()), "");
+                        notesFragment.add(newNote);
                     }
+                    
+                    
                     Log.d("going to iterate", "yeah");
                     cardHandFragment = pageAdapter.getCardHandFragment();
                     ParseUser thisPlayer = ParseUser.getCurrentUser();
@@ -1303,6 +1325,10 @@ class MyAdapter extends FragmentPagerAdapter{
 
     public NotesFragment getNotesFragment(){
         return notesFragment;
+    }
+    
+    public void passGameId(String gameId){
+    	notesFragment.passGameId(gameId);
     }
 
 }

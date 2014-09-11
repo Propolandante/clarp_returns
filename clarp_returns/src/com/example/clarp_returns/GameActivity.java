@@ -45,6 +45,7 @@ import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 
 public class GameActivity extends ActionBarActivity{
@@ -239,8 +240,6 @@ public class GameActivity extends ActionBarActivity{
         return super.onOptionsItemSelected(item);
     }
 
-
-
     private void getCards(ClarpGame g)
     {
 
@@ -391,7 +390,6 @@ public class GameActivity extends ActionBarActivity{
         }
     }
 
-
     @SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	private void createPopup(boolean isSuggest){
@@ -485,7 +483,6 @@ public class GameActivity extends ActionBarActivity{
         pw.setFocusable(true);
     }
 
-
     //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void clickSelectSuspect(View v) {
@@ -545,7 +542,6 @@ public class GameActivity extends ActionBarActivity{
         });
     }
 
-
     //Called when the Scene image is clicked in a Suggest or accuse popup.  Will populate the listview with Scene cards.
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void clickSelectScene(View v) {
@@ -582,7 +578,6 @@ public class GameActivity extends ActionBarActivity{
     public void clickSuggestAccuse(View v) throws JSONException {
         submit(TYPE_ACCUSE);
     }
-
 
     private void submit(int type) throws JSONException{
 
@@ -673,17 +668,26 @@ public class GameActivity extends ActionBarActivity{
         }
 
         refreshHistory();
-
+        
+        isMyTurn = false;
         game.rotateTurn();
 
 
-        game.saveInBackground();
+        game.saveInBackground(new SaveCallback() {
+
+			@Override
+			public void done(ParseException e) {
+				refreshGame();
+			}
+        	
+        });
 
         queuedSuspect = null;
         queuedWeapon = null;
         queuedScene = null;
     }
     
+    // This is only called when the user selects "Accuse" in the accuseDialog
     public void makeWinningAccusation() throws JSONException
     {
     	/*
@@ -737,16 +741,25 @@ public class GameActivity extends ActionBarActivity{
         
         refreshHistory();
 
+        isMyTurn = false;
         game.rotateTurn();
 
 
-        game.saveInBackground();
+        game.saveInBackground(new SaveCallback() {
+
+			@Override
+			public void done(ParseException e) {
+				refreshGame();
+			}
+        	
+        });
 
         queuedSuspect = null;
         queuedWeapon = null;
         queuedScene = null;
     }
     
+	// This is only called when the user selects "Pass" in the accuseDialog
     public void whoLikesWinningAnyways() throws JSONException{
     	
     	/*
@@ -755,10 +768,18 @@ public class GameActivity extends ActionBarActivity{
     	
     	refreshHistory();
 
+    	isMyTurn = false;
         game.rotateTurn();
 
 
-        game.saveInBackground();
+        game.saveInBackground(new SaveCallback() {
+
+			@Override
+			public void done(ParseException e) {
+				refreshGame();
+			}
+        	
+        });
 
         queuedSuspect = null;
         queuedWeapon = null;
@@ -1071,24 +1092,6 @@ public class GameActivity extends ActionBarActivity{
         });
     }
 
-    //    public Player refuteSuggestion(){
-    //
-    //    	// TODO This needs to loop through all players, excluding the current one
-    //    	// Right now, it's basically hardcoded to assume player #0 is the one who made the suggestion
-    //
-    //    	if (players.size() > 1)
-    //    	{
-    //    		for (Player p : players.subList(1, players.size())){
-    //        		for (String id : p.getCardIds()){
-    //        			if (id.equals(queuedSuspect.getObjectId()) || id.equals(queuedWeapon.getObjectId()) || id.equals(queuedScene.getObjectId()))
-    //        				return p;
-    //        		}
-    //        	}
-    //    	}
-    //
-    //    	return null;
-    //    }
-
     public void clickCancel(View v){
         pw.dismiss();
     }
@@ -1180,10 +1183,7 @@ public class GameActivity extends ActionBarActivity{
         return ret;
     }
 
-
 }
-
-
 
 class MyAdapter extends FragmentPagerAdapter{
     ArrayList<TurnHistoryItem> historyItems;

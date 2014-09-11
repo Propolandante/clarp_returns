@@ -56,7 +56,9 @@
         </activity>
         <activity
             android:name="com.example.clarp_returns.PreGameActivity"
-            android:label="@string/title_activity_pre_game" >
+            android:label="@string/title_activity_pre_game"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.example.clarp_returns.NewClarpCardActivity"

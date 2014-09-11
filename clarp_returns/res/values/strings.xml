@@ -64,6 +64,10 @@
     <string name="title_activity_pre_game">Game Setup</string>
     <string name="title_activity_invite">Invite Friends</string>
     
+    <string name="add_cards">Add Cards</string>
+    <string name="pga_help">Add more cards to the deck to start the game!</string>
+    <string name="dont_show_message">Don\'t show me this message again.</string>
+    
     <style name="ButtonText">
        <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>

@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical" 
+    android:layout_height="match_parent"
     android:background="@drawable/manila"
-    android:weightSum="20" >
-
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical"
+    android:weightSum="22" >
     
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity=""
         android:layout_height="0dp"
         android:text="Suggest" 
+        android:paddingLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium" 
-        android:layout_weight="2"/>
+        android:layout_weight="2"
+        android:background="@drawable/popup_title"/>
     
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="10dp"
+        android:paddingTop="20dp"
  		android:paddingLeft="5dp"
  		android:paddingRight="5dp"
- 		android:paddingBottom="10dp"
- 		android:layout_weight="5"
+ 		android:layout_weight="6"
+ 		android:gravity="center"
         android:orientation="horizontal"
-        android:weightSum="20" >
+        android:weightSum="23" >
         
         <com.parse.ParseImageView
             android:id="@+id/imageSuspectSelect"
@@ -32,7 +34,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="5"
             android:onClick="clickSelectSuspect"
-            android:background="#000000"
+            android:background="@drawable/select_box"
             android:src="@drawable/joe" />
         
         <TextView
@@ -41,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=" with "
-            android:layout_weight="2"
+            android:layout_weight="4"
             android:textSize="20sp" />
 
         <com.parse.ParseImageView 
@@ -49,8 +51,8 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="5"
-             android:onClick="clickSelectWeapon"
-            android:background="#000000"
+            android:onClick="clickSelectWeapon"
+            android:background="@drawable/deselect_box"
             android:src="@drawable/joe" />
 
         <TextView
@@ -59,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=" in "
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:textSize="20sp" />
         
         <com.parse.ParseImageView 
@@ -67,8 +69,8 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="5"
-             android:onClick="clickSelectScene"
-            android:background="#000000"
+            android:onClick="clickSelectScene"
+            android:background="@drawable/deselect_box"
             android:src="@drawable/joe" />
     </LinearLayout>
 
@@ -76,20 +78,22 @@
         android:id="@+id/listCards"
         android:layout_width="match_parent"
         android:layout_height="0dp" 
-        android:layout_weight="8"
+        android:layout_weight="10"
         android:background="#44FFFFFF">
     </ListView>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="5" 
+        android:layout_weight="4" 
+        android:layout_gravity="center"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/buttonSubmitSuggest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="5dp"
             android:background="@drawable/button_clarp"
             android:onClick="clickSuggestSubmit"
             android:text="@string/submitButton"
@@ -99,6 +103,7 @@
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="5dp"
             android:background="@drawable/button_clarp"
             android:onClick="clickCancel"
             android:text="@string/cancelButton"

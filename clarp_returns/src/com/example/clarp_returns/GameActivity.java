@@ -469,7 +469,7 @@ public class GameActivity extends ActionBarActivity{
         
         Display display = getWindowManager().getDefaultDisplay();
         Point screenSize = new Point();
-        if (Build.VERSION.SDK_INT < 13){
+        if (Build.VERSION.SDK_INT <= 13){
         	display.getSize(screenSize);
         }else{
         	screenSize.x = display.getWidth();
@@ -477,7 +477,7 @@ public class GameActivity extends ActionBarActivity{
         }
         	
 
-        pw = new PopupWindow(popupView,(int)(screenSize.x*.8),(int)(screenSize.y*.75),true);
+        pw = new PopupWindow(popupView,(int)(screenSize.x*.95),(int)(screenSize.y*.9),true);
         pw.setAnimationStyle(android.R.style.Animation_Dialog);
         pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
         pw.setOutsideTouchable(true);
@@ -487,7 +487,8 @@ public class GameActivity extends ActionBarActivity{
 
 
     //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressLint("NewApi")
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
     public void clickSelectSuspect(View v) {
         selectType = ClarpCard.CardType.SUSPECT;
         ArrayList<ClarpCard> suspectList = new ArrayList<ClarpCard>();
@@ -502,7 +503,7 @@ public class GameActivity extends ActionBarActivity{
         listCards.setClickable(true);
         listCards.setOnItemClickListener(new OnItemClickListener() {
 
-            @Override
+			@Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
                 queuedSuspect = (ClarpCard) listCards.getItemAtPosition(position);
@@ -510,14 +511,31 @@ public class GameActivity extends ActionBarActivity{
                 ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
                 if (suspectImageFile != null) {
                     suspectPic.setParseFile(suspectImageFile);
-                    suspectPic.loadInBackground();
+                    suspectPic.loadInBackground();                
                 }
             }
         });
+        ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+        if (Build.VERSION.SDK_INT <= 16){
+            suspectPic.setBackground(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+        }else{
+        	suspectPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+        }
     }
+    
+
 
     //Called when the Weapon image is clicked in a Suggest or Accuse popup.  Will populate the listview with Weapon cards.
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressLint("NewApi")
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
     public void clickSelectWeapon(View v) {
         selectType = ClarpCard.CardType.WEAPON;
         ArrayList<ClarpCard> weaponList = new ArrayList<ClarpCard>();
@@ -531,7 +549,7 @@ public class GameActivity extends ActionBarActivity{
         listCards.setAdapter(adapter);
         listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
+			@Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
                 queuedWeapon = (ClarpCard) listCards.getItemAtPosition(position);
@@ -543,11 +561,26 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
+        ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+        if (Build.VERSION.SDK_INT <= 16){
+            weaponPic.setBackground(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+        }else{
+        	weaponPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+        }
     }
 
 
     //Called when the Scene image is clicked in a Suggest or accuse popup.  Will populate the listview with Scene cards.
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressLint("NewApi")
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
     public void clickSelectScene(View v) {
         selectType = ClarpCard.CardType.LOCATION;
         ArrayList<ClarpCard> sceneList = new ArrayList<ClarpCard>();
@@ -561,7 +594,9 @@ public class GameActivity extends ActionBarActivity{
         listCards.setAdapter(adapter);
         listCards.setOnItemClickListener(new OnItemClickListener() {
 
-            @Override
+            @SuppressWarnings("deprecation")
+			@SuppressLint("NewApi")
+			@Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
                 queuedScene = (ClarpCard) listCards.getItemAtPosition(position);
@@ -573,6 +608,20 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
+        ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+        if (Build.VERSION.SDK_INT <= 16){
+            scenePic.setBackground(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+        }else{
+        	scenePic.setBackgroundDrawable(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+        }
     }
 
     public void clickSuggestSubmit(View v) throws JSONException {

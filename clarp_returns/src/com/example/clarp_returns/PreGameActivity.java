@@ -9,7 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -21,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -99,6 +103,7 @@ public class PreGameActivity extends ActionBarActivity
     PlayerAdapter playersAdapter;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,11 +143,17 @@ public class PreGameActivity extends ActionBarActivity
             Log.d(ClarpApplication.PGA, "gameId is " + gameId);
             showInviteDialog();
         }
+
+        if(!ClarpApplication.dontShowAgain) {
+            Log.d(ClarpApplication.PGA, "Showing help dialog");
+            showHelpDialog();
+        } else {
+            Log.d(ClarpApplication.PGA, "User asked to not see dialog again");
+        }
+
         currentPlayers = new ArrayList<Player>();
 
         playersAdapter = new PlayerAdapter(this, currentPlayers);
-
-
         playersListView.setAdapter(playersAdapter);
 
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
@@ -161,9 +172,6 @@ public class PreGameActivity extends ActionBarActivity
                         for(int i = 0; i < players.length(); ++i) {
                             try {
                                 currentPlayers.add(new Player(players.getJSONObject(i)));
-                                //                                currentPlayers.get(i).setName(players.getJSONObject(i).getString("name"));
-                                //                                currentPlayers.get(i).setPrefix(players.getJSONObject(i).getString("prefix"));
-                                //                                currentPlayers.get(i).setFbId(players.getJSONObject(i).getString("facebookId"));
                             } catch(JSONException exception) {
                                 Log.d(ClarpApplication.PGA, "Error converting JSONArray to ArrayList");
                                 Log.e("Error", "Error message: " + exception.getMessage());
@@ -174,18 +182,11 @@ public class PreGameActivity extends ActionBarActivity
 
                     playersAdapter.notifyDataSetChanged();
 
-
                     Log.d(ClarpApplication.PGA, "Pregame: Game found, name is " + gameName);
-
-
 
                     /*
                      * Next, determine if the current user is the owner of this game
                      */
-
-                    //user = ParseUser.getCurrentUser();
-                    //Log.d(ClarpApplication.PGA, "User ID: " + user.getObjectId());
-                    //Log.d(ClarpApplication.PGA, "Owner ID: " + game.getOwner());
                     if (user.getObjectId().equals(game.getOwner()))
                     {
                         isOwner = true;
@@ -208,37 +209,15 @@ public class PreGameActivity extends ActionBarActivity
 
 
         /*
-         * Initialize buttons. These do not rely on game being loaded.
+         * Initialize buttons
          */
-        //        addCardButton.setOnClickListener(new View.OnClickListener() {
-        //            @Override
-        //            public void onClick(View v) {
-        //
-        //                /*
-        //                 * Takes user to the card creation activity.
-        //                 * Currently, this does not actually add the card to any game.
-        //                 * We will store all the card ObjectIds in local arrays,
-        //                 * and only save them to Parse once the Start Game button is pushed.
-        //                 *
-        //                 * I don't think it's vital to send any extra data with the intent.
-        //                 * The only thing I can think of would be to send the game name
-        //                 * for a more helpful UI in the NewCard activity.
-        //                 * Or maybe, send the current counts, so it can suggest a card type that the
-        //                 * game needs more of. #stretchgoal
-        //                 */
-        //
-        //                Intent intent = new Intent(PreGameActivity.this, NewClarpCardActivity.class);
-        //                intent.putExtra("game_id", game.getObjectId());
-        //                startActivityForResult(intent, ClarpApplication.ADD_CARD);
-        //            }
-        //        });
 
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 /*
-                 * WE NEED TO BE SURE THAT WE HAVE THE LATEST GAME FROM THE SERVER FIRST
+                 * Get current game from Parse
                  */
 
                 ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
@@ -394,8 +373,6 @@ public class PreGameActivity extends ActionBarActivity
                                     }
                                 }
                             });
-
-
                         }
                         else
                         {
@@ -403,10 +380,6 @@ public class PreGameActivity extends ActionBarActivity
                         }
                     }
                 });
-
-
-
-
             }
         });
 
@@ -473,13 +446,9 @@ public class PreGameActivity extends ActionBarActivity
         gameLoaded = false;
         updateViewVisibility();
 
-        //Log.d(ClarpApplication.PGA, "Weapons before: " + game.getJSONArray("weapons").length());
-
         Log.d(ClarpApplication.PGA, "Must fetch data");
         Log.d(ClarpApplication.PGA, "Weapons old: " + game.getJSONArray("weapons").length());
-        /*
-         * I tried using refreshInBackground, and fetchInBackground, but neither of them worked. Oh well...
-         */
+
 
         ParseQuery<ClarpGame> query = ParseQuery.getQuery("ClarpGame");
         query.getInBackground(game.getObjectId(), new GetCallback<ClarpGame>() {
@@ -500,9 +469,6 @@ public class PreGameActivity extends ActionBarActivity
                         for(int i = 0; i < players.length(); ++i) {
                             try {
                                 currentPlayers.add(new Player(players.getJSONObject(i)));
-                                //                                currentPlayers.get(i).setName(players.getJSONObject(i).getString("name"));
-                                //                                currentPlayers.get(i).setPrefix(players.getJSONObject(i).getString("prefix"));
-                                //                                currentPlayers.get(i).setFbId(players.getJSONObject(i).getString("facebookId"));
                             } catch(JSONException exception) {
                                 Log.d(ClarpApplication.PGA, "Error converting JSONArray to ArrayList");
                                 Log.e("Error", "Error message: " + exception.getMessage());
@@ -534,6 +500,12 @@ public class PreGameActivity extends ActionBarActivity
     }
 
 
+    /*
+     * Refreshes the numbers of each type of card
+     * and number of players
+     * 
+     * Checks if game is ready to start
+     */
     private void refreshCounts()
     {
         if(game == null)
@@ -589,6 +561,7 @@ public class PreGameActivity extends ActionBarActivity
             suspectCountView.setVisibility(View.GONE);
             weaponCountView.setVisibility(View.GONE);
             locationCountView.setVisibility(View.GONE);
+            playersListView.setVisibility(View.GONE);
         }
         else
         {
@@ -599,6 +572,7 @@ public class PreGameActivity extends ActionBarActivity
             suspectCountView.setVisibility(View.VISIBLE);
             weaponCountView.setVisibility(View.VISIBLE);
             locationCountView.setVisibility(View.VISIBLE);
+            playersListView.setVisibility(View.VISIBLE);
         }
 
         if(isOwner && gameReady)
@@ -632,12 +606,50 @@ public class PreGameActivity extends ActionBarActivity
         }
     }
 
+    // card list button
     public void clickCardsList(View v) {
         Intent intent = new Intent(PreGameActivity.this, CardListActivity.class);
         intent.putExtra("game_id", gameId);
         intent.putExtra("requestCode", ClarpApplication.VIEW_ALL_GAME_CARDS);
         startActivityForResult(intent, ClarpApplication.VIEW_ALL_GAME_CARDS);
     }
+
+    // to show help dialog
+    private void showHelpDialog() {
+        // 2 is for holo dark theme so that action bar + will be visible
+        AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this, 2);
+        LayoutInflater helpInflater = LayoutInflater.from(this);
+        View helpLayout = helpInflater.inflate(R.layout.help_dialog, null);
+        helpBuilder.setView(helpLayout)
+        .setMessage(R.string.pga_help)
+        .setTitle(R.string.add_cards)
+        .setIcon(R.drawable.ic_action_new);
+        CheckBox dontShowCheck = (CheckBox) helpLayout.findViewById(R.id.dont_show_again);
+        dontShowCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
+                if(isChecked) {
+                    ClarpApplication.dontShowAgain = true;
+                    Log.d(ClarpApplication.PGA, "dontShowAgain = true");
+                } else {
+                    ClarpApplication.dontShowAgain = false;
+                    Log.d(ClarpApplication.PGA, "dontShowAgain = false");
+                }
+
+            }
+
+        });
+        helpBuilder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        helpBuilder.create();
+        helpBuilder.show();
+    }
+
 
     // to show invitation dialog
     private void showInviteDialog() {
@@ -652,8 +664,8 @@ public class PreGameActivity extends ActionBarActivity
     }
 
     // to get positive or negative result
-    // of dialog and, if positive, add player
-    // to game
+    // of invitation dialog and, if positive,
+    // add player to game
     public void onUserSelectValue(String selectedValue) {
         if (selectedValue == "accept") {
             try {
@@ -666,13 +678,13 @@ public class PreGameActivity extends ActionBarActivity
         } else {
             // kick user back to start activity
             Intent intent = new Intent(PreGameActivity.this, StartActivity.class);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
         }
 
     }
 
+    // for player list
     public class PlayerAdapter extends ArrayAdapter<Player> {
 
         /*

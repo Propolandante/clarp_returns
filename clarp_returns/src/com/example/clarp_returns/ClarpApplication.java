@@ -18,6 +18,7 @@ public class ClarpApplication extends Application {
     static final String PGA = "Clarp_PGA";
     static final String GA = "Clarp_GA";
     static final String CF = "Clarp_CF";
+    static boolean dontShowAgain = false;
 
     /* Will probably need some game constants here */
 
@@ -66,7 +67,7 @@ public class ClarpApplication extends Application {
         PREFIXES.add("Señor");
         PREFIXES.add("Señora");
         PREFIXES.add("Señorita");
-        
+
 
 
         //Log.v(TAG, "Application Class works...?");

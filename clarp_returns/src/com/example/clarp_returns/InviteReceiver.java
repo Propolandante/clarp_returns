@@ -52,7 +52,7 @@ public class InviteReceiver extends BroadcastReceiver{
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.drawable.spoon, message, when);
+        Notification notification = new Notification(R.drawable.ic_launcher, message, when);
 
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notification.setLatestEventInfo(context, header, message, intent);

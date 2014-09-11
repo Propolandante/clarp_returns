@@ -481,6 +481,7 @@ public class GameActivity extends ActionBarActivity{
         pw.setOutsideTouchable(true);
         pw.setBackgroundDrawable(getResources().getDrawable(android.R.color.white));
         pw.setFocusable(true);
+        clickSelectSuspect(new View(this.getBaseContext()));
     }
 
     //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.

@@ -64,8 +64,8 @@
     <string name="title_activity_pre_game">Game Setup</string>
     <string name="title_activity_invite">Invite Friends</string>
     
-    <string name="add_cards">Add Cards</string>
-    <string name="pga_help">Add more cards to the deck to start the game!</string>
+    <string name="add_cards">Add Evidence</string>
+    <string name="pga_help">Add more pieces of evidence to start the game!</string>
     <string name="dont_show_message">Don\'t show me this message again.</string>
     
     <style name="ButtonText">

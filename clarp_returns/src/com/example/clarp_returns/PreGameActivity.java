@@ -463,7 +463,8 @@ public class PreGameActivity extends ActionBarActivity
                     gameName = game.getGameName();
                     players = game.getJSONArray("players");
 
-                    currentPlayers = new ArrayList<Player>();
+                    //currentPlayers = new ArrayList<Player>();
+                    currentPlayers.clear();
 
                     if(players != null) {
                         for(int i = 0; i < players.length(); ++i) {

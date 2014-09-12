@@ -17,8 +17,7 @@
         android:lines="1"
      	android:maxLines="1"
      	android:inputType="text"
-        android:layout_weight="8"
-        android:background="@drawable/manila"/>
+        android:layout_weight="8"/>
 
     <CheckBox
         android:id="@+id/checkNote"

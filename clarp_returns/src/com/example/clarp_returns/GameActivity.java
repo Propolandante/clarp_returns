@@ -3,6 +3,7 @@ package com.example.clarp_returns;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,6 +47,7 @@ import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 
 public class GameActivity extends ActionBarActivity{
@@ -52,6 +55,7 @@ public class GameActivity extends ActionBarActivity{
     public static final int TYPE_SUGGEST = 0;
     public static final int TYPE_ACCUSE = 1;
     public static final int TYPE_ALERT = 2;
+    
 
     ListView historyListView;
     Button suggestButton;
@@ -94,7 +98,7 @@ public class GameActivity extends ActionBarActivity{
 
     ClarpGame game = null;
 
-
+    String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +144,7 @@ public class GameActivity extends ActionBarActivity{
                 if (e == null)
                 {
                     game = object;
+                    id = game.getObjectId();
                     // get counts. idk if we will use these, but Joe might know
                     num_of_players = game.getInt("numSuspects");
                     num_of_weapons = game.getInt("numWeapons");
@@ -173,7 +178,6 @@ public class GameActivity extends ActionBarActivity{
                      * So the user can't attempt to play before the info is here
                      */
                     getPlayers(game);
-
                     getCards(game);
 
                     // listView is updated once cards have been grabbed
@@ -239,8 +243,6 @@ public class GameActivity extends ActionBarActivity{
         return super.onOptionsItemSelected(item);
     }
 
-
-
     private void getCards(ClarpGame g)
     {
 
@@ -250,11 +252,11 @@ public class GameActivity extends ActionBarActivity{
          */
 
         cards = new ArrayList<ClarpCard>();
-        String id = g.getObjectId();
-
+        id = g.getObjectId();
+        notesFragment = pageAdapter.getNotesFragment();
+        notesFragment.setGameId(id);
         ParseQuery<ClarpCard> query = ParseQuery.getQuery("ClarpCard");
         query.whereEqualTo("gameId", id);
-
         loading = true;
         updateViews();
 
@@ -279,20 +281,41 @@ public class GameActivity extends ActionBarActivity{
                         Log.d(ClarpApplication.GA, "grabbed card " + cards.get(i).getCardName());
                     }
 
+                    //creates or opens save file TODO
+                    SharedPreferences saveFile = getSharedPreferences(id, 0);
+                    Log.d("open save", id);
+
+                    
                     // put the card names into the notes fragment
-                    notesFragment = pageAdapter.getNotesFragment();
+                    
+                    Log.d("id", id);
+                    Log.d("notes exists",Boolean.toString(notesFragment != null));
+                    
                     notesFragment.add(new NoteItem("Suspects",1));
                     for(String suspect : suspects){
-                        notesFragment.add(new NoteItem(suspect,0));
+                    	NoteItem newNote = new NoteItem(suspect,0);
+                    	newNote.isChecked = saveFile.getBoolean(suspect, false);
+                    	newNote.notes = saveFile.getString(Integer.toString(notesFragment.getItems().size()), "");
+                        notesFragment.add(newNote);
+                        Log.d(Integer.toString(notesFragment.getItems().size()), saveFile.getString(Integer.toString(notesFragment.getItems().size()), ""));
+                        
                     }
                     notesFragment.add(new NoteItem("Weapons",1));
                     for(String weapon : weapons){
-                        notesFragment.add(new NoteItem(weapon,0));
+                    	NoteItem newNote = new NoteItem(weapon,0);
+                    	newNote.isChecked = saveFile.getBoolean(weapon, false);
+                    	newNote.notes = saveFile.getString(Integer.toString(notesFragment.getItems().size()), "");
+                        notesFragment.add(newNote);
                     }
                     notesFragment.add(new NoteItem("Scenes",1));
                     for(String scene : scenes){
-                        notesFragment.add(new NoteItem(scene,0));
+                    	NoteItem newNote = new NoteItem(scene,0);
+                    	newNote.isChecked = saveFile.getBoolean(scene, false);
+                    	newNote.notes = saveFile.getString(Integer.toString(notesFragment.getItems().size()), "");
+                        notesFragment.add(newNote);
                     }
+                    
+                    
                     Log.d("going to iterate", "yeah");
                     cardHandFragment = pageAdapter.getCardHandFragment();
                     ParseUser thisPlayer = ParseUser.getCurrentUser();
@@ -391,7 +414,6 @@ public class GameActivity extends ActionBarActivity{
         }
     }
 
-
     @SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	private void createPopup(boolean isSuggest){
@@ -469,7 +491,7 @@ public class GameActivity extends ActionBarActivity{
         
         Display display = getWindowManager().getDefaultDisplay();
         Point screenSize = new Point();
-        if (Build.VERSION.SDK_INT < 13){
+        if (Build.VERSION.SDK_INT <= 13){
         	display.getSize(screenSize);
         }else{
         	screenSize.x = display.getWidth();
@@ -477,17 +499,18 @@ public class GameActivity extends ActionBarActivity{
         }
         	
 
-        pw = new PopupWindow(popupView,(int)(screenSize.x*.8),(int)(screenSize.y*.75),true);
+        pw = new PopupWindow(popupView,(int)(screenSize.x*.95),(int)(screenSize.y*.9),true);
         pw.setAnimationStyle(android.R.style.Animation_Dialog);
         pw.showAtLocation(findViewById(R.id.layoutGame), Gravity.CENTER,0,0);
         pw.setOutsideTouchable(true);
         pw.setBackgroundDrawable(getResources().getDrawable(android.R.color.white));
         pw.setFocusable(true);
+        clickSelectSuspect(new View(this.getBaseContext()));
     }
 
-
     //Called when the Suspect image is clicked in a Suggest or accuse popup.  Will populate the listview with Suspect cards.
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressLint("NewApi")
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
     public void clickSelectSuspect(View v) {
         selectType = ClarpCard.CardType.SUSPECT;
         ArrayList<ClarpCard> suspectList = new ArrayList<ClarpCard>();
@@ -502,7 +525,7 @@ public class GameActivity extends ActionBarActivity{
         listCards.setClickable(true);
         listCards.setOnItemClickListener(new OnItemClickListener() {
 
-            @Override
+			@Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
                 queuedSuspect = (ClarpCard) listCards.getItemAtPosition(position);
@@ -510,14 +533,31 @@ public class GameActivity extends ActionBarActivity{
                 ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
                 if (suspectImageFile != null) {
                     suspectPic.setParseFile(suspectImageFile);
-                    suspectPic.loadInBackground();
+                    suspectPic.loadInBackground();                
                 }
             }
         });
+        ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+        if (Build.VERSION.SDK_INT <= 16){
+            suspectPic.setBackground(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+        }else{
+        	suspectPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+        }
     }
+    
+
 
     //Called when the Weapon image is clicked in a Suggest or Accuse popup.  Will populate the listview with Weapon cards.
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressLint("NewApi")
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
     public void clickSelectWeapon(View v) {
         selectType = ClarpCard.CardType.WEAPON;
         ArrayList<ClarpCard> weaponList = new ArrayList<ClarpCard>();
@@ -531,7 +571,7 @@ public class GameActivity extends ActionBarActivity{
         listCards.setAdapter(adapter);
         listCards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
+			@Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
                 queuedWeapon = (ClarpCard) listCards.getItemAtPosition(position);
@@ -543,11 +583,25 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
+        ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+        if (Build.VERSION.SDK_INT <= 16){
+            weaponPic.setBackground(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+        }else{
+        	weaponPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+            scenePic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+        }
     }
 
-
     //Called when the Scene image is clicked in a Suggest or accuse popup.  Will populate the listview with Scene cards.
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressLint("NewApi")
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
     public void clickSelectScene(View v) {
         selectType = ClarpCard.CardType.LOCATION;
         ArrayList<ClarpCard> sceneList = new ArrayList<ClarpCard>();
@@ -561,7 +615,9 @@ public class GameActivity extends ActionBarActivity{
         listCards.setAdapter(adapter);
         listCards.setOnItemClickListener(new OnItemClickListener() {
 
-            @Override
+            @SuppressWarnings("deprecation")
+			@SuppressLint("NewApi")
+			@Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
                 queuedScene = (ClarpCard) listCards.getItemAtPosition(position);
@@ -573,6 +629,20 @@ public class GameActivity extends ActionBarActivity{
                 }
             }
         });
+        ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
+        if (Build.VERSION.SDK_INT <= 16){
+            scenePic.setBackground(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
+        }else{
+        	scenePic.setBackgroundDrawable(getResources().getDrawable((R.drawable.select_box)));
+            ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
+            weaponPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+            ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
+            suspectPic.setBackgroundDrawable(getResources().getDrawable((R.drawable.deselect_box)));
+        }
     }
 
     public void clickSuggestSubmit(View v) throws JSONException {
@@ -582,7 +652,6 @@ public class GameActivity extends ActionBarActivity{
     public void clickSuggestAccuse(View v) throws JSONException {
         submit(TYPE_ACCUSE);
     }
-
 
     private void submit(int type) throws JSONException{
 
@@ -673,17 +742,26 @@ public class GameActivity extends ActionBarActivity{
         }
 
         refreshHistory();
-
+        
+        isMyTurn = false;
         game.rotateTurn();
 
 
-        game.saveInBackground();
+        game.saveInBackground(new SaveCallback() {
+
+			@Override
+			public void done(ParseException e) {
+				refreshGame();
+			}
+        	
+        });
 
         queuedSuspect = null;
         queuedWeapon = null;
         queuedScene = null;
     }
     
+    // This is only called when the user selects "Accuse" in the accuseDialog
     public void makeWinningAccusation() throws JSONException
     {
     	/*
@@ -737,16 +815,25 @@ public class GameActivity extends ActionBarActivity{
         
         refreshHistory();
 
+        isMyTurn = false;
         game.rotateTurn();
 
 
-        game.saveInBackground();
+        game.saveInBackground(new SaveCallback() {
+
+			@Override
+			public void done(ParseException e) {
+				refreshGame();
+			}
+        	
+        });
 
         queuedSuspect = null;
         queuedWeapon = null;
         queuedScene = null;
     }
     
+	// This is only called when the user selects "Pass" in the accuseDialog
     public void whoLikesWinningAnyways() throws JSONException{
     	
     	/*
@@ -755,10 +842,18 @@ public class GameActivity extends ActionBarActivity{
     	
     	refreshHistory();
 
+    	isMyTurn = false;
         game.rotateTurn();
 
 
-        game.saveInBackground();
+        game.saveInBackground(new SaveCallback() {
+
+			@Override
+			public void done(ParseException e) {
+				refreshGame();
+			}
+        	
+        });
 
         queuedSuspect = null;
         queuedWeapon = null;
@@ -1071,24 +1166,6 @@ public class GameActivity extends ActionBarActivity{
         });
     }
 
-    //    public Player refuteSuggestion(){
-    //
-    //    	// TODO This needs to loop through all players, excluding the current one
-    //    	// Right now, it's basically hardcoded to assume player #0 is the one who made the suggestion
-    //
-    //    	if (players.size() > 1)
-    //    	{
-    //    		for (Player p : players.subList(1, players.size())){
-    //        		for (String id : p.getCardIds()){
-    //        			if (id.equals(queuedSuspect.getObjectId()) || id.equals(queuedWeapon.getObjectId()) || id.equals(queuedScene.getObjectId()))
-    //        				return p;
-    //        		}
-    //        	}
-    //    	}
-    //
-    //    	return null;
-    //    }
-
     public void clickCancel(View v){
         pw.dismiss();
     }
@@ -1180,10 +1257,7 @@ public class GameActivity extends ActionBarActivity{
         return ret;
     }
 
-
 }
-
-
 
 class MyAdapter extends FragmentPagerAdapter{
     ArrayList<TurnHistoryItem> historyItems;
@@ -1194,6 +1268,7 @@ class MyAdapter extends FragmentPagerAdapter{
     HistoryFragment historyFragment;
     NotesFragment notesFragment;
     CardHandFragment cardHandFragment;
+    String gameId;
 
     public MyAdapter(FragmentManager fm) {
         super(fm);
@@ -1253,6 +1328,11 @@ class MyAdapter extends FragmentPagerAdapter{
 
     public NotesFragment getNotesFragment(){
         return notesFragment;
+    }
+    
+    
+    public void setGameId(String gameId){
+    	this.gameId = gameId;
     }
 
 }

@@ -5,11 +5,16 @@ import java.util.ArrayList;
 import com.example.clarp_returns.TurnHistoryItemAdapter.ViewHolder;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -21,11 +26,18 @@ public class NoteItemAdapter extends ArrayAdapter<NoteItem> {
 	
 	private ArrayList<NoteItem> items;
 	private LayoutInflater vi;
+	private String gameId;
+	
+	boolean changeCheck = false;
 	
 	public NoteItemAdapter(Context context,	int textViewResourceId, ArrayList<NoteItem> items) {
 		super(context, textViewResourceId, items);
 		vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.items = items;
+	}
+	
+	public void setGameId(String gameId){
+		this.gameId = gameId;
 	}
 	
 	@Override
@@ -62,6 +74,7 @@ public class NoteItemAdapter extends ArrayAdapter<NoteItem> {
 	        TextView itemName = (TextView) convertView.findViewById(R.id.textNoteName);	        
 	        itemName.setText(items.get(position).name);
 	        final EditText editNote = (EditText) convertView.findViewById(R.id.editNote);
+	        final CheckBox checkNote = (CheckBox) convertView.findViewById(R.id.checkNote);
 	        
 	        if (editNote != null){
 	        	editNote.setText(items.get(position).notes);
@@ -71,13 +84,40 @@ public class NoteItemAdapter extends ArrayAdapter<NoteItem> {
 
 				@Override
 				public void onFocusChange(View arg0, boolean hasFocus) {
-					// TODO Auto-generated method stub
 					if (!hasFocus){
-						items.get(position).notes = editNote.getText().toString();
+						NoteItem item = items.get(position);
+						item.notes = editNote.getText().toString();
+
+				        SharedPreferences saveFile = getContext().getSharedPreferences(gameId,0);
+				        SharedPreferences.Editor editor = saveFile.edit();
+				        editor.putString(Integer.toString(position), item.notes);
+				        Log.d(item.name, item.notes);
+				        editor.apply();
 					}
 				}
-            	
             });
+	        
+	        checkNote.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if (changeCheck){
+						NoteItem item = items.get(position);
+						item.isChecked = !items.get(position).isChecked;
+						Log.d("Saved to", gameId);
+						SharedPreferences saveFile = getContext().getSharedPreferences(gameId,0);
+				        SharedPreferences.Editor editor = saveFile.edit();
+				        editor.putBoolean(item.name, item.isChecked);
+				        Log.d(item.name, Boolean.toString(item.isChecked));
+				        editor.apply();
+					}
+				}
+			});
+	        
+	        Log.d("Var contains", Boolean.toString(items.get(position).isChecked));
+	        changeCheck = false;
+	        checkNote.setChecked(items.get(position).isChecked );
+	        changeCheck = true;
 	        	
         }else{
         	TextView header = (TextView) convertView.findViewById(R.id.textAlert);

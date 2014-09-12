@@ -538,7 +538,7 @@ public class GameActivity extends ActionBarActivity{
             }
         });
         ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
-        if (Build.VERSION.SDK_INT <= 16){
+        if (Build.VERSION.SDK_INT >= 16){
             suspectPic.setBackground(getResources().getDrawable((R.drawable.select_box)));
             ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
             weaponPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
@@ -584,7 +584,7 @@ public class GameActivity extends ActionBarActivity{
             }
         });
         ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
-        if (Build.VERSION.SDK_INT <= 16){
+        if (Build.VERSION.SDK_INT >= 16){
             weaponPic.setBackground(getResources().getDrawable((R.drawable.select_box)));
             ParseImageView suspectPic = (ParseImageView) popupView.findViewById(R.id.imageSuspectSelect);
             suspectPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));
@@ -630,7 +630,7 @@ public class GameActivity extends ActionBarActivity{
             }
         });
         ParseImageView scenePic = (ParseImageView) popupView.findViewById(R.id.imageSceneSelect);
-        if (Build.VERSION.SDK_INT <= 16){
+        if (Build.VERSION.SDK_INT >= 16){
             scenePic.setBackground(getResources().getDrawable((R.drawable.select_box)));
             ParseImageView weaponPic = (ParseImageView) popupView.findViewById(R.id.imageWeaponSelect);
             weaponPic.setBackground(getResources().getDrawable((R.drawable.deselect_box)));

@@ -14,6 +14,7 @@
 	    android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="right"
+        android:text="Game Name"
         android:textAlignment="gravity"
 	    android:layout_weight="0.5"/>
 
@@ -23,6 +24,8 @@
 	    android:layout_width="0dp"
         android:paddingLeft="10dp"
         android:paddingTop="10dp"
+        android:text="player turn"
+        android:textColor="#040261"
 	    android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
 	    android:layout_weight="0.5"/>

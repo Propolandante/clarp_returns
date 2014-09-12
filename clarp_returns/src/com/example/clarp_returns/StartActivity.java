@@ -551,12 +551,20 @@ public class StartActivity extends ActionBarActivity {
             
             String turnName = null;
             String turnId = games.get(position).getString("whoseTurn");
+            String myId = null;
+            try {
+				myId = ParseUser.getCurrentUser().getJSONObject("profile").getString("facebookId");
+			} catch (JSONException e1) {
+				Log.d(ClarpApplication.TAG, "SA: failed to get current player's facebookId");
+				e1.printStackTrace();
+			}
             if (turnId == null)
             {
             	Log.d(ClarpApplication.TAG, "SA: " + games.get(position).getGameName() + " whoseTurn is empty");
             	turnId = "";
             }
             JSONArray players = games.get(position).getJSONArray("players");
+            Boolean isStarted = games.get(position).getBoolean("isStarted");
             
             for (int i = 0; i < players.length(); ++i)
             {
@@ -580,13 +588,24 @@ public class StartActivity extends ActionBarActivity {
             	}
             }
             
-            if (turnName != null)
+            if(isStarted)
             {
-            	holder.rightView.setText(turnName + "'s turn");
+            	if(turnId.equals(myId))
+            	{
+            		holder.rightView.setText("Your turn!");
+            	}
+            	else if (turnName != null)
+                {
+                	holder.rightView.setText(turnName + "'s turn");
+                }
+                else
+                {
+                	holder.rightView.setText("TURN ERROR");
+                }
             }
             else
             {
-            	holder.rightView.setText("TURN ERROR");
+            	holder.rightView.setText("Gathering Evidence");
             }
             
             

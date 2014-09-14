@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal" 
+    android:background="#A7896B"
     android:weightSum="20">
     
     <com.parse.ParseImageView

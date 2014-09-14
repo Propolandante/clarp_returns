@@ -4,5 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.clarp_returns.NotesActivity"
+    android:background="@drawable/background_composite"
     tools:ignore="MergeRootFrame" />
 

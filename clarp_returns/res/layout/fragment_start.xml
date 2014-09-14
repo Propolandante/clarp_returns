@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@drawable/background_no_stretch"
+    android:background="@drawable/background_composite"
     tools:context="com.example.clarp_returns.StartActivity$PlaceholderFragment" >
     
     <Button
@@ -31,6 +31,8 @@
     
     <ListView
         android:id="@+id/games_list_view"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/progressBar1"

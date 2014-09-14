@@ -4,11 +4,8 @@
         <bitmap
 			android:src="@drawable/clarp_background"
 			android:tileMode="mirror"
+			android:gravity="center"
 			android:dither="true" />
-    </item>
-    <item>
-        <bitmap
-            android:src="@drawable/clarp_background_gradient"/>
     </item>
     <item>
         <bitmap

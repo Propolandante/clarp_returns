@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.clarp_returns.GameActivity"
     android:orientation="vertical"
+    android:background="@drawable/background_composite"
     android:id="@+id/layoutGame"
     
     tools:ignore="MergeRootFrame" >
@@ -30,6 +31,7 @@
         android:id="@+id/textViewWhoseTurn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#885e5f8d"
         android:layout_gravity="center"
         android:text="Large Text"
         android:textAppearance="?android:attr/textAppearanceLarge"

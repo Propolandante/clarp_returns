@@ -6,6 +6,7 @@
                 android:color="#2a7441"/>
             <corners
                 android:radius="3dp" />
+            <stroke android:color="#bb7d4e19" android:width="2dp" />
         </shape>
     </item>
     <item>
@@ -14,6 +15,7 @@
                 android:color="#09521f"/>
             <corners
                 android:radius="3dp"/>
+            <stroke android:color="#bb7d4e19" android:width="2dp" />
         </shape>
     </item>
 

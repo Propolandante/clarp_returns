@@ -249,7 +249,7 @@ public class ClarpGame extends ParseObject {
 
         String prevId = getString("whoseTurn");
         String nextId = null;
-        JSONArray players = getJSONArray("fbUsers");
+        JSONArray players = getJSONArray("players");
 
         /*
          * Loop through the players to find the previous player
@@ -259,7 +259,7 @@ public class ClarpGame extends ParseObject {
 
         for (p = 0; p < players.length(); ++p)
         {
-            if (players.getString(p).equals(prevId))
+            if (players.getJSONObject(p).getString("facebookId").equals(prevId))
             {
                 Log.d(ClarpApplication.TAG, "prev index: " + p);
                 break;
@@ -272,6 +272,24 @@ public class ClarpGame extends ParseObject {
 
         p++;
         if (p == players.length()){p=0;}
+        /*
+         * Do a check to see if that player is disqualified. If they are, go to the next one. repeat as necessary
+         */
+        int counter = 0;
+        while (getJSONArray("players").getJSONObject(p).getBoolean("dq"))
+        {
+        	Log.d(ClarpApplication.TAG, getJSONArray("players").getJSONObject(p).getString("name") + " is disqualified, going to next player.");
+        	p++;
+            if (p == players.length()){p=0;}
+            /*
+             * Theoretically, this could enter a continuous loop if we don't properly handle the case where all players become DQ'd
+             * This should never happen, but I'' add a check to break out if this loops through enough times
+             */
+            if(++counter > players.length()*2)
+            {
+            	Log.d(ClarpApplication.TAG, "SHOOP DA WOOP, LOOPER ALERT IN rotateTurn()!!!!!!!!!");
+            }
+        }
 
         Log.d(ClarpApplication.TAG, "next index: " + p);
         nextId = players.getString(p);
@@ -325,5 +343,35 @@ public class ClarpGame extends ParseObject {
 
         return prefix;
     }
+    
+    public void disqualifyPlayer(String fbId) throws JSONException
+    {
+    	JSONArray players = getJSONArray("players");
+    	
+    	for(int p = 0; p < players.length(); ++p)
+    	{
+    		JSONObject idiot = players.getJSONObject(p);
+    		
+    		if(idiot.getString("facebookId").equals(fbId))
+    		{
+    			if (idiot.getBoolean("dq"))
+        		{
+        			Log.d(ClarpApplication.TAG, "Attempting to disqualify " + idiot.getString("prefix") + " " + idiot.getString("name") + ", who is already disqualified... something is wrong here");
+        			return;
+        		}
+        		else
+        		{
+        			Log.d(ClarpApplication.TAG, "Disqualifying " + idiot.getString("prefix") + " " + idiot.getString("name"));
+        			idiot.put("dq", true);
+        			return;
+        		}
+    		}
+    	}
+    	
+    	// if we've reached this point, then something went wrong
+    	Log.d(ClarpApplication.TAG, "Couldn't find player to disqualify");
+    	
+    }
+    
 }
 

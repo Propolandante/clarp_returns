@@ -341,7 +341,7 @@ public class GameActivity extends ActionBarActivity{
                             }
 
                         } catch (JSONException e1) {
-                            // TODO Auto-generated catch block
+                        	Log.d(ClarpApplication.GA, "Could not find cards for this game");
                             e1.printStackTrace();
                         }
                     }
@@ -711,7 +711,7 @@ public class GameActivity extends ActionBarActivity{
             else
             {
                 // the player has lost!
-                // TODO they need to be disqualified... keep in mind our player[] works differently than Parse's
+            	disqualify(currentPlayer.getFbId());
                 JSONObject clarpAlert = createClarpAlert(TYPE_ALERT, "That accusation was dead wrong!");
                 game.getJSONArray("turns").put(clarpAlert);
                 gameState = GameStates.DISQUALIFIED;
@@ -1082,6 +1082,15 @@ public class GameActivity extends ActionBarActivity{
         }
 
         return turn;
+    }
+    
+    public void disqualify(String fbId) throws JSONException
+    {
+    	// disqualify player in Parse game
+    	game.disqualifyPlayer(fbId);
+    	
+    	// reflect this change in the local players array
+    	getPlayers(game);
     }
 
     public void refreshHistory() throws JSONException{
